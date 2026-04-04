@@ -1,0 +1,70 @@
+[
+  {
+    "id": 1,
+    "medicineType": "Fever",
+    "description": "A temporary increase in average body temperature of 98.6°F (37°C). Often caused by infection.",
+    "commonCauses": [
+      "Viral infection",
+      "Bacterial infection",
+      "Heat exhaustion"
+    ],
+    "symptoms": ["High temperature", "Chills", "Sweating", "Headache"],
+    "treatment": ["Paracetamol", "Ibuprofen", "Rest", "Hydration"],
+    "image": "https://i.ibb.co/F48gc3Ph/Image.png"
+  },
+  {
+    "id": 2,
+    "medicineType": "Headache",
+    "description": "Pain in the head or upper neck. It can be a symptom of stress or an underlying health issue.",
+    "commonCauses": ["Stress", "Dehydration", "Migraine", "Tension"],
+    "symptoms": ["Throbbing pain", "Sensitivity to light", "Nausea"],
+    "treatment": ["Pain relievers", "Rest", "Hydration", "Cold compress"],
+    "image": " https://i.ibb.co/CKXqMd9F/Image-1.png"
+  },
+  {
+    "id": 3,
+    "medicineType": "Diarrhea",
+    "description": "Frequent loose or watery bowel movements.",
+    "commonCauses": [
+      "Food poisoning",
+      "Viral infection",
+      "Bacterial infection"
+    ],
+    "symptoms": ["Loose stools", "Stomach cramps", "Nausea", "Dehydration"],
+    "treatment": [
+      "Oral rehydration solution",
+      "BRAT diet",
+      "Avoid dairy",
+      "Probiotics"
+    ],
+    "image": "https://i.ibb.co/99fwGjw9/diariya.png"
+  },
+  {
+    "id": 4,
+    "medicineType": "Eczema",
+    "description": "A condition that makes your skin red, inflamed, and itchy.",
+    "commonCauses": ["Allergens", "Genetics", "Environmental factors"],
+    "symptoms": ["Dry skin", "Itching", "Red patches", "Swelling"],
+    "treatment": [
+      "Moisturizers",
+      "Topical corticosteroids",
+      "Avoid irritants",
+      "Cool baths"
+    ],
+    "image": "https://i.ibb.co/MTG7Xt6/ecsama.png"
+  },
+  {
+    "id": 5,
+    "medicineType": "Pregnancy",
+    "description": "The condition of carrying a developing embryo or fetus within the female body.",
+    "commonCauses": ["Fertilization of an egg by sperm"],
+    "symptoms": ["Missed period", "Nausea", "Fatigue", "Breast tenderness"],
+    "treatment": [
+      "Prenatal vitamins",
+      "Regular check-ups",
+      "Healthy diet",
+      "Exercise"
+    ],
+    "image": "https://i.ibb.co/JRp7cbQD/pregnancy.png"
+  }
+]

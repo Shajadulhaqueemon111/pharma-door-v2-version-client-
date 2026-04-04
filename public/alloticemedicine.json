@@ -1,0 +1,287 @@
+[
+  {
+    "id": 1,
+    "name": "Paracetamol",
+    "brand": "Napa",
+    "generic": "Paracetamol",
+    "category": "fever",
+    "dosage": "500mg",
+    "form": "tablet",
+    "price": "1.20",
+    "image": "https://i.ibb.co/VWbnY30L/download-1.jpg"
+  },
+  {
+    "id": 2,
+    "name": "Ibuprofen",
+    "brand": "Advil",
+    "generic": "Paracetamol",
+    "category": "fever",
+    "dosage": "200mg",
+    "form": "tablet",
+    "price": "1,250.00 (24 tablets)",
+    "image": "https://i.ibb.co/vxmRkcx1/acetaminophen-suppositories.webp"
+  },
+  {
+    "id": 3,
+    "name": "Aspirin",
+    "brand": "Disprin",
+    "generic": "Paracetamol",
+    "category": "fever",
+    "dosage": "300mg",
+    "form": "tablet",
+    "price": "1.66",
+    "image": "https://i.ibb.co/N2QNXvfC/images-12.jpg"
+  },
+  {
+    "id": 4,
+    "name": "Acetaminophen",
+    "brand": "Tylenol",
+    "generic": "Paracetamol",
+    "category": "fever",
+    "dosage": "500mg",
+    "form": "tablet",
+    "price": "1,047.37 (24 caplets)",
+    "image": "https://i.ibb.co/dJMfh5H5/images-13.jpg"
+  },
+  {
+    "id": 5,
+    "name": "Diclofenac",
+    "brand": "Voltaren",
+    "generic": "Paracetamol",
+    "category": "fever",
+    "dosage": "50mg",
+    "form": "gel",
+    "price": "475.00 (50gm)",
+    "image": "https://i.ibb.co/gbNjHZSM/ns-500x500.webp"
+  },
+
+  {
+    "id": 6,
+    "name": "Migranil 0.5mg",
+    "brand": "Eskayef Pharmaceuticals Ltd.",
+    "generic": "Pizotifen",
+    "form": "Tablet",
+    "category": "Headache",
+    "price": "3.01",
+    "image": "https://i.ibb.co/F4rR6LHP/Migranil-1-Copy.jpg"
+  },
+  {
+    "id": 7,
+    "name": "Excedrin Migraine Caplets (24 Count)",
+    "brand": "Excedrin",
+    "generic": "Pizotifen",
+    "form": "Caplet",
+    "category": "Headache",
+    "price": "1,260",
+    "image": "https://i.ibb.co/F4rR6LHP/Migranil-1-Copy.jpg"
+  },
+  {
+    "id": 8,
+    "name": "Tufnil 200mg Tablet",
+    "brand": "Eskayef Pharmaceuticals Ltd.",
+    "generic": "Pizotifen",
+    "form": "Tablet",
+    "category": "Headache",
+    "price": "95",
+    "image": "https://i.ibb.co/F4rR6LHP/Migranil-1-Copy.jpg"
+  },
+  {
+    "id": 9,
+    "name": "Tylenol Extra Strength 500mg (24 Caplets)",
+    "brand": "Tylenol",
+    "generic": "Pizotifen",
+    "form": "Caplet",
+    "category": "Headache",
+    "price": "1,090",
+    "image": "https://i.ibb.co/F4rR6LHP/Migranil-1-Copy.jpg"
+  },
+  {
+    "id": 10,
+    "name": "Zolmitriptan 2.5mg Tablet",
+    "brand": "Beximco Pharmaceuticals Ltd.",
+    "generic": "Pizotifen",
+    "form": "Tablet",
+    "category": "Headache",
+    "price": "25",
+    "image": "https://i.ibb.co/F4rR6LHP/Migranil-1-Copy.jpg"
+  },
+
+  {
+    "id": 11,
+    "name": "ORS Saline",
+    "brand": "Beximco Pharmaceuticals Ltd.",
+    "generic": "Glucose (Dextrose)",
+    "category": "Diarrhea",
+    "dosage": "10.25 gm",
+    "form": "Oral Powder",
+    "price": "10",
+    "image": "https://i.ibb.co/xN2GGJP/capsule-1079838-scaled.jpg"
+  },
+  {
+    "id": 12,
+    "name": "Loperamide 2mg",
+    "category": "Diarrhea",
+    "brand": "Beximco Pharmaceuticals Ltd.",
+    "generic": "Glucose (Dextrose)",
+    "dosage": "2 mg",
+    "form": "Capsule",
+    "price": "1.50",
+    "image": "https://i.ibb.co/xN2GGJP/capsule-1079838-scaled.jpg"
+  },
+  {
+    "id": 13,
+    "name": "Azithromycin 250mg",
+    "category": "Diarrhea",
+    "brand": "Beximco Pharmaceuticals Ltd.",
+    "generic": "Glucose (Dextrose)",
+    "dosage": "250 mg",
+    "form": "Tablet",
+    "price": "25",
+    "image": "https://i.ibb.co/xN2GGJP/capsule-1079838-scaled.jpg"
+  },
+  {
+    "id": 14,
+    "name": "Zinc Sulfate 20mg",
+    "category": "Diarrhea",
+    "brand": "Beximco Pharmaceuticals Ltd.",
+    "generic": "Glucose (Dextrose)",
+    "dosage": "20 mg",
+    "form": "Tablet",
+    "price": "2",
+    "image": "https://i.ibb.co/xN2GGJP/capsule-1079838-scaled.jpg"
+  },
+  {
+    "id": 15,
+    "name": "Metronidazole 400mg",
+    "category": "Diarrhea",
+    "brand": "Beximco Pharmaceuticals Ltd.",
+    "generic": "Glucose (Dextrose)",
+    "dosage": "400 mg",
+    "form": "Tablet",
+    "price": "1.80",
+    "image": "https://i.ibb.co/xN2GGJP/capsule-1079838-scaled.jpg"
+  },
+
+  {
+    "id": 16,
+    "name": "Xzema Cream 0.1%+2%",
+    "category": "Eczema",
+    "dosage": "0.1%+2%",
+    "generic": "Fusidic Acid + Betamethasone Valerate",
+    "form": "Cream",
+    "brand": "ACI",
+    "price": "201.35",
+    "image": "https://i.ibb.co/xN2GGJP/capsule-1079838-scaled.jpg"
+  },
+  {
+    "id": 17,
+    "name": "Ezex Cream 0.05%",
+    "category": "Eczema",
+    "dosage": "0.05%",
+    "form": "Cream",
+    "brand": "Opsonin",
+    "generic": "Fusidic Acid + Betamethasone Valerate",
+    "price": "50.00",
+    "image": "https://i.ibb.co/xN2GGJP/capsule-1079838-scaled.jpg"
+  },
+  {
+    "id": 18,
+    "name": "Dermasol 0.05% Ointment",
+    "category": "Eczema",
+    "dosage": "0.05%",
+    "form": "Ointment",
+    "brand": "Renata",
+    "generic": "Fusidic Acid + Betamethasone Valerate",
+    "price": "75.00",
+    "image": "https://i.ibb.co/xN2GGJP/capsule-1079838-scaled.jpg"
+  },
+  {
+    "id": 19,
+    "name": "Tacrolimus Ointment",
+    "category": "Eczema",
+    "dosage": "0.1%",
+    "form": "Ointment",
+    "brand": "Square",
+    "generic": "Fusidic Acid + Betamethasone Valerate",
+    "price": "120.00",
+    "image": "https://i.ibb.co/xN2GGJP/capsule-1079838-scaled.jpg"
+  },
+  {
+    "id": 20,
+    "name": "Fortison Cream",
+    "category": "Eczema",
+    "dosage": "0.05%",
+    "form": "Cream",
+    "brand": "Eskayef",
+    "generic": "Fusidic Acid + Betamethasone Valerate",
+    "price": "90.00",
+    "image": "https://i.ibb.co/xN2GGJP/capsule-1079838-scaled.jpg"
+  },
+  {
+    "id": 21,
+    "name": "Nature's Nutrition Prenatal Multivitamin",
+    "category": "Pregnancy",
+    "dosage": "Once daily",
+    "form": "Tablet",
+    "brand": "Nature's Nutrition",
+    "generic": "Fusidic Acid + Betamethasone Valerate",
+    "price": "1,200",
+    "image": "https://i.ibb.co/xN2GGJP/capsule-1079838-scaled.jpg"
+  },
+  {
+    "id": 22,
+    "name": "Pregnacare Max",
+    "category": "Pregnancy",
+    "dosage": "2 tablets + 1 capsule daily",
+    "form": "Tablet + Capsule",
+    "brand": "Vitabiotics",
+    "generic": "Fusidic Acid + Betamethasone Valerate",
+    "price": "1,500",
+    "image": "https://i.ibb.co/xN2GGJP/capsule-1079838-scaled.jpg"
+  },
+  {
+    "id": 23,
+    "name": "Conceive Plus Prenatal Vitamins",
+    "category": "Pregnancy",
+    "dosage": "2 capsules daily",
+    "form": "Capsule",
+    "brand": "Conceive Plus",
+    "generic": "Fusidic Acid + Betamethasone Valerate",
+    "price": "1,000",
+    "image": "https://i.ibb.co/xN2GGJP/capsule-1079838-scaled.jpg"
+  },
+  {
+    "id": 24,
+    "name": "Vitafusion Prenatal Gummy Vitamins",
+    "category": "Pregnancy",
+    "dosage": "2 gummies daily",
+    "form": "Gummy",
+    "brand": "Vitafusion",
+    "generic": "Fusidic Acid + Betamethasone Valerate",
+    "price": "1,200",
+    "image": "https://i.ibb.co/xN2GGJP/capsule-1079838-scaled.jpg"
+  },
+  {
+    "id": 25,
+    "name": "FullWell Prenatal Multivitamin",
+    "category": "Pregnancy",
+    "dosage": "8 capsules daily",
+    "form": "Capsule",
+    "brand": "FullWell",
+    "generic": "Fusidic Acid + Betamethasone Valerate",
+    "price": "2,000",
+    "image": "https://i.ibb.co/xN2GGJP/capsule-1079838-scaled.jpg"
+  },
+
+  {
+    "id": 26,
+    "name": "FullWell Prenatal Multivitamin",
+    "category": "Pregnancy",
+    "dosage": "8 capsules daily",
+    "form": "Capsule",
+    "brand": "Beximco Pharmaceuticals Ltd.",
+    "generic": "Fusidic Acid + Betamethasone Valerate",
+    "price": "2,000",
+    "image": "https://i.ibb.co/xN2GGJP/capsule-1079838-scaled.jpg"
+  }
+]

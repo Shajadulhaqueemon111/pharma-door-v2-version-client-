@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "title": "How to Safely Store Medicines at Home",
+    "slug": "store-medicines-safely",
+    "excerpt": "Learn the best practices to keep your medicines safe, effective, and away from children.",
+    "content": "Storing medicines properly ensures their effectiveness and safety. Always keep them in a cool, dry place and away from direct sunlight. Use a medicine box with compartments to organize. For antibiotics and insulin, refrigeration might be required. Never store medicines in the bathroom due to humidity.",
+    "image": "https://i.ibb.co/jk9cFvL2/portrait-handsome-male-doctor-stethoscope-600nw-2480850611.webp",
+    "publishedAt": "2025-07-20"
+  },
+  {
+    "id": 2,
+    "title": "Top 5 Common Myths About Antibiotics",
+    "slug": "antibiotics-myths",
+    "excerpt": "Do you stop taking antibiotics when you feel better? That's a big mistake. Here are common myths debunked.",
+    "content": "Many people misuse antibiotics, thinking they cure all infections. Antibiotics only work for bacterial infections—not viral ones like colds. Stopping early can cause resistance. Never share your prescription. Always complete the full course and consult a licensed doctor before taking any antibiotics.",
+    "image": "https://i.ibb.co/jk9cFvL2/portrait-handsome-male-doctor-stethoscope-600nw-2480850611.webp",
+    "publishedAt": "2025-07-25"
+  },
+  {
+    "id": 3,
+    "title": "When to See a Doctor for Fever",
+    "slug": "fever-doctor-consultation",
+    "excerpt": "Fever isn't always dangerous—but do you know when it's time to get professional help?",
+    "content": "Most fevers are harmless and part of your body fighting an infection. But if the fever lasts more than 3 days, goes above 102°F (39°C), or comes with rashes, confusion, or breathing issues—consult a doctor immediately. Children under 2 with fever should always be checked.",
+    "image": "https://i.ibb.co/jk9cFvL2/portrait-handsome-male-doctor-stethoscope-600nw-2480850611.webp",
+    "publishedAt": "2025-07-22"
+  },
+  {
+    "id": 4,
+    "title": "Online Medicine Delivery: Safe or Risky?",
+    "slug": "online-medicine-safe",
+    "excerpt": "Is ordering medicine online trustworthy? Let's explore how to verify quality and safety.",
+    "content": "With the rise of online pharmacies, concerns around fake medicines have grown. Always choose licensed platforms like Pharmadoor. Check for verified seals, proper prescription upload, and delivery tracking. Avoid unknown sources or random Facebook pages claiming to sell medicines.",
+    "image": "https://i.ibb.co/jk9cFvL2/portrait-handsome-male-doctor-stethoscope-600nw-2480850611.webp",
+    "publishedAt": "2025-07-28"
+  },
+  {
+    "id": 5,
+    "title": "5 Tips for Managing Chronic Illnesses at Home",
+    "slug": "manage-chronic-illness",
+    "excerpt": "If you're living with diabetes, hypertension or asthma—these daily habits can change your life.",
+    "content": "Managing chronic illness begins with consistency: take medicine on time, maintain a healthy diet, stay active, and monitor your condition regularly. Keep emergency contacts handy. Digital tools like Pharmadoor's reminder system can help you stay on track.",
+    "image": "https://i.ibb.co/jk9cFvL2/portrait-handsome-male-doctor-stethoscope-600nw-2480850611.webp",
+    "publishedAt": "2025-07-30"
+  }
+]

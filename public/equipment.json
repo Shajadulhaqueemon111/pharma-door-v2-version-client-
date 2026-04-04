@@ -1,0 +1,237 @@
+[
+  {
+    "name": "Littmann Classic III Stethoscope",
+    "brand": "3M Littmann",
+    "category": "Stethoscope",
+    "price": "119.99",
+    "stock_quantity": 25,
+    "rating": 4.8,
+    "color": "Black",
+    "createdBy": {
+      "_id": {
+        "$oid": "683a7e23abd8d3c1c1439e9b"
+      },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    },
+    "createdAt": {
+      "$date": "2025-07-07T19:51:33.102Z"
+    },
+    "updatedAt": {
+      "$date": "2025-07-10T16:05:10.397Z"
+    },
+    "medicineImage": "https://i.ibb.co/zMxgqYg/istockphoto-874103026-612x612.jpg"
+  },
+  {
+    "name": "ADC Adscope 603 Stethoscope",
+    "brand": "ADC",
+    "category": "Stethoscope",
+    "price": "72.50",
+    "stock_quantity": 40,
+    "rating": 4.6,
+    "color": "Navy Blue",
+    "createdBy": {
+      "_id": {
+        "$oid": "683a7e23abd8d3c1c1439e9b"
+      },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    },
+    "createdAt": {
+      "$date": "2025-07-07T19:51:33.102Z"
+    },
+    "updatedAt": {
+      "$date": "2025-07-10T16:05:10.397Z"
+    },
+    "medicineImage": "https://i.ibb.co/fzBMJTzL/ai-generated-stethoscope-and-heart-on-a-cardiogram-background-showcasing-medical-tools-for-cardiolog.jpg"
+  },
+  {
+    "name": "MDF Acoustica Deluxe Stethoscope",
+    "brand": "MDF Instruments",
+    "category": "Stethoscope",
+    "price": "39.99",
+    "stock_quantity": 100,
+    "rating": 4.4,
+    "color": "Rose Gold",
+    "createdBy": {
+      "_id": {
+        "$oid": "683a7e23abd8d3c1c1439e9b"
+      },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    },
+    "createdAt": {
+      "$date": "2025-07-07T19:51:33.102Z"
+    },
+    "updatedAt": {
+      "$date": "2025-07-10T16:05:10.397Z"
+    },
+    "medicineImage": "https://i.ibb.co/Q1tMSNN/images-15.jpg"
+  },
+  {
+    "name": "Omron Sprague Rappaport Stethoscope",
+    "brand": "Omron",
+    "category": "Stethoscope",
+    "price": "29.99",
+    "stock_quantity": 60,
+    "rating": 4.2,
+    "color": "Green",
+    "createdBy": {
+      "_id": {
+        "$oid": "683a7e23abd8d3c1c1439e9b"
+      },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    },
+    "createdAt": {
+      "$date": "2025-07-07T19:51:33.102Z"
+    },
+    "updatedAt": {
+      "$date": "2025-07-10T16:05:10.397Z"
+    },
+    "medicineImage": "https://i.ibb.co/pB5whzkG/a-heart-between-two-stethoscopes-in-the-style-of-light-red-and-dark-gray-generative-ai-photo.jpg"
+  },
+  {
+    "name": "Welch Allyn Harvey Elite Stethoscope",
+    "brand": "Welch Allyn",
+    "category": "Stethoscope",
+    "price": "145.00",
+    "stock_quantity": 15,
+    "rating": 4.9,
+    "color": "Burgundy",
+    "createdBy": {
+      "_id": {
+        "$oid": "683a7e23abd8d3c1c1439e9b"
+      },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    },
+    "createdAt": {
+      "$date": "2025-07-07T19:51:33.102Z"
+    },
+    "updatedAt": {
+      "$date": "2025-07-10T16:05:10.397Z"
+    },
+    "medicineImage": "https://i.ibb.co/zThPcFQg/Untitleddesign-2021-11-02-T125203-681-1.webp"
+  },
+  {
+    "name": "Braun No Touch + Forehead Thermometer",
+    "brand": "Braun",
+
+    "category": "Thermometer",
+    "price": "54.99",
+    "stock_quantity": 30,
+    "rating": 4.7,
+    "color": "White",
+    "createdBy": {
+      "_id": {
+        "$oid": "683a7e23abd8d3c1c1439e9b"
+      },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    },
+    "createdAt": {
+      "$date": "2025-07-07T19:51:33.102Z"
+    },
+    "updatedAt": {
+      "$date": "2025-07-10T16:05:10.397Z"
+    },
+    "medicineImage": "https://i.ibb.co/rf5Z6CLx/Medigenix-10-second-flexi-tip-digital-thermometer.jpg"
+  },
+  {
+    "name": "iHealth No-Touch Forehead Thermometer",
+    "brand": "iHealth",
+
+    "category": "Thermometer",
+    "price": "34.95",
+    "stock_quantity": 50,
+    "rating": 4.6,
+    "color": "White",
+    "createdBy": {
+      "_id": {
+        "$oid": "683a7e23abd8d3c1c1439e9b"
+      },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    },
+    "createdAt": {
+      "$date": "2025-07-07T19:51:33.102Z"
+    },
+    "updatedAt": {
+      "$date": "2025-07-10T16:05:10.397Z"
+    },
+    "medicineImage": "https://i.ibb.co/1J7T2GVB/30279959707694.webp"
+  },
+  {
+    "name": "Omron MC-246 Digital Thermometer",
+    "brand": "Omron",
+
+    "category": "Thermometer",
+    "price": "14.99",
+    "stock_quantity": 80,
+    "rating": 4.3,
+    "color": "Blue",
+    "createdBy": {
+      "_id": {
+        "$oid": "683a7e23abd8d3c1c1439e9b"
+      },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    },
+    "createdAt": {
+      "$date": "2025-07-07T19:51:33.102Z"
+    },
+    "updatedAt": {
+      "$date": "2025-07-10T16:05:10.397Z"
+    },
+    "medicineImage": "https://i.ibb.co/7dwQdM9G/thermometer-554712607-1000.jpg"
+  },
+  {
+    "name": "Vicks ComfortFlex Digital Thermometer",
+    "brand": "Vicks",
+
+    "category": "Thermometer",
+    "price": "9.99",
+    "stock_quantity": 100,
+    "rating": 4.2,
+    "color": "Green",
+    "createdBy": {
+      "_id": {
+        "$oid": "683a7e23abd8d3c1c1439e9b"
+      },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    },
+    "createdAt": {
+      "$date": "2025-07-07T19:51:33.102Z"
+    },
+    "updatedAt": {
+      "$date": "2025-07-10T16:05:10.397Z"
+    },
+    "medicineImage": "https://i.ibb.co/nsdYxt5g/Listing-Main-Img-EC5004-700x700.webp"
+  },
+  {
+    "name": "Beurer FT65 Multi Function Thermometer",
+    "brand": "Beurer",
+
+    "category": "Thermometer",
+    "price": "49.99",
+    "stock_quantity": 20,
+    "rating": 4.5,
+    "color": "Gray",
+    "createdBy": {
+      "_id": {
+        "$oid": "683a7e23abd8d3c1c1439e9b"
+      },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    },
+    "createdAt": {
+      "$date": "2025-07-07T19:51:33.102Z"
+    },
+    "updatedAt": {
+      "$date": "2025-07-10T16:05:10.397Z"
+    },
+    "medicineImage": "https://i.ibb.co/ZR4vmFg0/672e236a192f52589856e96c.webp"
+  }
+]

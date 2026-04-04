@@ -1,0 +1,119 @@
+[
+  {
+    "name": "Ivermectin",
+    "medicineImage": "https://i.ibb.co.com/yB6RvTM4/animal.jpg",
+    "description": "Used to treat and prevent parasites such as worms, mites, and lice in animals.",
+    "category": "Antiparasitic",
+    "price": "150",
+    "stock": "25",
+    "createdBy": {
+      "_id": { "$oid": "683a7e23abd8d3c1c1439e9b" },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "name": "Amoxicillin",
+    "medicineImage": "https://i.ibb.co.com/xSpsvMHJ/BidRx-10.png",
+    "description": "A broad-spectrum antibiotic used for bacterial infections in animals.",
+    "category": "Antibiotics",
+    "price": "200",
+    "stock": "40",
+    "createdBy": {
+      "_id": { "$oid": "683a7e23abd8d3c1c1439e9b" },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "name": "Fipronil",
+    "medicineImage": "https://i.ibb.co.com/xtgh50mh/4004911.jpg",
+    "description": "Topical solution for controlling fleas and ticks in dogs and cats.",
+    "category": "Ectoparasiticide",
+    "price": "350",
+    "stock": "15",
+    "createdBy": {
+      "_id": { "$oid": "683a7e23abd8d3c1c1439e9b" },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "name": "Ketoprofen",
+    "medicineImage": "https://i.ibb.co.com/4ZJTy1cD/Ketoprofen-for-Injection-100mg.jpg",
+    "description": "Non-steroidal anti-inflammatory drug (NSAID) used to reduce pain and inflammation.",
+    "category": "Pain Relief",
+    "price": "180",
+    "stock": "30",
+    "createdBy": {
+      "_id": { "$oid": "683a7e23abd8d3c1c1439e9b" },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "name": "Enrofloxacin",
+    "medicineImage": "https://i.ibb.co.com/zhdS6TXQ/5f253223b41e3.jpg",
+    "description": "Antibiotic for treating respiratory and urinary tract infections in animals.",
+    "category": "Antibiotics",
+    "price": "250",
+    "stock": "20",
+    "createdBy": {
+      "_id": { "$oid": "683a7e23abd8d3c1c1439e9b" },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "name": "Albendazole",
+    "medicineImage": "https://i.ibb.co.com/Z6cwY8bk/unnamed.jpg",
+    "description": "Deworming medicine effective against a wide range of internal parasites.",
+    "category": "Antiparasitic",
+    "price": "120",
+    "stock": "50",
+    "createdBy": {
+      "_id": { "$oid": "683a7e23abd8d3c1c1439e9b" },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "name": "Tylosin",
+    "medicineImage": "https://i.ibb.co.com/ZpfWk27J/Tylosin-200.jpg",
+    "description": "Antibiotic used in veterinary medicine for respiratory and gut infections.",
+    "category": "Antibiotics",
+    "price": "300",
+    "stock": "18",
+    "createdBy": {
+      "_id": { "$oid": "683a7e23abd8d3c1c1439e9b" },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "name": "Carprofen",
+    "medicineImage": "https://i.ibb.co.com/chh9q7gr/carflexin-group.jpg",
+    "description": "NSAID for pain relief, especially in osteoarthritis and post-surgery cases.",
+    "category": "Pain Relief",
+    "price": "400",
+    "stock": "12",
+    "createdBy": {
+      "_id": { "$oid": "683a7e23abd8d3c1c1439e9b" },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "name": "Selamectin",
+    "medicineImage": "https://i.ibb.co.com/chh9q7gr/carflexin-group.jpg",
+    "description": "Topical treatment for fleas, ear mites, and some internal parasites.",
+    "category": "Antiparasitic",
+    "price": "320",
+    "stock": "22",
+    "createdBy": {
+      "_id": { "$oid": "683a7e23abd8d3c1c1439e9b" },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  }
+]

@@ -1,0 +1,152 @@
+[
+  {
+    "name": "Napa",
+    "brand": "Beximco Pharma",
+    "price": 10,
+    "stock": 100,
+    "medicineImage": "https://i.ibb.co/fdWB7NR1/napa-10-mg-injection-38629477289-i2-Rw-Xq-Fwww-JQd-Js-Tmf-Phim.webp",
+    "manufactureDate": "2023-01-01T00:00:00Z",
+    "expiryDate": "2025-08-15T00:00:00Z",
+    "isExpired": false,
+    "createdBy": {
+      "_id": "683a7e23abd8d3c1c1439e9b",
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "name": "Napa",
+    "brand": "Beximco Pharma",
+    "price": 11,
+    "stock": 120,
+    "medicineImage": "https://i.ibb.co/0pwJxv8v/Napa-IV-100ml-1.jpg",
+    "manufactureDate": "2022-06-15T00:00:00Z",
+    "expiryDate": "2025-08-15T00:00:00Z",
+    "isExpired": false,
+    "createdBy": {
+      "_id": "683a7e23abd8d3c1c1439e9b",
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "name": "Napa",
+    "brand": "Beximco Pharma",
+    "price": 9,
+    "stock": 80,
+    "medicineImage": "https://i.ibb.co/dwMsvxTV/images-7.jpg",
+    "manufactureDate": "2023-05-10T00:00:00Z",
+    "expiryDate": "2025-08-15T00:00:00Z",
+    "isExpired": false,
+    "createdBy": {
+      "_id": "683a7e23abd8d3c1c1439e9b",
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "name": "Napa",
+    "brand": "Beximco Pharma",
+    "price": 12,
+    "stock": 95,
+    "medicineImage": "https://i.ibb.co/3yXfXyhf/images-5.jpg",
+    "manufactureDate": "2021-08-20T00:00:00Z",
+    "expiryDate": "2025-08-15T00:00:00Z",
+    "isExpired": false,
+    "createdBy": {
+      "_id": "683a7e23abd8d3c1c1439e9b",
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "name": "Napa",
+    "brand": "Beximco Pharma",
+    "price": 13,
+    "stock": 60,
+    "medicineImage": "https://i.ibb.co/Mx1zH3T9/images-4.jpg",
+    "manufactureDate": "2023-09-01T00:00:00Z",
+    "expiryDate": "2025-08-15T00:00:00Z",
+    "isExpired": false,
+    "createdBy": {
+      "_id": "683a7e23abd8d3c1c1439e9b",
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "name": "Seclo",
+    "brand": "Square Pharmaceuticals",
+    "price": 18,
+    "stock": 90,
+    "medicineImage": "https://i.ibb.co/tM5w2yNJ/Seclo-40-Capsule.jpg",
+    "manufactureDate": "2022-12-01T00:00:00Z",
+    "expiryDate": "2025-08-15T00:00:00Z",
+    "isExpired": false,
+    "createdBy": {
+      "_id": "683a7e23abd8d3c1c1439e9b",
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "name": "Seclo",
+    "brand": "Square Pharmaceuticals",
+    "price": 17,
+    "stock": 100,
+    "medicineImage": "https://i.ibb.co/tM5w2yNJ/Seclo-40-Capsule.jpg",
+    "manufactureDate": "2023-03-01T00:00:00Z",
+    "expiryDate": "2025-08-15T00:00:00Z",
+    "isExpired": false,
+    "createdBy": {
+      "_id": "683a7e23abd8d3c1c1439e9b",
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "name": "Seclo",
+    "brand": "Square Pharmaceuticals",
+    "price": 16,
+    "stock": 85,
+    "medicineImage": "https://i.ibb.co/kLqXMz8/Seclo-40-Injection.jpg",
+    "manufactureDate": "2021-10-01T00:00:00Z",
+    "expiryDate": "2025-08-15T00:00:00Z",
+    "isExpired": false,
+    "createdBy": {
+      "_id": "683a7e23abd8d3c1c1439e9b",
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "name": "Seclo",
+    "brand": "Square Pharmaceuticals",
+    "price": 19,
+    "stock": 110,
+    "medicineImage": "https://i.ibb.co/tM5w2yNJ/Seclo-40-Capsule.jpg",
+    "manufactureDate": "2023-06-01T00:00:00Z",
+    "expiryDate": "2025-08-15T00:00:00Z",
+    "isExpired": false,
+    "createdBy": {
+      "_id": "683a7e23abd8d3c1c1439e9b",
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "name": "Seclo",
+    "brand": "Square Pharmaceuticals",
+    "price": 20,
+    "stock": 75,
+    "medicineImage": "https://i.ibb.co/tM5w2yNJ/Seclo-40-Capsule.jpg",
+    "manufactureDate": "2022-01-01T00:00:00Z",
+    "expiryDate": "2025-08-15T00:00:00Z",
+    "isExpired": false,
+    "createdBy": {
+      "_id": "683a7e23abd8d3c1c1439e9b",
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  }
+]

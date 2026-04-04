@@ -1,0 +1,92 @@
+[
+  {
+    "name": "Paracetamol",
+    "brand": "Napa",
+    "generic": "Paracetamol",
+    "category": "Fever",
+    "dosage": "500mg",
+    "form": "Tablet",
+    "price": "1.20",
+    "medicineImage": "https://i.ibb.co/VWbnY30L/download-1.jpg",
+    "offerPercent": 20,
+    "stock_quantity": 45,
+    "createdBy": {
+      "_id": { "$oid": "683a7e23abd8d3c1c1439e9b" },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+
+  {
+    "id": 2,
+    "name": "Montair",
+    "brand": "Incepta",
+    "generic": "Montelukast",
+    "category": "Allergy",
+    "dosage": "10mg",
+    "form": "Tablet",
+    "price": "8.00",
+    "medicineImage": "https://i.ibb.co/VWbnY30L/download-1.jpg",
+    "offerPercent": 15,
+    "stock_quantity": 60,
+    "createdBy": {
+      "_id": { "$oid": "683a7e23abd8d3c1c1439e9b" },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "id": 3,
+    "name": "Maxpro",
+    "brand": "Square",
+    "generic": "Esomeprazole",
+    "category": "Gastric",
+    "dosage": "20mg",
+    "form": "Capsule",
+    "price": "6.50",
+    "medicineImage": "https://i.ibb.co/VWbnY30L/download-1.jpg",
+    "offerPercent": 25,
+    "stock_quantity": 38,
+    "createdBy": {
+      "_id": { "$oid": "683a7e23abd8d3c1c1439e9b" },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "id": 4,
+    "name": "Seretide Evohaler",
+    "brand": "GSK",
+    "generic": "Salmeterol + Fluticasone",
+    "category": "Asthma",
+    "dosage": "25/250mcg",
+    "form": "Inhaler",
+    "price": "450.00",
+    "medicineImage": "https://i.ibb.co/VWbnY30L/download-1.jpg",
+    "offerPercent": 10,
+    "stock_quantity": 22,
+    "createdBy": {
+      "_id": { "$oid": "683a7e23abd8d3c1c1439e9b" },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  },
+  {
+    "id": 4,
+    "name": "Seretide Evohaler",
+    "brand": "GSK",
+    "generic": "Salmeterol + Fluticasone",
+    "category": "Asthma",
+    "dosage": "25/250mcg",
+    "form": "Inhaler",
+    "price": "450.00",
+    "medicineImage": "https://i.ibb.co/VWbnY30L/download-1.jpg",
+    "offerPercent": 10,
+    "stock_quantity": 22,
+    "createdBy": {
+      "_id": { "$oid": "683a7e23abd8d3c1c1439e9b" },
+      "name": "Md Sajedul Haque Emon1",
+      "email": "mdshajdulhaqueemon8@gmail.com"
+    }
+  }
+]
