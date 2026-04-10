@@ -26,12 +26,12 @@ const AllUsers = () => {
           headers: {
             Authorization: ` ${localStorage.getItem("accessToken")}`,
           },
-        }
+        },
       );
 
       const allUsers = res.data.data || [];
       const filteredUsers = allUsers.filter(
-        (user: UserType & { role: string }) => user.role !== "pharmacist"
+        (user: UserType & { role: string }) => user.role !== "pharmacist",
       );
 
       setUsers(filteredUsers);
@@ -71,7 +71,7 @@ const AllUsers = () => {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
-            }
+            },
           );
 
           Swal.fire("Deleted!", "User has been deleted.", "success");
@@ -132,7 +132,7 @@ const AllUsers = () => {
                 <td className="p-2 border">{user.role}</td>
 
                 <td className="p-2 border text-center">
-                  <Link to={`/dashboard/admin-dashboard/all-users/${user._id}`}>
+                  <Link to={`/admin-dashboard/all-users/${user._id}/edit`}>
                     <button
                       // onClick={() => handleUpdate(user._id)}
                       className="text-blue-500 hover:text-blue-700 cursor-pointer"

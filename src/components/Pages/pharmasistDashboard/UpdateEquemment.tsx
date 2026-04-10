@@ -1,25 +1,30 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import {
+  Form,
+  Input,
+  InputNumber,
+  Button,
+  Upload,
+  Spin,
+  Typography,
+} from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+
+const { Title } = Typography;
 
 const UpdateEquipment = () => {
   const { _id } = useParams();
   const [loading, setLoading] = useState(true);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [form] = Form.useForm();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    name: "",
-    brand: "",
-    price: 0,
-    stock_quantity: 0,
-    rating: 0,
-    color: "",
-    category: "",
-    medicineImage: "",
-  });
+  const [preview, setPreview] = useState("");
 
   // Load existing data
   useEffect(() => {
@@ -37,20 +42,22 @@ const UpdateEquipment = () => {
             headers: {
               Authorization: `${token}`,
             },
-          }
+          },
         );
 
         const data = res.data?.data;
-        setFormData({
-          name: data.name || "",
-          brand: data.brand || "",
-          price: data.price || 0,
-          stock_quantity: data.stock_quantity || 0,
-          rating: data.rating || 0,
-          color: data.color || "",
-          category: data.category || "",
-          medicineImage: data.medicineImage || "",
+
+        form.setFieldsValue({
+          name: data.name,
+          brand: data.brand,
+          category: data.category,
+          color: data.color,
+          price: data.price,
+          stock_quantity: data.stock_quantity,
+          rating: data.rating,
         });
+
+        setPreview(data.medicineImage);
       } catch (err) {
         toast.error("Failed to load equipment data.");
       } finally {
@@ -61,145 +68,120 @@ const UpdateEquipment = () => {
     fetchEquipment();
   }, [_id]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, files } = e.target;
-
-    if (name === "medicineImage" && files) {
-      const file = files[0];
-      setImageFile(file);
-      setFormData((prev) => ({
-        ...prev,
-        medicineImage: URL.createObjectURL(file),
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: ["price", "stock_quantity", "rating"].includes(name)
-          ? Number(value)
-          : value,
-      }));
-    }
+  // Image Upload Handler
+  const handleUpload = (file: any) => {
+    setImageFile(file);
+    setPreview(URL.createObjectURL(file));
+    return false; // prevent auto upload
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (values: any) => {
     const token = localStorage.getItem("accessToken");
-    if (!token) return toast.error("Unauthorized! Login again.");
+    if (!token) return toast.error("Unauthorized!");
 
     try {
-      const form = new FormData();
+      const formData = new FormData();
 
-      form.append("name", formData.name);
-      form.append("brand", formData.brand);
-      form.append("category", formData.category);
-      form.append("color", formData.color);
-      form.append("price", formData.price.toString());
-      form.append("stock_quantity", formData.stock_quantity.toString());
-      form.append("rating", formData.rating.toString());
+      Object.keys(values).forEach((key) => {
+        formData.append(key, values[key]);
+      });
 
       if (imageFile) {
-        form.append("medicineImage", imageFile); // send image to backend (Cloudinary)
+        formData.append("medicineImage", imageFile);
       }
 
       await axios.patch(
         `https://pharma-door-backend.vercel.app/api/v1/equipment/${_id}`,
-        form,
+        formData,
         {
           headers: {
             Authorization: `${token}`,
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       toast.success("Equipment updated successfully!");
       navigate("/pharmacist-dashboard/all-equipment");
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to update equipment.");
+      toast.error("Update failed!");
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  // ✅ Loading Spinner (Center)
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <h1 className="text-xl font-bold mb-4">Update Equipment</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {["name", "brand", "category", "color"].map((field) => (
-          <div key={field}>
-            <label className="block capitalize">{field}:</label>
-            <input
-              type="text"
-              name={field}
-              value={formData[field as keyof typeof formData]}
-              onChange={handleChange}
-              className="border px-3 py-2 w-full rounded"
-              required
-            />
-          </div>
-        ))}
+    <div style={{ maxWidth: 600, margin: "auto", padding: 20 }}>
+      <Title level={3} style={{ textAlign: "center" }}>
+        Update Equipment
+      </Title>
 
-        <div>
-          <label>Price:</label>
-          <input
-            type="number"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            className="border px-3 py-2 w-full rounded"
-            required
-          />
-        </div>
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
+        <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+          <Input placeholder="Enter name" />
+        </Form.Item>
 
-        <div>
-          <label>Stock Quantity:</label>
-          <input
-            type="number"
-            name="stock_quantity"
-            value={formData.stock_quantity}
-            onChange={handleChange}
-            className="border px-3 py-2 w-full rounded"
-            required
-          />
-        </div>
+        <Form.Item name="brand" label="Brand" rules={[{ required: true }]}>
+          <Input placeholder="Enter brand" />
+        </Form.Item>
 
-        <div>
-          <label>Rating:</label>
-          <input
-            type="number"
-            step="0.1"
-            name="rating"
-            value={formData.rating}
-            onChange={handleChange}
-            className="border px-3 py-2 w-full rounded"
-          />
-        </div>
+        <Form.Item name="category" label="Category">
+          <Input placeholder="Enter category" />
+        </Form.Item>
 
-        <div>
-          <label className="block">Medicine Image:</label>
-          <input
-            type="file"
-            name="medicineImage"
-            onChange={handleChange}
-            className="border px-3 py-2 w-full rounded"
-          />
-          {formData.medicineImage && (
+        <Form.Item name="color" label="Color">
+          <Input placeholder="Enter color" />
+        </Form.Item>
+
+        <Form.Item name="price" label="Price" rules={[{ required: true }]}>
+          <InputNumber style={{ width: "100%" }} />
+        </Form.Item>
+
+        <Form.Item
+          name="stock_quantity"
+          label="Stock Quantity"
+          rules={[{ required: true }]}
+        >
+          <InputNumber style={{ width: "100%" }} />
+        </Form.Item>
+
+        <Form.Item name="rating" label="Rating">
+          <InputNumber step={0.1} style={{ width: "100%" }} />
+        </Form.Item>
+
+        <Form.Item label="Medicine Image">
+          <Upload beforeUpload={handleUpload} maxCount={1}>
+            <Button icon={<UploadOutlined />}>Select Image</Button>
+          </Upload>
+
+          {preview && (
             <img
-              src={formData.medicineImage}
+              src={preview}
               alt="preview"
-              className="mt-2 w-40 h-40 object-cover border"
+              style={{
+                marginTop: 10,
+                width: 150,
+                height: 150,
+                objectFit: "cover",
+                borderRadius: 8,
+              }}
             />
           )}
-        </div>
+        </Form.Item>
 
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
-        >
-          Update
-        </button>
-      </form>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" block>
+            Update Equipment
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
 };

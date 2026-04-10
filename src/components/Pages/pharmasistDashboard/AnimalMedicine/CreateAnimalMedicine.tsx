@@ -1,60 +1,52 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useForm } from "react-hook-form";
+import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-hot-toast";
-
-import { CloudUpload } from "lucide-react";
 import { useAuth } from "../../privateRoute/AuthContext";
+import { Form, Input, Button, Card, Typography, Upload, message } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 
-type FormValues = {
-  name: string;
-  category: string;
-  price: string; // send as string
-  stock: string; // required by backend
-  medicineImage: FileList;
-};
+const { Title } = Typography;
 
 const CreateAnimalMedicine = () => {
   const { user } = useAuth();
-  const _id = user?._id;
-  const name = user?.name;
-  const email = user?.email;
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<FormValues>();
-
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [fileList, setFileList] = useState<any[]>([]);
 
-  const onSubmit = async (data: FormValues) => {
+  const onFinish = async (values: any) => {
+    setLoading(true);
+
     try {
-      const imageFile = data.medicineImage[0];
       let imageUrl = "";
 
-      if (imageFile) {
+      const file = fileList?.[0]?.originFileObj;
+
+      if (file) {
         const formData = new FormData();
-        formData.append("image", imageFile);
+        formData.append("image", file);
 
         const imgbbApiKey = import.meta.env.VITE_IMGBB_API_KEY;
+
         const res = await axios.post(
           `https://api.imgbb.com/1/upload?key=${imgbbApiKey}`,
-          formData
+          formData,
         );
+
         imageUrl = res.data?.data?.url;
       }
 
-      // Correct payload
       const payload = {
-        name: data.name,
-        category: data.category,
-        price: data.price, // already string
-        stock: data.stock, // must send
+        name: values.name,
+        category: values.category,
+        price: values.price,
+        stock: values.stock,
         medicineImage: imageUrl,
-        createdBy: { _id: String(_id), name, email },
+        createdBy: {
+          _id: String(user?._id),
+          name: user?.name,
+          email: user?.email,
+        },
       };
 
       const token = localStorage.getItem("accessToken");
@@ -64,111 +56,93 @@ const CreateAnimalMedicine = () => {
         payload,
         {
           headers: { Authorization: `${token}` },
-        }
+        },
       );
 
       if (response.data) {
-        toast.success("Animal medicine created successfully!");
-        reset();
+        message.success("Animal medicine created successfully!");
         navigate("/pharmacist-dashboard/All-animal-medicine");
       }
     } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message || "Failed to create animal medicine"
+      console.error(error);
+      message.error(
+        error?.response?.data?.message || "Failed to create medicine",
       );
-      console.error("Error response:", error?.response?.data);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md">
-      <h2 className="text-2xl font-semibold mb-6 text-center">
-        Add New Animal Medicine
-      </h2>
+    <div style={{ display: "flex", justifyContent: "center", padding: 20 }}>
+      <Card style={{ width: "100%", maxWidth: 600, borderRadius: 12 }}>
+        <Title level={3} style={{ textAlign: "center", marginBottom: 20 }}>
+          🐾 Add New Animal Medicine
+        </Title>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* Name */}
-        <div>
-          <label className="block font-medium">Name</label>
-          <input
-            type="text"
-            {...register("name", { required: "Name is required" })}
-            className="w-full border p-2 rounded"
-            placeholder="Enter medicine name"
-          />
-          {errors.name && (
-            <p className="text-red-500 text-sm">{errors.name.message}</p>
-          )}
-        </div>
+        <Form layout="vertical" onFinish={onFinish}>
+          {/* Name */}
+          <Form.Item
+            label="Medicine Name"
+            name="name"
+            rules={[{ required: true, message: "Please enter name" }]}
+          >
+            <Input placeholder="Enter medicine name" size="large" />
+          </Form.Item>
 
-        {/* Category */}
-        <div>
-          <label className="block font-medium">Category</label>
-          <input
-            type="text"
-            {...register("category", { required: "Category is required" })}
-            className="w-full border p-2 rounded"
-            placeholder="Enter category"
-          />
-          {errors.category && (
-            <p className="text-red-500 text-sm">{errors.category.message}</p>
-          )}
-        </div>
+          {/* Category */}
+          <Form.Item
+            label="Category"
+            name="category"
+            rules={[{ required: true, message: "Please enter category" }]}
+          >
+            <Input placeholder="Enter category" size="large" />
+          </Form.Item>
 
-        {/* Price */}
-        <div>
-          <label className="block font-medium">Price</label>
-          <input
-            type="text"
-            {...register("price", { required: "Price is required" })}
-            className="w-full border p-2 rounded"
-            placeholder="Enter price"
-          />
-          {errors.price && (
-            <p className="text-red-500 text-sm">{errors.price.message}</p>
-          )}
-        </div>
+          {/* Price */}
+          <Form.Item
+            label="Price"
+            name="price"
+            rules={[{ required: true, message: "Please enter price" }]}
+          >
+            <Input placeholder="Enter price" size="large" />
+          </Form.Item>
 
-        {/* Stock */}
-        <div>
-          <label className="block font-medium">Stock</label>
-          <input
-            type="text"
-            {...register("stock", { required: "Stock is required" })}
-            className="w-full border p-2 rounded"
-            placeholder="Enter stock quantity"
-          />
-          {errors.stock && (
-            <p className="text-red-500 text-sm">{errors.stock.message}</p>
-          )}
-        </div>
+          {/* Stock */}
+          <Form.Item
+            label="Stock"
+            name="stock"
+            rules={[{ required: true, message: "Please enter stock" }]}
+          >
+            <Input placeholder="Enter stock quantity" size="large" />
+          </Form.Item>
 
-        {/* Medicine Image */}
-        <div>
-          <label className="block font-medium mb-1">Medicine Image</label>
-          <div className="relative w-full">
-            <input
-              type="file"
-              accept="image/*"
-              {...register("medicineImage", { required: "Image is required" })}
-              className="w-full h-10 pl-10 pr-2 py-1 rounded-md border"
-            />
-            <CloudUpload className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
-          </div>
-          {errors.medicineImage && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.medicineImage.message}
-            </p>
-          )}
-        </div>
+          {/* Upload Image */}
+          <Form.Item label="Medicine Image" required>
+            <Upload
+              beforeUpload={() => false}
+              listType="picture"
+              maxCount={1}
+              onChange={({ fileList }) => setFileList(fileList)}
+            >
+              <Button icon={<UploadOutlined />}>Upload Image</Button>
+            </Upload>
+          </Form.Item>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
-        >
-          Submit
-        </button>
-      </form>
+          {/* Submit */}
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              size="large"
+              loading={loading}
+            >
+              {loading ? "Submitting..." : "🚀 Submit Medicine"}
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
     </div>
   );
 };

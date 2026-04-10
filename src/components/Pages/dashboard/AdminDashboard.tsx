@@ -1,15 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { ScaleLoader } from "react-spinners";
+import { Card, Row, Col, Statistic, Typography, Spin } from "antd";
 import {
-  BarChart,
-  Bar,
+  AreaChart,
+  Area,
+  Line,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  CartesianGrid,
 } from "recharts";
+
+const { Title } = Typography;
 
 const getMonthName = (dateString: string) => {
   const date = new Date(dateString);
@@ -32,122 +36,181 @@ const monthOrder = [
 ];
 
 const AdminDashboard = () => {
-  const [totalUsers, setTotalUsers] = useState<number>(0);
-  const [totalSales, setTotalSales] = useState<number>(0);
-  const [totalProfit, setTotalProfit] = useState<number>(0);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalSales, setTotalSales] = useState(0);
+  const [totalProfit, setTotalProfit] = useState(0);
   const [chartData, setChartData] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       try {
         const token = localStorage.getItem("accessToken");
-        const res = await axios.get(
-          "https://pharma-door-backend.vercel.app/api/v1/users",
-          {
+
+        const [userRes, orderRes] = await Promise.all([
+          axios.get("https://pharma-door-backend.vercel.app/api/v1/users", {
             headers: { Authorization: `${token}` },
-          }
-        );
-        const users = res.data?.data || [];
+          }),
+          axios.get(
+            "https://pharma-door-backend.vercel.app/api/v1/order/ordered-medicine",
+            {
+              headers: { Authorization: `${token}` },
+            },
+          ),
+        ]);
+
+        // USERS
+        const users = userRes.data?.data || [];
         setTotalUsers(users.length);
-      } catch (error) {
-        console.error("Failed to fetch users", error);
-      }
-    };
-    fetchUsers();
-  }, []);
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const token = localStorage.getItem("accessToken");
-        const res = await axios.get(
-          "https://pharma-door-backend.vercel.app/api/v1/order/ordered-medicine",
-          {
-            headers: { Authorization: `${token}` },
-          }
+        // ORDERS
+        const orders = orderRes.data?.data || [];
+
+        const salesSum = orders.reduce(
+          (sum: number, order: any) => sum + order.totalPrice,
+          0,
         );
 
-        const orders = res.data?.data || [];
-
-        let salesSum = 0;
-        orders.forEach((order: any) => {
-          salesSum += order.totalPrice;
-        });
         setTotalSales(salesSum);
         setTotalProfit(salesSum * 0.2);
 
-        const monthlySalesMap: Record<string, number> = {};
+        // MONTHLY DATA
+        const monthlyMap: Record<string, number> = {};
+
         orders.forEach((order: any) => {
           const month = getMonthName(order.createdAt);
-          if (!monthlySalesMap[month]) {
-            monthlySalesMap[month] = 0;
-          }
-          monthlySalesMap[month] += order.totalPrice;
+          monthlyMap[month] = (monthlyMap[month] || 0) + order.totalPrice;
         });
 
-        const chartDataArray = monthOrder.map((month) => ({
-          name: month,
-          sales: parseFloat((monthlySalesMap[month] || 0).toFixed(2)),
+        const chart = monthOrder.map((m) => ({
+          name: m,
+          sales: monthlyMap[m] || 0,
         }));
 
-        setChartData(chartDataArray);
-        setLoading(false);
+        setChartData(chart);
       } catch (error) {
-        console.error("Error fetching orders", error);
+        console.error(error);
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchOrders();
+    fetchData();
   }, []);
 
   if (loading) {
     return (
-      <div className="text-center mt-10 text-red-600">
-        <ScaleLoader color="#2cabab" height={12} />
+      <div style={{ textAlign: "center", marginTop: 100 }}>
+        <Spin size="large" />
       </div>
     );
   }
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-center text-blue-700">
-        Welcome to Admin Dashboard
-      </h1>
+    <div
+      style={{
+        padding: 24,
+        background: "#f5f6fa",
+        minHeight: "100vh",
+      }}
+    >
+      {/* TITLE */}
+      <Title level={2} style={{ textAlign: "center", marginBottom: 30 }}>
+        📊 Admin Dashboard
+      </Title>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <div className="bg-white shadow-md rounded-xl p-6 text-center">
-          <h2 className="text-xl font-semibold text-gray-700">Total Users</h2>
-          <p className="text-3xl font-bold text-blue-600 mt-2">{totalUsers}</p>
-        </div>
-        <div className="bg-white shadow-md rounded-xl p-6 text-center">
-          <h2 className="text-xl font-semibold text-gray-700">Total Sales</h2>
-          <p className="text-3xl font-bold text-green-600 mt-2">
-            ${totalSales.toFixed(2)}
-          </p>
-        </div>
-        <div className="bg-white shadow-md rounded-xl p-6 text-center">
-          <h2 className="text-xl font-semibold text-gray-700">Total Profit</h2>
-          <p className="text-3xl font-bold text-purple-600 mt-2">
-            ${totalProfit.toFixed(2)}
-          </p>
-        </div>
-      </div>
+      {/* STATS */}
+      <Row gutter={[16, 16]}>
+        <Col xs={24} md={8}>
+          <Card hoverable style={{ borderRadius: 14 }}>
+            <Statistic
+              title="Total Users"
+              value={totalUsers}
+              valueStyle={{ color: "#3b82f6" }}
+            />
+          </Card>
+        </Col>
 
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h2 className="text-xl font-semibold mb-4 text-gray-700 text-center">
-          Monthly Sales Overview
-        </h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chartData}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip formatter={(value: number) => [`$${value}`, "Sales"]} />
-            <Bar dataKey="sales" fill="#3b82f6" radius={[10, 10, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+        <Col xs={24} md={8}>
+          <Card hoverable style={{ borderRadius: 14 }}>
+            <Statistic
+              title="Total Sales"
+              value={totalSales}
+              precision={2}
+              prefix="$"
+              valueStyle={{ color: "#16a34a" }}
+            />
+          </Card>
+        </Col>
+
+        <Col xs={24} md={8}>
+          <Card hoverable style={{ borderRadius: 14 }}>
+            <Statistic
+              title="Total Profit"
+              value={totalProfit}
+              precision={2}
+              prefix="$"
+              valueStyle={{ color: "#a855f7" }}
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      {/* CHART */}
+      <Card
+        style={{
+          marginTop: 20,
+          borderRadius: 16,
+          boxShadow: "0 6px 20px rgba(0,0,0,0.06)",
+        }}
+        title="📈 Revenue Analytics (Premium View)"
+      >
+        <div style={{ width: "100%", height: 380 }}>
+          <ResponsiveContainer>
+            <AreaChart data={chartData}>
+              {/* Gradient */}
+              <defs>
+                <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+
+              <XAxis dataKey="name" />
+              <YAxis />
+
+              <Tooltip
+                contentStyle={{
+                  borderRadius: 10,
+                  border: "none",
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+                }}
+                formatter={(value: number) => [`$${value}`, "Revenue"]}
+              />
+
+              {/* Main Area */}
+              <Area
+                type="monotone"
+                dataKey="sales"
+                stroke="#3b82f6"
+                fillOpacity={1}
+                fill="url(#colorSales)"
+              />
+
+              {/* Overlay Line (premium feel) */}
+              <Line
+                type="monotone"
+                dataKey="sales"
+                stroke="#1d4ed8"
+                strokeWidth={3}
+                dot={{ r: 4 }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </Card>
     </div>
   );
 };

@@ -1,149 +1,154 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
-import React, { useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import {
+  Form,
+  Input,
+  InputNumber,
+  Button,
+  Upload,
+  Typography,
+  Spin,
+} from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+
+const { Title } = Typography;
 
 const CreateOfferProduct = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    brand: "",
-    generic: "",
-    category: "",
-    dosage: "",
-    form: "",
-    price: "",
-    offerPercent: "",
-    stock_quantity: "",
-  });
-
+  const [form] = Form.useForm();
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>("");
-  const nevigate = useNavigate();
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const [preview, setPreview] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // Image upload handler
+  const handleUpload = (file: any) => {
+    setImageFile(file);
+    setPreview(URL.createObjectURL(file));
+    return false; // prevent auto upload
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
+  const handleSubmit = async (values: any) => {
+    setLoading(true);
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+    const formData = new FormData();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const data = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      data.append(key, value);
+    Object.entries(values).forEach(([key, value]) => {
+      formData.append(key, value as any);
     });
+
     if (imageFile) {
-      data.append("medicineImage", imageFile);
+      formData.append("medicineImage", imageFile);
     }
 
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) {
-        toast.error("token does not exits please login");
-
+        toast.error("Token missing!");
+        setLoading(false);
         return;
       }
-      const response = await axios.post(
+
+      await axios.post(
         "https://pharma-door-backend.vercel.app/api/v1/offer/create-offer",
-        data,
+        formData,
         {
           headers: {
             Authorization: `${token}`,
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
-      console.log("Server response:", response.data);
       toast.success("Offer product created successfully!");
-      nevigate("/pharmacist-dashboard/all-offer-medicine");
-    } catch (error) {
-      console.error("Error submitting form:", error);
+      navigate("/pharmacist-dashboard/all-offer-medicine");
+    } catch (error: any) {
       toast.error("Failed to create offer product.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-xl mx-auto p-4 bg-white rounded shadow mt-10">
-      <h2 className="text-2xl font-bold mb-6 text-center">
+    <div style={{ maxWidth: 600, margin: "auto", padding: 20 }}>
+      <Title level={3} style={{ textAlign: "center" }}>
         Create Offer Product
-      </h2>
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4"
-        encType="multipart/form-data"
-      >
-        {[
-          { label: "Name", name: "name", type: "text" },
-          { label: "Brand", name: "brand", type: "text" },
-          { label: "Generic", name: "generic", type: "text" },
-          { label: "Category", name: "category", type: "text" },
-          { label: "Dosage", name: "dosage", type: "text" },
-          { label: "Form", name: "form", type: "text" },
-          { label: "Price", name: "price", type: "text" },
-          { label: "Offer Percent", name: "offerPercent", type: "number" },
-          { label: "Stock Quantity", name: "stock_quantity", type: "number" },
-        ].map(({ label, name, type }) => (
-          <div key={name}>
-            <label className="block font-medium mb-1" htmlFor={name}>
-              {label}
-            </label>
-            <input
-              type={type}
-              id={name}
-              name={name}
-              value={(formData as any)[name]}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400"
-              required
-            />
-          </div>
-        ))}
+      </Title>
 
-        <div>
-          <label className="block font-medium mb-1" htmlFor="medicineImage">
-            Medicine Image
-          </label>
-          <input
-            type="file"
-            id="medicineImage"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="w-full"
-            required
-          />
-          {imagePreview && (
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
+        <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+          <Input placeholder="Enter name" />
+        </Form.Item>
+
+        <Form.Item name="brand" label="Brand" rules={[{ required: true }]}>
+          <Input placeholder="Enter brand" />
+        </Form.Item>
+
+        <Form.Item name="generic" label="Generic">
+          <Input placeholder="Enter generic name" />
+        </Form.Item>
+
+        <Form.Item name="category" label="Category">
+          <Input placeholder="Enter category" />
+        </Form.Item>
+
+        <Form.Item name="dosage" label="Dosage">
+          <Input placeholder="Enter dosage" />
+        </Form.Item>
+
+        <Form.Item name="form" label="Form">
+          <Input placeholder="Tablet / Capsule / Syrup" />
+        </Form.Item>
+
+        <Form.Item name="price" label="Price" rules={[{ required: true }]}>
+          <Input />
+        </Form.Item>
+
+        <Form.Item
+          name="offerPercent"
+          label="Offer Percent (%)"
+          rules={[{ required: true }]}
+        >
+          <InputNumber style={{ width: "100%" }} min={0} max={100} />
+        </Form.Item>
+
+        <Form.Item
+          name="stock_quantity"
+          label="Stock Quantity"
+          rules={[{ required: true }]}
+        >
+          <InputNumber style={{ width: "100%" }} />
+        </Form.Item>
+
+        <Form.Item label="Medicine Image" required rules={[{ required: true }]}>
+          <Upload beforeUpload={handleUpload} maxCount={1}>
+            <Button icon={<UploadOutlined />}>Select Image</Button>
+          </Upload>
+
+          {preview && (
             <img
-              src={imagePreview}
-              alt="Preview"
-              className="mt-2 max-h-40 object-contain rounded"
+              src={preview}
+              alt="preview"
+              style={{
+                marginTop: 10,
+                width: 150,
+                height: 150,
+                objectFit: "cover",
+                borderRadius: 8,
+              }}
             />
           )}
-        </div>
+        </Form.Item>
 
-        <button
-          type="submit"
-          className="w-full bg-teal-500 text-white font-semibold py-2 rounded hover:bg-teal-600 transition"
-        >
-          Create Offer Product
-        </button>
-      </form>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" block disabled={loading}>
+            {loading ? <Spin /> : "Create Offer Product"}
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
 };

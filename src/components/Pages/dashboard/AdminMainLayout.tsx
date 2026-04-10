@@ -1,16 +1,19 @@
+// AdminMainLayout.tsx
 import { Outlet } from "react-router-dom";
 import AdminSidebar from "./AdminSidebar";
 import { Toaster } from "react-hot-toast";
+import { ThemeProvider } from "../Theme-context/ThemeContext";
 
 const AdminMainLayout = () => {
   return (
-    <div className="flex min-h-screen bg-white">
-      <AdminSidebar />
-      <main className="flex-1 p-4">
-        <Outlet />
+    <>
+      <ThemeProvider>
+        <AdminSidebar>
+          <Outlet />
+        </AdminSidebar>
         <Toaster position="top-right" />
-      </main>
-    </div>
+      </ThemeProvider>
+    </>
   );
 };
 

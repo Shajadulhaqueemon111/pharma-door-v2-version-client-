@@ -1,85 +1,121 @@
-import { useNavigate, useParams } from "react-router-dom";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import axios from "axios";
-import toast from "react-hot-toast";
+import { useNavigate, useParams } from "react-router-dom";
+import { Form, Select, Button, Card, Typography, Spin, message } from "antd";
+
+const { Title } = Typography;
 
 const UpdateAllUser = () => {
   const { _id } = useParams();
-  const [user, setUser] = useState<{ name: string; role: string } | null>(null);
-  const [role, setRole] = useState("");
-  const nevigate = useNavigate();
+  const navigate = useNavigate();
+
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(true);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("accessToken");
-        const response = await axios.get(
+
+        const res = await axios.get(
           `https://pharma-door-backend.vercel.app/api/v1/users/${_id}`,
           {
-            headers: {
-              Authorization: `${token}`,
-            },
-          }
+            headers: { Authorization: `${token}` },
+          },
         );
-        console.log(response);
-        setUser(response.data?.data);
-        setRole(response.data?.data?.role);
+
+        const data = res.data?.data;
+
+        setUser(data);
+
+        // set form default value
+        form.setFieldsValue({
+          role: data?.role,
+        });
       } catch (error) {
-        console.error("Failed to fetch user data", error);
+        console.error(error);
+        message.error("Failed to fetch user");
+      } finally {
+        setLoading(false);
       }
     };
 
     if (_id) fetchUser();
-  }, [_id]);
+  }, [_id, form]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onFinish = async (values: any) => {
+    if (values.role === user?.role) {
+      return message.error("No changes detected");
+    }
+
+    setSubmitLoading(true);
+
     try {
       const token = localStorage.getItem("accessToken");
+
       await axios.patch(
         `https://pharma-door-backend.vercel.app/api/v1/users/${_id}`,
-        { role },
+        values,
         {
-          headers: {
-            Authorization: `${token}`,
-          },
-        }
+          headers: { Authorization: `${token}` },
+        },
       );
-      toast.success("User role updated successfully!");
-      nevigate("/dashboard/admin-dashboard/all-users");
+
+      message.success("User role updated successfully!");
+      navigate("/admin-dashboard/all-users");
     } catch (error) {
-      console.error("Failed to update user role", error);
-      toast.error("Error updating role");
+      console.error(error);
+      message.error("Failed to update role");
+    } finally {
+      setSubmitLoading(false);
     }
   };
 
-  if (!user) return <div>Loading user...</div>;
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", marginTop: 100 }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">Update Role for {user.name}</h1>
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-md rounded-xl p-6 w-full max-w-md"
-      >
-        <label className="block mb-4">
-          <span className="text-gray-700">Select Role</span>
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+    <div style={{ display: "flex", justifyContent: "center", padding: 20 }}>
+      <Card style={{ width: "100%", maxWidth: 450, borderRadius: 12 }}>
+        <Title level={3} style={{ textAlign: "center" }}>
+          👤 Update User Role
+        </Title>
+
+        <Form layout="vertical" form={form} onFinish={onFinish}>
+          {/* ROLE */}
+          <Form.Item
+            label="Select Role"
+            name="role"
+            rules={[{ required: true, message: "Please select a role" }]}
           >
-            <option value="">-- Select Role --</option>
-            <option value="admin">Admin</option>
-            <option value="user">User</option>
-          </select>
-        </label>
-        <button
-          type="submit"
-          className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
-        >
-          Update Role
-        </button>
-      </form>
+            <Select size="large" placeholder="Select role">
+              <Select.Option value="admin">Admin</Select.Option>
+              <Select.Option value="user">User</Select.Option>
+            </Select>
+          </Form.Item>
+
+          {/* SUBMIT */}
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              size="large"
+              loading={submitLoading}
+            >
+              Update Role
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
     </div>
   );
 };

@@ -227,7 +227,7 @@ const router = createBrowserRouter([
         element: <PharmacistDocument />,
       },
       {
-        path: "all-users/:_id",
+        path: "all-users/:_id/edit",
         element: <UpdateAllUser />,
       },
       {

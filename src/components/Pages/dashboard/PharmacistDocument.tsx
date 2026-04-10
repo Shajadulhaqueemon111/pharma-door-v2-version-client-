@@ -1,7 +1,27 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { ScaleLoader } from "react-spinners";
+import {
+  Table,
+  Input,
+  Button,
+  Modal,
+  Image,
+  Spin,
+  Space,
+  Typography,
+  Divider,
+} from "antd";
+import {
+  EyeOutlined,
+  DownloadOutlined,
+  FileZipOutlined,
+} from "@ant-design/icons";
+
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 type PharmacistType = {
   _id: string;
@@ -20,26 +40,33 @@ type PharmacistType = {
   createdAt: string;
 };
 
+const { Title } = Typography;
+
 const PharmacistDocument = () => {
   const [pharmacists, setPharmacists] = useState<PharmacistType[]>([]);
   const [filtered, setFiltered] = useState<PharmacistType[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState<PharmacistType | null>(null);
+  const [open, setOpen] = useState(false);
 
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  // ================= FETCH =================
   const fetchPharmacists = async () => {
     try {
       const token = localStorage.getItem("accessToken");
+
       const res = await axios.get(
         "https://pharma-door-backend.vercel.app/api/v1/phermacist",
         {
           headers: { Authorization: `${token}` },
-        }
+        },
       );
+
       setPharmacists(res.data.data);
       setFiltered(res.data.data);
     } catch (error) {
       toast.error("Failed to load pharmacists");
-      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -48,129 +75,224 @@ const PharmacistDocument = () => {
   useEffect(() => {
     fetchPharmacists();
   }, []);
-
-  // Handle Search
   useEffect(() => {
-    const lower = search.toLowerCase();
-    const result = pharmacists.filter(
-      (item) =>
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 400); // 400ms delay (pro level UX)
+
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  // ================= SEARCH =================
+  useEffect(() => {
+    const lower = debouncedSearch.toLowerCase().trim();
+
+    // 🔥 Minimum 2 character rule
+    if (lower.length < 2) {
+      setFiltered(pharmacists);
+      return;
+    }
+
+    const result = pharmacists.filter((item) => {
+      return (
         item.name.toLowerCase().includes(lower) ||
         item.email.toLowerCase().includes(lower) ||
         item.phone.includes(lower) ||
         item.storeName.toLowerCase().includes(lower)
-    );
+      );
+    });
+
     setFiltered(result);
-  }, [search, pharmacists]);
+  }, [debouncedSearch, pharmacists]);
 
-  if (loading)
+  // ================= SINGLE DOWNLOAD =================
+  const downloadSingleFile = async (url: string, name: string) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      saveAs(blob, name);
+    } catch {
+      toast.error("Download failed");
+    }
+  };
+
+  // ================= ZIP DOWNLOAD =================
+  const downloadAllDocuments = async (user: PharmacistType) => {
+    try {
+      const zip = new JSZip();
+
+      const files = [
+        { url: user.nidImage, name: "NID.jpg" },
+        { url: user.drugLicenseImage, name: "Drug-License.jpg" },
+        { url: user.tradeLicenseImage, name: "Trade-License.jpg" },
+      ];
+
+      await Promise.all(
+        files.map(async (file) => {
+          const res = await fetch(file.url);
+          const blob = await res.blob();
+          zip.file(file.name, blob);
+        }),
+      );
+
+      const content = await zip.generateAsync({ type: "blob" });
+      saveAs(content, `${user.name}-documents.zip`);
+    } catch {
+      toast.error("ZIP download failed");
+    }
+  };
+
+  // ================= TABLE =================
+  const columns = [
+    {
+      title: "Name",
+      dataIndex: "name",
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+    },
+    {
+      title: "Store",
+      dataIndex: "storeName",
+    },
+    {
+      title: "Phone",
+      dataIndex: "phone",
+    },
+    {
+      title: "Action",
+      render: (_: any, record: PharmacistType) => (
+        <Button
+          type="primary"
+          icon={<EyeOutlined />}
+          onClick={() => {
+            setSelected(record);
+            setOpen(true);
+          }}
+        >
+          View
+        </Button>
+      ),
+    },
+  ];
+
+  if (loading) {
     return (
-      <p className="text-center">
-        <ScaleLoader color="#2cabab" height={12} />
-      </p>
+      <div className="flex justify-center items-center h-screen">
+        <Spin size="large" />
+      </div>
     );
+  }
 
+  // ================= UI =================
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Pharmacist Documents</h1>
+    <div className="p-6 max-w-6xl mx-auto">
+      <Title level={3}>Pharmacist Documents</Title>
 
-      <input
-        type="text"
-        placeholder="Search by name, email, phone, or store name..."
+      <Input
+        placeholder="Search pharmacist..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full px-4 py-2 border rounded mb-6 focus:outline-none focus:ring focus:border-blue-500"
+        className="mb-4"
       />
 
-      {filtered.length === 0 ? (
-        <p className="text-center text-red-500">
-          No matching pharmacist found.
-        </p>
-      ) : (
-        <div className="grid gap-6">
-          {filtered.map((pharmacist) => (
-            <PharmacistCard key={pharmacist._id} pharmacist={pharmacist} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
+      <Table dataSource={filtered} columns={columns} rowKey="_id" bordered />
 
-const PharmacistCard = ({ pharmacist }: { pharmacist: PharmacistType }) => {
-  const [showDetails, setShowDetails] = useState(false);
-
-  return (
-    <div className="bg-linear-to-bl from-violet-500 to-fuchsia-500 p-4 rounded shadow">
-      <div className="mb-2 space-y-1">
-        <p>
-          <strong>Name:</strong> {pharmacist.name}
-        </p>
-        <p>
-          <strong>Email:</strong> {pharmacist.email}
-        </p>
-        <p>
-          <strong>Store:</strong> {pharmacist.storeName}
-        </p>
-        {/* <p>
-          <strong>Status:</strong>{" "}
-          <span className="text-green-600">{pharmacist.status}</span>
-        </p> */}
-      </div>
-
-      <button
-        onClick={() => setShowDetails(!showDetails)}
-        className="mt-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+      {/* ================= MODAL ================= */}
+      <Modal
+        open={open}
+        onCancel={() => setOpen(false)}
+        footer={null}
+        width={900}
       >
-        {showDetails ? "Hide Details" : "View Details"}
-      </button>
+        {selected && (
+          <div>
+            <Title level={4}>{selected.name}</Title>
 
-      {showDetails && (
-        <div className="mt-4 space-y-2 border-t pt-4">
-          <p>
-            <strong>Phone:</strong> {pharmacist.phone}
-          </p>
-          <p>
-            <strong>Address:</strong> {pharmacist.address}
-          </p>
-          <p>
-            <strong>Post Code:</strong> {pharmacist.postCode}
-          </p>
-          <p>
-            <strong>NID:</strong> {pharmacist.nid}
-          </p>
-          <p>
-            <strong>Created At:</strong>{" "}
-            {new Date(pharmacist.createdAt).toLocaleDateString()}
-          </p>
+            <p>
+              <b>Email:</b> {selected.email}
+            </p>
+            <p>
+              <b>Phone:</b> {selected.phone}
+            </p>
+            <p>
+              <b>Store:</b> {selected.storeName}
+            </p>
+            <p>
+              <b>Address:</b> {selected.address}
+            </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-            <div>
-              <p className="font-semibold mb-1">NID Image</p>
-              <img
-                src={pharmacist.nidImage}
-                alt="NID"
-                className="rounded  border shadow-md transition-transform duration-300 hover:scale-200 cursor-zoom-in"
-              />
-            </div>
-            <div>
-              <p className="font-semibold mb-1">Drug License</p>
-              <img
-                src={pharmacist.drugLicenseImage}
-                alt="Drug License"
-                className="rounded border shadow-md transition-transform duration-300 hover:scale-200 cursor-zoom-in"
-              />
-            </div>
-            <div>
-              <p className="font-semibold mb-1">Trade License</p>
-              <img
-                src={pharmacist.tradeLicenseImage}
-                alt="Trade License"
-                className="rounded border shadow-md transition-transform duration-300 hover:scale-200 cursor-zoom-in"
-              />
+            <Divider />
+
+            {/* ZIP DOWNLOAD */}
+            <Button
+              type="primary"
+              icon={<FileZipOutlined />}
+              onClick={() => downloadAllDocuments(selected)}
+              style={{ marginBottom: 15 }}
+            >
+              Download All (ZIP)
+            </Button>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* NID */}
+              <div>
+                <p className="font-semibold">NID</p>
+                <Image src={selected.nidImage} />
+
+                <Button
+                  icon={<DownloadOutlined />}
+                  block
+                  onClick={() =>
+                    downloadSingleFile(selected.nidImage, "NID.jpg")
+                  }
+                >
+                  Download
+                </Button>
+              </div>
+
+              {/* DRUG */}
+              <div>
+                <p className="font-semibold">Drug License</p>
+                <Image src={selected.drugLicenseImage} />
+
+                <Button
+                  icon={<DownloadOutlined />}
+                  block
+                  onClick={() =>
+                    downloadSingleFile(
+                      selected.drugLicenseImage,
+                      "Drug-License.jpg",
+                    )
+                  }
+                >
+                  Download
+                </Button>
+              </div>
+
+              {/* TRADE */}
+              <div>
+                <p className="font-semibold">Trade License</p>
+                <Image src={selected.tradeLicenseImage} />
+
+                <Button
+                  icon={<DownloadOutlined />}
+                  block
+                  onClick={() =>
+                    downloadSingleFile(
+                      selected.tradeLicenseImage,
+                      "Trade-License.jpg",
+                    )
+                  }
+                >
+                  Download
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
     </div>
   );
 };

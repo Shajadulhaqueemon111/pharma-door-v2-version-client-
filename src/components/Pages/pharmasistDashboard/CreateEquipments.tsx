@@ -44,7 +44,7 @@ const CreateEquipments = () => {
         const imgbbApiKey = import.meta.env.VITE_IMGBB_API_KEY;
         const res = await axios.post(
           `https://api.imgbb.com/1/upload?key=${imgbbApiKey}`,
-          formData
+          formData,
         );
         imageUrl = res.data?.data?.url;
       }
@@ -67,7 +67,7 @@ const CreateEquipments = () => {
         payload,
         {
           headers: { Authorization: `${token}` },
-        }
+        },
       );
 
       if (response) {
@@ -77,7 +77,7 @@ const CreateEquipments = () => {
       }
     } catch (error: any) {
       toast.error(
-        error?.response?.data?.message || "Failed to create equipment"
+        error?.response?.data?.message || "Failed to create equipment",
       );
     }
   };

@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { Form, Input, Button, Spin, Typography } from "antd";
+
+const { Title } = Typography;
 
 type OfferProduct = {
   _id: string;
@@ -28,7 +31,7 @@ const UpdateOfferPage = () => {
     const fetchProduct = async () => {
       try {
         const response = await axios.get(
-          `https://pharma-door-backend.vercel.app/api/v1/offer/${_id}`
+          `https://pharma-door-backend.vercel.app/api/v1/offer/${_id}`,
         );
         setProduct(response.data.data);
       } catch (error) {
@@ -47,8 +50,7 @@ const UpdateOfferPage = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     try {
       const token = localStorage.getItem("accessToken");
       const response = await axios.patch(
@@ -58,7 +60,7 @@ const UpdateOfferPage = () => {
           headers: {
             Authorization: `${token}`,
           },
-        }
+        },
       );
       if (response.status === 200) {
         toast.success("Product updated successfully!");
@@ -71,13 +73,20 @@ const UpdateOfferPage = () => {
   };
 
   if (loading || !product) {
-    return <div className="text-center mt-10">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spin size="large" />
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow rounded">
-      <h2 className="text-2xl font-bold mb-4">Update Offer Product</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div style={{ maxWidth: 700, margin: "auto", padding: 20 }}>
+      <Title level={3} style={{ textAlign: "center" }}>
+        Update Offer Product
+      </Title>
+
+      <Form layout="vertical" onFinish={handleSubmit}>
         {[
           "name",
           "brand",
@@ -90,26 +99,21 @@ const UpdateOfferPage = () => {
           "offerPercent",
           "stock_quantity",
         ].map((field) => (
-          <div key={field}>
-            <label className="block mb-1 capitalize">
-              {field.replace("_", " ")}
-            </label>
-            <input
-              type="text"
+          <Form.Item key={field} label={field.replace("_", " ").toUpperCase()}>
+            <Input
               name={field}
               value={(product as any)[field]}
               onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
             />
-          </div>
+          </Form.Item>
         ))}
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-        >
-          Update Product
-        </button>
-      </form>
+
+        <Form.Item>
+          <Button type="primary" htmlType="submit" block>
+            Update Product
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
 };

@@ -1,38 +1,40 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { ScaleLoader } from "react-spinners";
 import toast from "react-hot-toast";
+
+import { Form, DatePicker, Button, Spin, Card, Typography, Modal } from "antd";
+import dayjs from "dayjs";
+
+const { Title } = Typography;
 
 const UpdatePreExpireMedicines = () => {
   const { _id } = useParams();
   const navigate = useNavigate();
 
-  const [expiryDate, setExpiryDate] = useState("");
+  const [form] = Form.useForm();
   const [oldExpiryDate, setOldExpiryDate] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchMedicine = async () => {
+      setLoading(true);
       try {
-        // const token = localStorage.getItem("accessToken");
-        // if (!token) {
-        //   toast.error("accessToken does not exist please login ");
-        //   return;
-        // }
         const res = await axios.get(
-          `https://pharma-door-backend.vercel.app/api/v1/medicine/${_id}`
-          // {
-          //   headers: {
-          //     Authorization: `${token}`,
-          //   },
-          // }
+          `https://pharma-door-backend.vercel.app/api/v1/medicine/${_id}`,
         );
-        const fetchedDate = res.data?.data?.expiryDate || "";
-        setExpiryDate(fetchedDate);
-        setOldExpiryDate(fetchedDate);
+
+        const fetchedDate = res.data?.data?.expiryDate;
+
+        if (fetchedDate) {
+          setOldExpiryDate(fetchedDate);
+          form.setFieldsValue({
+            expiryDate: dayjs(fetchedDate),
+          });
+        }
       } catch (error) {
-        console.error("Failed to fetch medicine:", error);
         toast.error("Failed to load medicine data.");
       } finally {
         setLoading(false);
@@ -42,23 +44,20 @@ const UpdatePreExpireMedicines = () => {
     if (_id) fetchMedicine();
   }, [_id]);
 
-  const getUTCDateOnly = (date: Date) => {
-    return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+  const getUTCDateOnly = (date: dayjs.Dayjs) => {
+    return Date.UTC(date.year(), date.month(), date.date());
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const newDate = new Date(expiryDate);
-    const previousDate = new Date(oldExpiryDate);
-    const today = new Date();
+  const handleSubmit = async (values: any) => {
+    const newDate = values.expiryDate;
+    const previousDate = dayjs(oldExpiryDate);
+    const today = dayjs();
 
     const newDateUTC = getUTCDateOnly(newDate);
     const oldDateUTC = getUTCDateOnly(previousDate);
     const todayUTC = getUTCDateOnly(today);
-    console.log("Old Expiry Date (raw):", oldExpiryDate);
-    console.log("New Expiry Date (raw):", expiryDate);
 
+    // ❌ validation
     if (newDateUTC <= oldDateUTC) {
       toast.error("New expiry date must be greater than current expiry date.");
       return;
@@ -70,76 +69,81 @@ const UpdatePreExpireMedicines = () => {
     }
 
     const diffInDays = (newDateUTC - todayUTC) / (1000 * 60 * 60 * 24);
-    if (diffInDays <= 30) {
-      const confirm = window.confirm(
-        `⚠️ Warning: This expiry date is only ${Math.round(
-          diffInDays
-        )} day(s) away. Are you sure you want to continue?`
-      );
-      if (!confirm) return;
-    }
 
-    try {
-      const token = localStorage.getItem("accessToken");
-      if (!token) {
-        toast.error("Access token not found. Please login.");
-        return;
-      }
-
-      await axios.patch(
-        `https://pharma-door-backend.vercel.app/api/v1/medicine/${_id}`,
-        { expiryDate: new Date(expiryDate).toISOString() },
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
+    const proceedUpdate = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          toast.error("Please login first");
+          return;
         }
-      );
 
-      toast.success("Expiry date updated successfully!");
-      navigate("/pharmacist-dashboard/pre-expire-medicine");
-    } catch (error) {
-      console.error("Update failed:", error);
-      toast.error("Failed to update expiry date.");
+        await axios.patch(
+          `https://pharma-door-backend.vercel.app/api/v1/medicine/${_id}`,
+          { expiryDate: newDate.toISOString() },
+          {
+            headers: { Authorization: token },
+          },
+        );
+
+        toast.success("Expiry date updated successfully!");
+        navigate("/pharmacist-dashboard/pre-expire-medicine");
+      } catch (error) {
+        toast.error("Update failed");
+      }
+    };
+
+    // ⚠️ warning modal (instead of window.confirm)
+    if (diffInDays <= 30) {
+      Modal.confirm({
+        title: "⚠️ Warning",
+        content: `This expiry date is only ${Math.round(
+          diffInDays,
+        )} day(s) away. Are you sure you want to continue?`,
+        okText: "Yes, Continue",
+        cancelText: "Cancel",
+        onOk: proceedUpdate,
+      });
+    } else {
+      proceedUpdate();
     }
   };
 
-  if (loading) {
+  if (loading)
     return (
-      <div className="text-center mt-10">
-        <ScaleLoader color="#2cabab" height={12} />
+      <div style={{ textAlign: "center", marginTop: 80 }}>
+        <Spin size="large" />
       </div>
     );
-  }
 
   return (
-    <div className="p-6 max-w-xl mx-auto bg-white rounded-xl shadow-md">
-      <h1 className="text-2xl font-bold mb-6 text-center text-blue-600">
-        Update Expiry Date
-      </h1>
+    <div style={{ display: "flex", justifyContent: "center", marginTop: 40 }}>
+      <Card style={{ width: 420, borderRadius: 12 }}>
+        <Title level={4} style={{ textAlign: "center", color: "#1677ff" }}>
+          Update Expiry Date
+        </Title>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="expireDate" className="block mb-1 font-medium">
-            Expiry Date:
-          </label>
-          <input
-            type="date"
-            id="expireDate"
-            value={expiryDate.slice(0, 10)} // YYYY-MM-DD format
-            onChange={(e) => setExpiryDate(e.target.value)}
-            className="border px-4 py-2 w-full rounded-md"
-            required
-          />
-        </div>
+        {/* Show current expiry */}
+        <p style={{ marginBottom: 10, textAlign: "center" }}>
+          Current: {dayjs(oldExpiryDate).format("DD MMM YYYY")}
+        </p>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
-        >
-          Update
-        </button>
-      </form>
+        <Form form={form} layout="vertical" onFinish={handleSubmit}>
+          <Form.Item
+            label="Select New Expiry Date"
+            name="expiryDate"
+            rules={[{ required: true, message: "Please select expiry date" }]}
+          >
+            <DatePicker style={{ width: "100%" }} />
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block>
+              Update
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
     </div>
   );
 };

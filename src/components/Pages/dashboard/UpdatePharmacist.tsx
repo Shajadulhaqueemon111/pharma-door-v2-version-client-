@@ -1,117 +1,135 @@
-import { useNavigate, useParams } from "react-router-dom";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import axios from "axios";
-import toast from "react-hot-toast";
+import { useNavigate, useParams } from "react-router-dom";
+import { Form, Select, Button, Card, Typography, Spin, message } from "antd";
+
+const { Title } = Typography;
 
 const UpdatePharmacist = () => {
   const { _id } = useParams();
-  const [user, setUser] = useState<{
-    name: string;
-    role: string;
-    status: string;
-  } | null>(null);
-  const [role, setRole] = useState("");
-  const [status, setStatus] = useState("");
-  const nevigate = useNavigate();
+  const navigate = useNavigate();
+
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(true);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("accessToken");
-        const response = await axios.get(
+
+        const res = await axios.get(
           `https://pharma-door-backend.vercel.app/api/v1/users/${_id}`,
           {
-            headers: {
-              Authorization: `${token}`,
-            },
-          }
+            headers: { Authorization: `${token}` },
+          },
         );
-        console.log(response);
-        setUser(response.data?.data);
-        setRole(response.data?.data?.role);
-        setStatus(response.data?.data?.status);
+
+        const data = res.data?.data;
+
+        setUser(data);
+
+        // set form values
+        form.setFieldsValue({
+          role: data?.role,
+          status: data?.status,
+        });
       } catch (error) {
-        console.error("Failed to fetch user data", error);
+        console.error(error);
+        message.error("Failed to load user");
+      } finally {
+        setLoading(false);
       }
     };
 
     if (_id) fetchUser();
-  }, [_id]);
+  }, [_id, form]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const hasRoleChanged = role !== user?.role;
-    const hasStatusChanged = status !== user?.status;
-
-    if (!hasRoleChanged && !hasStatusChanged) {
-      toast.error("No changes detected");
-      return;
+  const onFinish = async (values: any) => {
+    if (values.role === user?.role && values.status === user?.status) {
+      return message.error("No changes detected");
     }
+
+    setSubmitLoading(true);
+
     try {
       const token = localStorage.getItem("accessToken");
+
       await axios.patch(
         `https://pharma-door-backend.vercel.app/api/v1/users/${_id}`,
-        { role, status },
+        values,
         {
-          headers: {
-            Authorization: `${token}`,
-          },
-        }
+          headers: { Authorization: `${token}` },
+        },
       );
-      if (hasRoleChanged) {
-        toast.success(`User role updated to "${role}"`);
-      }
 
-      if (hasStatusChanged) {
-        toast.success(`User status updated to "${status}"`);
-      }
-      nevigate("/admin-dashboard/all-pharmacist");
+      message.success("User updated successfully");
+      navigate("/admin-dashboard/all-pharmacist");
     } catch (error) {
-      console.error("Failed to update user role", error);
-      toast.error("Error updating role");
+      console.error(error);
+      message.error("Update failed");
+    } finally {
+      setSubmitLoading(false);
     }
   };
 
-  if (!user) return <div>Loading user...</div>;
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", marginTop: 100 }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">Update Role for {user.name}</h1>
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-md rounded-xl p-6 w-full max-w-md"
-      >
-        <label className="block mb-4">
-          <span className="text-gray-700">Select Role</span>
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+    <div style={{ display: "flex", justifyContent: "center", padding: 20 }}>
+      <Card style={{ width: "100%", maxWidth: 500, borderRadius: 12 }}>
+        <Title level={3} style={{ textAlign: "center" }}>
+          👨‍⚕️ Update Pharmacist
+        </Title>
+
+        <Form layout="vertical" form={form} onFinish={onFinish}>
+          {/* ROLE */}
+          <Form.Item
+            label="Select Role"
+            name="role"
+            rules={[{ required: true, message: "Please select role" }]}
           >
-            <option value="">-- Select Role --</option>
-            <option value="pharmacist">Pharmacist</option>
-            <option value="user">User</option>
-          </select>
-        </label>
-        <label className="block mb-4">
-          <span className="text-gray-700">Select Status</span>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            <Select size="large">
+              <Select.Option value="pharmacist">Pharmacist</Select.Option>
+              <Select.Option value="user">User</Select.Option>
+            </Select>
+          </Form.Item>
+
+          {/* STATUS */}
+          <Form.Item
+            label="Select Status"
+            name="status"
+            rules={[{ required: true, message: "Please select status" }]}
           >
-            <option value="">-- Select Role --</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-          </select>
-        </label>
-        <button
-          type="submit"
-          className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
-        >
-          Update Role
-        </button>
-      </form>
+            <Select size="large">
+              <Select.Option value="pending">Pending</Select.Option>
+              <Select.Option value="approved">Approved</Select.Option>
+              <Select.Option value="rejected">Rejected</Select.Option>
+            </Select>
+          </Form.Item>
+
+          {/* SUBMIT */}
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              size="large"
+              loading={submitLoading}
+            >
+              Update Pharmacist
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
     </div>
   );
 };
