@@ -21,7 +21,7 @@ const AnimalMedicineDetails = () => {
 
   useEffect(() => {
     fetch(
-      `https://pharma-door-backend.vercel.app/api/v1/animal-medicine/${_id}`
+      `https://pharma-door-backend.vercel.app/api/v1/animal-medicine/${_id}`,
     )
       .then((res) => res.json())
       .then((data) => {

@@ -33,7 +33,7 @@ const Login = () => {
       const response = await axios.post(
         "https://pharma-door-backend.vercel.app/api/v1/auth/login",
         { email, password },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       console.log("Full login response:", response.data);
@@ -54,7 +54,7 @@ const Login = () => {
 
       if (role === "pharmacist" && status !== "approved") {
         toast.error(
-          "Your account is not approved yet. Please wait for admin approval."
+          "Your account is not approved yet. Please wait for admin approval.",
         );
         return;
       }

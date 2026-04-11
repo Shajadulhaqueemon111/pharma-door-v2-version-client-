@@ -31,7 +31,7 @@ const Createproduct = () => {
             "Content-Type": "application/json",
             // Authorization: "Bearer YOUR_ADMIN_TOKEN", // token lagle uncomment korben
           },
-        }
+        },
       );
 
       if (response.status === 201) {

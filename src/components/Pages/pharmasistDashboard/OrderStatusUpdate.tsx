@@ -30,7 +30,7 @@ const OrderStatusUpdate = () => {
           headers: {
             Authorization: `${token}`,
           },
-        }
+        },
       );
 
       if (response.status === 200) {

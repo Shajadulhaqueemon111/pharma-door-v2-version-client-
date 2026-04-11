@@ -26,7 +26,7 @@ const NapaDetailsPage = () => {
         console.log("API response:", resData);
         console.log("Current ID from URL:", _id);
         const found = resData.data.find(
-          (item: NapaMedicine) => item._id === _id
+          (item: NapaMedicine) => item._id === _id,
         );
         setMedicine(found || null);
       })

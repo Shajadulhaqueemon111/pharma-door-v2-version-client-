@@ -1,6 +1,10 @@
 import { motion } from "framer-motion";
-import { Star } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Card, Typography, Rate, Avatar } from "antd";
+import { UserOutlined } from "@ant-design/icons";
+
+const { Title, Text } = Typography;
+
 const reviews = [
   {
     name: "Dr. Mahmud Hasan",
@@ -35,39 +39,76 @@ const Review = () => {
   }, []);
 
   return (
-    <div>
-      <h1 className="text-center text-3xl font-bold text-blue-700">
-        Customer Review
-      </h1>
-      <div className="bg-white py-10 px-5 max-w-7xl mx-auto rounded-2xl shadow-xl">
-        <h2 className="text-2xl font-bold text-center mb-6">
-          What Our Customers Say
-        </h2>
+    <div style={{ padding: "60px 20px", background: "#f5f7fa" }}>
+      <div style={{ maxWidth: 800, margin: "auto", textAlign: "center" }}>
+        {/* Title */}
+        <Title level={2} style={{ marginBottom: 10 }}>
+          💬 Customer Reviews
+        </Title>
 
+        <Text type="secondary">What our customers say about Pharmadoor</Text>
+
+        {/* Review Card */}
         <motion.div
           key={current}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.6 }}
-          className="text-center"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          style={{ marginTop: 40 }}
         >
-          <p className="text-lg italic mb-4 text-gray-700">
-            "{reviews[current].comment}"
-          </p>
-          <div className="flex justify-center gap-1 mb-2">
-            {Array.from({ length: reviews[current].rating }).map((_, i) => (
-              <Star
-                key={i}
-                className="w-5 h-5 text-yellow-400 fill-yellow-400"
-              />
-            ))}
-          </div>
-          <p className="text-sm font-medium text-gray-800">
-            — {reviews[current].name}
-          </p>
+          <Card
+            style={{
+              borderRadius: 20,
+              padding: 20,
+              boxShadow: "0 15px 40px rgba(0,0,0,0.1)",
+            }}
+          >
+            {/* Avatar */}
+            <Avatar
+              size={70}
+              icon={<UserOutlined />}
+              style={{
+                backgroundColor: "#1677ff",
+                marginBottom: 15,
+              }}
+            />
+
+            {/* Comment */}
+            <p
+              style={{
+                fontSize: 16,
+                fontStyle: "italic",
+                color: "#555",
+                marginBottom: 15,
+              }}
+            >
+              “{reviews[current].comment}”
+            </p>
+
+            {/* Rating */}
+            <Rate
+              disabled
+              defaultValue={reviews[current].rating}
+              style={{ marginBottom: 10 }}
+            />
+
+            {/* Name */}
+            <Text strong style={{ display: "block" }}>
+              — {reviews[current].name}
+            </Text>
+          </Card>
         </motion.div>
       </div>
+
+      {/* Hover Effect */}
+      <style>
+        {`
+        .ant-card:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 25px 50px rgba(0,0,0,0.15) !important;
+        }
+        `}
+      </style>
     </div>
   );
 };

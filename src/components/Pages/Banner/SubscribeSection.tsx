@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { Input, Button, Typography, Card } from "antd";
+import { MailOutlined } from "@ant-design/icons";
+
+const { Title, Text } = Typography;
 
 const SubscribeSection = () => {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if (email.trim()) {
       setSubmitted(true);
       setEmail("");
@@ -14,56 +17,105 @@ const SubscribeSection = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <h1 className="text-center text-3xl text-blue-700 font-bold mt-4 mb-4">
-        Subscribe for Updates & Offers
-      </h1>
-      <div
-        className="relative bg-cover bg-center py-16 px-4 sm:px-6 rounded-2xl"
-        style={{
-          backgroundImage:
-            "url('https://i.ibb.co/wZNFxd79/360-F-577842756-DWi-S65l-NLDG5-DPaozr-Jk3c9-Tgk-GGBw-Cb.jpg')",
-        }}
-      >
-        <div className="bg-white/80 backdrop-blur-sm w-full max-w-2xl mx-auto rounded-2xl shadow-xl p-6 sm:p-8 text-center">
-          <h2 className="text-xl sm:text-2xl font-bold mb-3 text-blue-900">
-            Subscribe for Updates & Offers
-          </h2>
-          <p className="text-sm sm:text-base text-gray-700 mb-5">
-            Get the latest medicine deals, health tips & more.
-          </p>
+    <div style={{ padding: "60px 20px", background: "#f5f7fa" }}>
+      <div style={{ maxWidth: 900, margin: "auto", textAlign: "center" }}>
+        {/* Title */}
+        <Title level={2} style={{ marginBottom: 10 }}>
+          📩 Subscribe for Updates & Offers
+        </Title>
 
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
+        <Text type="secondary">
+          Get the latest medicine deals, health tips & exclusive offers.
+        </Text>
+
+        {/* Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          style={{ marginTop: 40 }}
+        >
+          <Card
+            style={{
+              borderRadius: 20,
+              padding: 30,
+              background: "linear-gradient(135deg, #1677ff, #69b1ff)",
+              color: "#fff",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
+            }}
+            bodyStyle={{ padding: 0 }}
           >
-            <input
-              type="email"
-              required
-              placeholder="Enter your email"
-              className="px-4 py-2 rounded-lg border border-gray-300 w-full sm:w-2/3 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm sm:text-base"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <button
-              type="submit"
-              className="w-full sm:w-auto bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all text-sm sm:text-base"
-            >
-              Subscribe
-            </button>
-          </form>
+            <Title level={3} style={{ color: "#fff" }}>
+              Stay Connected 💙
+            </Title>
 
-          {submitted && (
-            <motion.p
-              className="mt-4 text-green-700 font-medium text-sm sm:text-base"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+            <Text style={{ color: "#e6f4ff" }}>
+              Join our newsletter for exclusive updates and offers.
+            </Text>
+
+            {/* Form */}
+            <div
+              style={{
+                marginTop: 25,
+                display: "flex",
+                gap: 10,
+                flexWrap: "wrap",
+                justifyContent: "center",
+              }}
             >
-              Thank you for subscribing!
-            </motion.p>
-          )}
-        </div>
+              <Input
+                size="large"
+                prefix={<MailOutlined />}
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                style={{
+                  maxWidth: 300,
+                  borderRadius: 10,
+                }}
+              />
+
+              <Button
+                type="primary"
+                size="large"
+                onClick={handleSubmit}
+                style={{
+                  background: "#fff",
+                  color: "#1677ff",
+                  fontWeight: 600,
+                  borderRadius: 10,
+                }}
+              >
+                Subscribe
+              </Button>
+            </div>
+
+            {/* Success Message */}
+            {submitted && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{ marginTop: 15 }}
+              >
+                <Text style={{ color: "#d9f7be", fontWeight: 500 }}>
+                  ✅ Thank you for subscribing!
+                </Text>
+              </motion.div>
+            )}
+          </Card>
+        </motion.div>
       </div>
+
+      {/* Hover Effect */}
+      <style>
+        {`
+        .ant-card:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 30px 60px rgba(0,0,0,0.2) !important;
+        }
+        `}
+      </style>
     </div>
   );
 };

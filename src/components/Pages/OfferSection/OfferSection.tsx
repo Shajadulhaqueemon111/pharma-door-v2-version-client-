@@ -3,6 +3,10 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
+import { Card, Row, Col, Typography, Button, Pagination } from "antd";
+
+const { Title, Text } = Typography;
+
 interface OfferMedicine {
   _id: string;
   name: string;
@@ -20,20 +24,21 @@ interface OfferMedicine {
 type OutletContextType = {
   searchText: string;
 };
+
 const OfferSection = () => {
   const [medicineoffers, setMedicineOffers] = useState<OfferMedicine[]>([]);
   const [loading, setLoading] = useState(true);
   const { searchText } = useOutletContext<OutletContextType>();
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemPerPage = 6;
+
   const fetchOfferMedicine = async () => {
     setLoading(true);
-
     try {
       const response = await axios(
-        "https://pharma-door-backend.vercel.app/api/v1/offer"
+        "https://pharma-door-backend.vercel.app/api/v1/offer",
       );
-
       setMedicineOffers(response.data.data);
     } catch (err) {
       console.log(err);
@@ -46,147 +51,185 @@ const OfferSection = () => {
     fetchOfferMedicine();
   }, []);
 
+  // loader
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <ScaleLoader color="#2cabab" height={12} />
+        <ScaleLoader color="#1677ff" />
       </div>
     );
   }
+
   if (!medicineoffers.length) {
-    return <div className="text-center">No Offer Medicine</div>;
+    return <div style={{ textAlign: "center" }}>No Offer Medicine</div>;
   }
+
+  // filter
   const filterOfferProduct = medicineoffers.filter((offers) =>
-    offers.name.toLowerCase().includes(searchText.toLowerCase())
+    offers.name.toLowerCase().includes(searchText.toLowerCase()),
   );
-  //pagination
+
+  // pagination
   const totalItems = filterOfferProduct.length;
-  const totalPage = Math.ceil(totalItems / itemPerPage);
-  //slice the current page
   const startIndex = (currentPage - 1) * itemPerPage;
+
   const currentItems = filterOfferProduct.slice(
     startIndex,
-    startIndex + itemPerPage
+    startIndex + itemPerPage,
   );
-  const gotToPage = (page: any) => {
-    if (page < 1 || page > totalPage) return;
-    setCurrentPage(page);
-    window.scroll({ top: 0, behavior: "smooth" });
-  };
+
   return (
-    <div>
-      <section className="bg-gray-50 py-12 px-4 md:px-8">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-blue-700 mb-12">
-            Special Offers
-          </h2>
+    <div style={{ padding: "40px 20px", background: "#f5f7fa" }}>
+      <div style={{ maxWidth: 1200, margin: "auto" }}>
+        {/* Title */}
+        <Title
+          level={2}
+          style={{
+            textAlign: "center",
+            marginBottom: 40,
+            fontWeight: 700,
+          }}
+        >
+          🔥 Special Offers
+        </Title>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-            {currentItems.map((product) => {
-              const offerPrice =
-                parseFloat(product.price) -
-                (parseFloat(product.price) * product.offerPercent) / 100;
+        {/* Grid */}
+        <Row gutter={[24, 24]}>
+          {currentItems.map((product) => {
+            const offerPrice =
+              parseFloat(product.price) -
+              (parseFloat(product.price) * product.offerPercent) / 100;
 
-              return (
-                <div
-                  key={product._id}
-                  className="relative bg-white rounded-2xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 flex flex-col"
+            return (
+              <Col xs={24} sm={12} lg={8} key={product._id}>
+                <Card
+                  hoverable
+                  style={{
+                    borderRadius: 16,
+                    overflow: "hidden",
+                    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+                    transition: "0.3s",
+                  }}
+                  bodyStyle={{ padding: 16 }}
+                  cover={
+                    <div style={{ position: "relative" }}>
+                      <img
+                        alt={product.name}
+                        src={product.medicineImage}
+                        style={{
+                          height: 200,
+                          width: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+
+                      {/* Discount Badge */}
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 12,
+                          left: 12,
+                          background: "#ff4d4f",
+                          color: "#fff",
+                          padding: "5px 12px",
+                          borderRadius: 20,
+                          fontSize: 12,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {product.offerPercent}% OFF
+                      </div>
+                    </div>
+                  }
                 >
-                  {/* Discount Badge */}
-                  <div className="absolute top-4 right-4 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg z-10 select-none">
-                    {product.offerPercent}% OFF
-                  </div>
+                  {/* Name */}
+                  <Title level={5} style={{ marginBottom: 6 }}>
+                    {product.name}
+                  </Title>
 
-                  {/* Image */}
-                  <div className="overflow-hidden rounded-t-2xl">
-                    <img
-                      src={product.medicineImage}
-                      alt={product.name}
-                      className="w-full h-36 object-cover transition-transform duration-300 hover:scale-105"
-                    />
-                  </div>
+                  {/* Info */}
+                  <Text type="secondary" style={{ fontSize: 13 }}>
+                    {product.brand} • {product.form} • {product.dosage}
+                  </Text>
 
-                  {/* Content */}
-                  <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                      {product.name}
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-1 truncate">
-                      Brand: {product.brand} | {product.form} | {product.dosage}
-                    </p>
-                    <p className="text-sm text-gray-600 mb-4">
+                  {/* Stock */}
+                  <div style={{ marginTop: 8 }}>
+                    <Text>
                       Stock:{" "}
                       <span
-                        className={
-                          product.stock_quantity > 0
-                            ? "text-green-600 font-semibold"
-                            : "text-red-600 font-semibold"
-                        }
+                        style={{
+                          color:
+                            product.stock_quantity > 0 ? "#52c41a" : "#ff4d4f",
+                          fontWeight: "bold",
+                        }}
                       >
                         {product.stock_quantity > 0
                           ? product.stock_quantity
                           : "Out of Stock"}
                       </span>
-                    </p>
-
-                    <div className="mt-auto flex items-center gap-3">
-                      <span className="text-xl font-bold text-green-700">
-                        ৳{offerPrice.toFixed(2)}
-                      </span>
-                      <span className="text-sm line-through text-gray-400">
-                        ৳{parseFloat(product.price).toFixed(2)}
-                      </span>
-                    </div>
-
-                    <a
-                      href={`/medicines/specialoffer/${product._id}`}
-                      className="mt-6 inline-block bg-blue-600 hover:bg-blue-700 text-white text-center font-semibold py-2 rounded-xl shadow-md transition"
-                    >
-                      View Details
-                    </a>
+                    </Text>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
 
-        {/* Pagination */}
-        <div className="flex justify-center items-center mt-12 space-x-3">
-          <button
-            onClick={() => gotToPage(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-5 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50 transition"
-          >
-            Prev
-          </button>
+                  {/* Price */}
+                  <div style={{ marginTop: 12 }}>
+                    <Text
+                      strong
+                      style={{
+                        fontSize: 20,
+                        color: "#1677ff",
+                      }}
+                    >
+                      ৳{offerPrice.toFixed(2)}
+                    </Text>{" "}
+                    <Text delete style={{ fontSize: 14 }}>
+                      ৳{parseFloat(product.price).toFixed(2)}
+                    </Text>
+                  </div>
 
-          {[...Array(totalPage)].map((_, i) => {
-            const page = i + 1;
-            return (
-              <button
-                key={page}
-                onClick={() => gotToPage(page)}
-                className={`px-5 py-2 rounded-lg font-semibold transition ${
-                  currentPage === page
-                    ? "bg-blue-700 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-blue-600 hover:text-white"
-                }`}
-              >
-                {page}
-              </button>
+                  {/* Button */}
+                  <Button
+                    type="primary"
+                    block
+                    size="large"
+                    style={{
+                      marginTop: 15,
+                      borderRadius: 10,
+                      fontWeight: 600,
+                      height: 45,
+                    }}
+                    href={`/medicines/specialoffer/${product._id}`}
+                  >
+                    View Details
+                  </Button>
+                </Card>
+              </Col>
             );
           })}
+        </Row>
 
-          <button
-            onClick={() => gotToPage(currentPage + 1)}
-            disabled={currentPage === totalPage}
-            className="px-5 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50 transition"
-          >
-            Next
-          </button>
+        {/* Pagination */}
+        <div style={{ textAlign: "center", marginTop: 50 }}>
+          <Pagination
+            current={currentPage}
+            pageSize={itemPerPage}
+            total={totalItems}
+            onChange={(page) => {
+              setCurrentPage(page);
+              window.scroll({ top: 0, behavior: "smooth" });
+            }}
+          />
         </div>
-      </section>
+      </div>
+
+      {/* Hover Effect */}
+      <style>
+        {`
+        .ant-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 40px rgba(0,0,0,0.12) !important;
+        }
+        `}
+      </style>
     </div>
   );
 };

@@ -20,7 +20,7 @@ const Register = () => {
 
     if (!passwordRegex.test(password)) {
       toast.error(
-        "Password must be at least 8 characters long, include one uppercase and one lowercase letter and one speacial charecter"
+        "Password must be at least 8 characters long, include one uppercase and one lowercase letter and one speacial charecter",
       );
       return;
     }
@@ -33,7 +33,7 @@ const Register = () => {
     try {
       const response = await axios.post(
         "https://pharma-door-backend.vercel.app/api/v1/users/create-user",
-        userData
+        userData,
       );
 
       toast.success("Registration successful!");
@@ -42,7 +42,7 @@ const Register = () => {
     } catch (error: any) {
       console.error(
         "Registration error:",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
       toast.error("Registration failed!");
     }

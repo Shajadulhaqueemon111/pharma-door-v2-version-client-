@@ -1,5 +1,8 @@
 import { motion } from "framer-motion";
+import { Card, Typography, Row, Col } from "antd";
 import OtcImage from "../../../assets/otcbanner.png";
+
+const { Title, Text } = Typography;
 
 const features = [
   {
@@ -21,53 +24,99 @@ const features = [
 
 const OtcBannerPage = () => {
   return (
-    <div className="px-4 py-10 max-w-7xl mx-auto">
-      {/* OTC Banner Section */}
-      <div
-        className="flex flex-col md:flex-row items-center justify-center gap-6 rounded-lg p-6 bg-cover bg-center text-white"
+    <div style={{ padding: "50px 20px", maxWidth: 1200, margin: "auto" }}>
+      {/* 🔥 HERO BANNER */}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
         style={{
-          backgroundImage: "url('https://i.ibb.co/d09Q7hwr/otcbacground.png')",
+          borderRadius: 20,
+          padding: "40px 30px",
+          background: "linear-gradient(135deg, #1677ff, #69b1ff)",
+          color: "#fff",
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 20,
+          boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
         }}
       >
-        <img
+        {/* Left Text */}
+        <div style={{ maxWidth: 500 }}>
+          <Title level={2} style={{ color: "#fff", marginBottom: 10 }}>
+            💊 OTC Medicines
+          </Title>
+
+          <Text style={{ color: "#f0f5ff", fontSize: 15 }}>
+            OTC medicine refers to medicines that can be bought without a
+            prescription. These are commonly used for treating pain, colds,
+            coughs, fever, and other minor health issues quickly and safely.
+          </Text>
+        </div>
+
+        {/* Image */}
+        <motion.img
           src={OtcImage}
           alt="OTC Banner"
-          className="w-60 md:w-80 object-contain"
+          style={{
+            width: 260,
+            objectFit: "contain",
+          }}
+          whileHover={{ scale: 1.08 }}
+          transition={{ duration: 0.3 }}
         />
+      </motion.div>
 
-        <div className="text-center md:text-left max-w-xl">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-3">OTC Medicines</h1>
-          <p className="text-sm sm:text-base leading-relaxed text-white/90">
-            OTC medicine refers to the medicines that can be bought without a
-            prescription. People use OTC products to treat common health issues
-            like pain, colds, coughs, diarrhea, constipation, fever, and other
-            minor ailments.
-          </p>
-        </div>
-      </div>
-
-      {/* Cards Section */}
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* 🔥 FEATURE CARDS */}
+      <Row gutter={[24, 24]} style={{ marginTop: 50 }}>
         {features.map((feature, index) => (
-          <motion.div
-            key={index}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            viewport={{ once: true }}
-            className="bg-white shadow-md rounded-xl p-6 text-center hover:shadow-xl transition-all duration-300"
-          >
-            <h2 className="text-xl font-semibold text-violet-600 mb-3">
-              {feature.title}
-            </h2>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              {feature.description}
-            </p>
-          </motion.div>
+          <Col xs={24} md={8} key={index}>
+            <motion.div
+              whileHover={{ y: -10 }}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.15 }}
+              viewport={{ once: true }}
+            >
+              <Card
+                style={{
+                  borderRadius: 18,
+                  textAlign: "center",
+                  padding: 10,
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+                }}
+                bodyStyle={{ padding: 20 }}
+              >
+                <Title
+                  level={4}
+                  style={{
+                    color: "#1677ff",
+                    marginBottom: 10,
+                  }}
+                >
+                  {feature.title}
+                </Title>
+
+                <Text type="secondary" style={{ fontSize: 14 }}>
+                  {feature.description}
+                </Text>
+              </Card>
+            </motion.div>
+          </Col>
         ))}
-      </div>
+      </Row>
+
+      {/* Hover Style */}
+      <style>
+        {`
+        .ant-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+        }
+        `}
+      </style>
     </div>
   );
 };

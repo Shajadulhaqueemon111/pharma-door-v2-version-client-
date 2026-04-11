@@ -49,29 +49,29 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Part 2 - Info Links */}
+        {/* Part 2 - Company */}
         <div>
           <h2 className="text-xl font-semibold mb-2">Company</h2>
           <ul className="space-y-1 text-sm">
             <li>
-              <a href="/">About Us</a>
+              <Link to="/about-us">About Us</Link>
             </li>
+
             <li>
-              <a href="/">Terms and Conditions</a>
+              <Link to="/terms-and-conditions">Terms and Conditions</Link>
             </li>
+
             <li>
-              <a href="/">Refund and Return Policy</a>
+              <Link to="/refund-policy">Refund and Return Policy</Link>
             </li>
-            <Link to="/">
-              <li>
-                <p>Privacy Policy</p>
-              </li>
-            </Link>
-            <Link to="/">
-              <li>
-                <p>Disclaimer</p>
-              </li>
-            </Link>
+
+            <li>
+              <Link to="/privacy-policy">Privacy Policy</Link>
+            </li>
+
+            <li>
+              <Link to="/disclaimer">Disclaimer</Link>
+            </li>
           </ul>
         </div>
 
@@ -79,76 +79,64 @@ const Footer = () => {
         <div>
           <h2 className="text-xl font-semibold mb-2">Resources</h2>
           <ul className="space-y-1 text-sm">
-            <Link to="/">
-              {" "}
-              <li>
-                <p>Buy Medicines Online</p>
-              </li>
-            </Link>
-            <Link to="/">
-              <li>
-                <p>Top 10 Pharmaceutical</p>
-              </li>
-            </Link>
-            <Link to="/">
-              <li>
-                <p>Contact Us</p>
-              </li>
-            </Link>
-            <Link to="/">
-              <li>
-                <a>Blogs</a>
-              </li>
-            </Link>
-            <Link to="/">
-              <li>
-                <p>FAQ</p>
-              </li>
-            </Link>
+            <li>
+              <Link to="/buy-medicines-online">Buy Medicines Online</Link>
+            </li>
+
+            <li>
+              <Link to="/top-pharmaceutical">Top 10 Pharmaceutical</Link>
+            </li>
+
+            <li>
+              <Link to="/contact-us">Contact Us</Link>
+            </li>
+
+            <li>
+              <Link to="/blogs">Blogs</Link>
+            </li>
+
+            <li>
+              <Link to="/faq">FAQ</Link>
+            </li>
           </ul>
         </div>
-        {/* Part 4 - Resources */}
+
+        {/* Part 4 - License + Search */}
         <div>
           <h2 className="text-xl font-semibold mb-2">
             Orline Drug License: DC-22813
           </h2>
+
           <ul className="space-y-1 text-sm">
-            <Link to="/">
-              {" "}
-              <li>
-                <p>DBID License:384191730</p>
-              </li>
-            </Link>
-            <Link to="/">
-              {" "}
-              <li>
-                <p>
-                  Trode Licerso <br />
-                  TRAD/DNCC/048628/2022
-                </p>
-              </li>
-            </Link>
+            <li>
+              <Link to="/license/dbid">DBID License: 384191730</Link>
+            </li>
 
-            <Link to="/">
-              <li>
-                <p>Model Pharmacy License: DC-21000</p>
-              </li>
-            </Link>
+            <li>
+              <Link to="/license/trade">
+                Trode Licerso <br />
+                TRAD/DNCC/048628/2022
+              </Link>
+            </li>
+
+            <li>
+              <Link to="/license/model-pharmacy">
+                Model Pharmacy License: DC-21000
+              </Link>
+            </li>
           </ul>
-          <div>
-            <div className="mt-3">
-              <div className="flex items-center justify-evenly border border-b-zinc-300 rounded-md overflow-hidden w-full max-w-md mx-auto bg-white">
-                <input
-                  type="text"
-                  placeholder="Find Your Medicine..."
-                  className="flex-1 min-w-0 text-sm p-2 outline-none bg-[#17a595]"
-                />
 
-                {/* Search Button */}
-                <button className="bg-white  cursor-pointer text-black px-2 sm:px-4 py-2 text-xs sm:text-sm whitespace-nowrap shrink-0">
-                  Send
-                </button>
-              </div>
+          {/* Search box */}
+          <div className="mt-3">
+            <div className="flex items-center justify-evenly border rounded-md overflow-hidden w-full max-w-md mx-auto bg-white">
+              <input
+                type="text"
+                placeholder="Find Your Medicine..."
+                className="flex-1 min-w-0 text-sm p-2 outline-none bg-[#17a595]"
+              />
+              <button className="bg-white cursor-pointer text-black px-3 py-2 text-sm">
+                Send
+              </button>
             </div>
           </div>
         </div>

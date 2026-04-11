@@ -55,7 +55,7 @@ const Checkout = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(orderData),
-        }
+        },
       );
       console.log(response);
       if (!response.ok) {

@@ -31,10 +31,10 @@ const SpecialOfferDetails = () => {
     const fetchOfferProduct = async () => {
       try {
         const response = await axios.get(
-          "https://pharma-door-backend.vercel.app/api/v1/offer"
+          "https://pharma-door-backend.vercel.app/api/v1/offer",
         );
         const found = response.data.data.find(
-          (item: OfferProduct) => item._id === _id
+          (item: OfferProduct) => item._id === _id,
         );
         setProduct(found || null);
       } catch (err) {

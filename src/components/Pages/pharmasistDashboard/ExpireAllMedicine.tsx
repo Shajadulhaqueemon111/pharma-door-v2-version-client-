@@ -52,7 +52,7 @@ const ExpireAllMedicine = () => {
             headers: {
               Authorization: `${token}`,
             },
-          }
+          },
         );
 
         const medicines: Medicine[] = res.data.data;
@@ -99,13 +99,13 @@ const ExpireAllMedicine = () => {
             headers: {
               Authorization: `${token}`,
             },
-          }
+          },
         );
 
         if (res.status === 200) {
           toast.success("Medicine deleted successfully");
           setExpiredMedicines((prev) =>
-            prev.filter((item) => item._id !== _id)
+            prev.filter((item) => item._id !== _id),
           );
         }
       } catch (err) {
@@ -126,7 +126,7 @@ const ExpireAllMedicine = () => {
   // Get current page data
   const paginatedMedicines = expiredMedicines.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   return (

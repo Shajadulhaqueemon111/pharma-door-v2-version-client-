@@ -28,7 +28,7 @@ const OtcMedicineDetails = () => {
       .then((response) => {
         const allMedicines: Medicine[] = response.data;
         const filtered = allMedicines.filter(
-          (med) => med.medicineType === medicineType
+          (med) => med.medicineType === medicineType,
         );
         setFilteredMedicines(filtered);
       })
@@ -37,7 +37,7 @@ const OtcMedicineDetails = () => {
       });
   }, [medicineType]);
   const serachFilter = filteredMedicines.filter((item) =>
-    item.name.toLowerCase().includes(searchText.toLowerCase())
+    item.name.toLowerCase().includes(searchText.toLowerCase()),
   );
   return (
     <div className="px-4 mt-10">

@@ -37,7 +37,7 @@ const OrderedMedicine = () => {
             headers: {
               Authorization: `${token}`,
             },
-          }
+          },
         );
 
         const data = await res.json();
@@ -47,7 +47,7 @@ const OrderedMedicine = () => {
         const filteredOrders = allOrders
           .map((order: any) => {
             const matchingProducts = order.products.filter(
-              (item: any) => item.pharmacist === userId
+              (item: any) => item.pharmacist === userId,
             );
 
             if (matchingProducts.length > 0) {
@@ -98,7 +98,7 @@ const OrderedMedicine = () => {
             headers: {
               Authorization: `${token}`,
             },
-          }
+          },
         );
 
         if (res.status === 200) {
@@ -159,14 +159,14 @@ const OrderedMedicine = () => {
       order.status === "Pending"
         ? "bg-yellow-500"
         : order.status === "Paid"
-        ? "bg-blue-500"
-        : order.status === "Shipped"
-        ? "bg-indigo-500"
-        : order.status === "Completed"
-        ? "bg-green-600"
-        : order.status === "Cancelled"
-        ? "bg-red-600"
-        : "bg-gray-400"
+          ? "bg-blue-500"
+          : order.status === "Shipped"
+            ? "bg-indigo-500"
+            : order.status === "Completed"
+              ? "bg-green-600"
+              : order.status === "Cancelled"
+                ? "bg-red-600"
+                : "bg-gray-400"
     }
            `}
                   >
@@ -204,7 +204,7 @@ const OrderedMedicine = () => {
                     </Link>
                   </td>
                 </tr>
-              ))
+              )),
             )}
           </tbody>
         </table>

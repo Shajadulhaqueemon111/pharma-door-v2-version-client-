@@ -22,7 +22,7 @@ const BlogPage = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        "https://pharma-door-backend.vercel.app/api/v1/blog"
+        "https://pharma-door-backend.vercel.app/api/v1/blog",
       );
       setBlogs(response.data.data);
     } catch (err) {
@@ -39,7 +39,7 @@ const BlogPage = () => {
   const totalPages = Math.ceil(blogs.length / itemsPerPage);
   const paginatedBlogs = blogs.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   const handlePageChange = (page: number) => {

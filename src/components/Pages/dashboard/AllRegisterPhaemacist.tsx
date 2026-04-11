@@ -26,7 +26,7 @@ const AllRegisterPharmacist = () => {
           headers: {
             Authorization: `${token}`,
           },
-        }
+        },
       );
 
       const allUsers: UserType[] = res.data.data || [];
@@ -66,7 +66,7 @@ const AllRegisterPharmacist = () => {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
-            }
+            },
           );
 
           Swal.fire("Deleted!", "User has been deleted.", "success");
@@ -124,10 +124,10 @@ const AllRegisterPharmacist = () => {
       user.status === "pending"
         ? "bg-yellow-500"
         : user.status === "approved"
-        ? "bg-green-600"
-        : user.status === "rejected"
-        ? "bg-red-600"
-        : "bg-gray-400"
+          ? "bg-green-600"
+          : user.status === "rejected"
+            ? "bg-red-600"
+            : "bg-gray-400"
     }
                 `}
                 >

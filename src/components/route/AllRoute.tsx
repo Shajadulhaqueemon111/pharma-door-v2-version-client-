@@ -67,6 +67,14 @@ import AnimalMedicineDetails from "../Pages/AnimalMedicine/AnimalDetails";
 import AllAnimalMedicinePage from "../Pages/pharmasistDashboard/AnimalMedicine/AllAnimalMedicine";
 import CreateAnimalMedicine from "../Pages/pharmasistDashboard/AnimalMedicine/CreateAnimalMedicine";
 import UpdateAnimalMedicine from "../Pages/pharmasistDashboard/AnimalMedicine/UpdateAnimalMedicine";
+import AboutUs from "../Pages/Footer/AboutUs";
+import TermsAndConditions from "../Pages/Footer/TermsAndCondition";
+import RefundPolicy from "../Pages/Footer/RefundPolicy";
+import PrivacyPolicy from "../Pages/Footer/PrivacyPolicy";
+import Disclaimer from "../Pages/Footer/DisClimerPage";
+import ContactUs from "../Pages/Footer/ContactPgae";
+import Blogs from "../Pages/Footer/Blog";
+import FAQ from "../Pages/Footer/FaquePage";
 
 const router = createBrowserRouter([
   {
@@ -94,6 +102,40 @@ const router = createBrowserRouter([
         path: "/upload-prescription",
         element: <PrescriptionUpload />,
       },
+      {
+        path: "/about-us",
+        element: <AboutUs />,
+      },
+      {
+        path: "/terms-and-conditions",
+        element: <TermsAndConditions />,
+      },
+      {
+        path: "/refund-policy",
+        element: <RefundPolicy />,
+      },
+      {
+        path: "/privacy-policy",
+        element: <PrivacyPolicy />,
+      },
+      {
+        path: "/disclaimer",
+        element: <Disclaimer />,
+      },
+
+      {
+        path: "/contact-us",
+        element: <ContactUs />,
+      },
+      {
+        path: "/blogs",
+        element: <Blogs />,
+      },
+      {
+        path: "/faq",
+        element: <FAQ />,
+      },
+
       {
         path: "/prescription-medicine-details/:_id",
         element: <PrescribeMedicineDetails />,

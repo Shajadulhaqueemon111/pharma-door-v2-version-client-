@@ -53,7 +53,7 @@ const PrescriptionUpload = () => {
             Authorization: `${token}`,
           },
           body: formData,
-        }
+        },
       );
       console.log(response);
       if (!response.ok) {

@@ -20,7 +20,7 @@ const Invoice = () => {
             headers: {
               Authorization: `${token}`,
             },
-          }
+          },
         );
 
         const data = await res.json();

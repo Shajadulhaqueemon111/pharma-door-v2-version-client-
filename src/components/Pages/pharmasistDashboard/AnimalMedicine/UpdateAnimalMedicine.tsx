@@ -38,7 +38,7 @@ const UpdateAnimalMedicine = () => {
           `https://pharma-door-backend.vercel.app/api/v1/animal-medicine/${_id}`,
           {
             headers: { Authorization: `${token}` },
-          }
+          },
         );
 
         const data = res.data.data || res.data;
@@ -69,7 +69,7 @@ const UpdateAnimalMedicine = () => {
         const imgbbApiKey = import.meta.env.VITE_IMGBB_API_KEY;
         const res = await axios.post(
           `https://api.imgbb.com/1/upload?key=${imgbbApiKey}`,
-          formData
+          formData,
         );
         imageUrl = res.data?.data?.url;
       }
@@ -91,7 +91,7 @@ const UpdateAnimalMedicine = () => {
       const response = await axios.patch(
         `https://pharma-door-backend.vercel.app/api/v1/animal-medicine/${_id}`,
         payload,
-        { headers: { Authorization: `${token}` } }
+        { headers: { Authorization: `${token}` } },
       );
 
       if (response.data) {
@@ -101,7 +101,7 @@ const UpdateAnimalMedicine = () => {
     } catch (error: any) {
       console.error(error?.response?.data);
       toast.error(
-        error?.response?.data?.message || "Failed to update animal medicine"
+        error?.response?.data?.message || "Failed to update animal medicine",
       );
     }
   };

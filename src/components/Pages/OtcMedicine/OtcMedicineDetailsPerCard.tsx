@@ -30,7 +30,7 @@ const OtcMedicineDetailsPerCard = () => {
     const fetchMedicine = async () => {
       try {
         const response = await axios.get(
-          `https://pharma-door-backend.vercel.app/api/v1/medicine/${_id}`
+          `https://pharma-door-backend.vercel.app/api/v1/medicine/${_id}`,
         );
         setMedicine(response.data?.data || null);
       } catch (err) {

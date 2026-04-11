@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await axios.post(
         "https://pharma-door-backend.vercel.app/api/v1/auth/logout",
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
     } catch (err) {
       console.error("Logout error:", err);
@@ -91,7 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const res = await axios.post(
         "https://pharma-door-backend.vercel.app/api/v1/auth/refresh-token",
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
       const newToken = res.data?.data?.accessToken;
       if (newToken) {

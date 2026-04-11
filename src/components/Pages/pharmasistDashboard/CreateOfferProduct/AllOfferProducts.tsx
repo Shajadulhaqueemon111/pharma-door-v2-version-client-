@@ -29,7 +29,7 @@ const AllOfferProducts = () => {
 
     try {
       const response = await axios.get(
-        "https://pharma-door-backend.vercel.app/api/v1/offer"
+        "https://pharma-door-backend.vercel.app/api/v1/offer",
       );
       console.log(response);
       setOfferProducts(response.data.data);
@@ -66,7 +66,7 @@ const AllOfferProducts = () => {
             headers: {
               Authorization: `${token}`,
             },
-          }
+          },
         );
         if (response.status === 200 || response.status === 204) {
           toast.success("offerproduct deleted successfully");
@@ -94,7 +94,7 @@ const AllOfferProducts = () => {
   const startIndex = (currentPage - 1) * itemPerPage;
   const currentItems = offerProducts.slice(
     startIndex,
-    startIndex + itemPerPage
+    startIndex + itemPerPage,
   );
   const gotToPage = (page: any) => {
     if (page < 1 || page > totalPage) return;

@@ -38,7 +38,7 @@ const PharmacistRegister = () => {
 
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    field: keyof typeof images
+    field: keyof typeof images,
   ) => {
     const file = e.target.files?.[0] || null;
     setImages((prev) => ({ ...prev, [field]: file }));
@@ -82,13 +82,13 @@ const PharmacistRegister = () => {
             postCode: formData.postCode,
             nid: formData.nid,
           },
-        })
+        }),
       );
 
       // ৩) POST request
       const response = await axios.post(
         "https://pharma-door-backend.vercel.app/api/v1/users/create-phermasist",
-        form
+        form,
       );
 
       console.log(response);

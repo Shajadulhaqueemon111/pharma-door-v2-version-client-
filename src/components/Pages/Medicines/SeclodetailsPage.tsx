@@ -26,7 +26,7 @@ const SeclodetailsPage = () => {
         console.log("API response:", resData);
         console.log("Current ID from URL:", _id);
         const found = resData.data.find(
-          (item: SecloMedicine) => item._id === _id
+          (item: SecloMedicine) => item._id === _id,
         );
         setMedicine(found || null);
       })

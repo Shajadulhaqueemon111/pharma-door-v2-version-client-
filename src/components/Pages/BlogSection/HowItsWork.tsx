@@ -1,112 +1,126 @@
+import { Row, Col, Card, Typography } from "antd";
+import { motion } from "framer-motion";
+import {
+  SearchOutlined,
+  UploadOutlined,
+  RocketOutlined,
+} from "@ant-design/icons";
+
+const { Title, Text } = Typography;
+
+const steps = [
+  {
+    id: 1,
+    title: "Search Medicine",
+    description: "Find your required medicines quickly using our smart search.",
+    icon: <SearchOutlined style={{ fontSize: 30 }} />,
+  },
+  {
+    id: 2,
+    title: "Upload Prescription",
+    description:
+      "Upload your doctor’s prescription securely to get exact medicines.",
+    icon: <UploadOutlined style={{ fontSize: 30 }} />,
+  },
+  {
+    id: 3,
+    title: "Fast Delivery",
+    description:
+      "Get your medicines delivered at your doorstep quickly and safely.",
+    icon: <RocketOutlined style={{ fontSize: 30 }} />,
+  },
+];
+
 const HowItWorks = () => {
-  const steps = [
-    {
-      id: 1,
-      title: "Search Medicine",
-      description:
-        "Find your required medicines quickly using our smart search.",
-      icon: (
-        <svg
-          className="w-12 h-12 text-cyan-500"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <circle
-            cx="11"
-            cy="11"
-            r="8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <line
-            x1="21"
-            y1="21"
-            x2="16.65"
-            y2="16.65"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: 2,
-      title: "Upload Prescription",
-      description:
-        "Upload your doctor’s prescription securely to get exact medicines.",
-      icon: (
-        <svg
-          className="w-12 h-12 text-cyan-500"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M16 12H8m0 0v-4m0 4v4m6-4v-4m0 4v4"
-          />
-          <rect x="3" y="4" width="18" height="16" rx="2" ry="2" />
-        </svg>
-      ),
-    },
-    {
-      id: 3,
-      title: "Fast Delivery",
-      description:
-        "Get your medicines delivered at your doorstep quickly and safely.",
-      icon: (
-        <svg
-          className="w-12 h-12 text-cyan-500"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M3 12h18m-6 6h6m-6-12h6m-6 0v12"
-          />
-          <circle
-            cx="9"
-            cy="18"
-            r="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-    },
-  ];
-
   return (
-    <section className="py-16 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6 text-center">
-        <h2 className="text-3xl font-bold text-blue-700 mb-6">
-          How Pharmadoor Works
-        </h2>
-        <p className="text-gray-600 mb-12 max-w-2xl mx-auto">
-          Follow these simple steps to get your medicines delivered hassle-free.
-        </p>
+    <div style={{ padding: "60px 20px", background: "#f5f7fa" }}>
+      <div style={{ maxWidth: 1100, margin: "auto", textAlign: "center" }}>
+        {/* Title */}
+        <Title level={2} style={{ marginBottom: 10 }}>
+          🚀 How Pharmadoor Works
+        </Title>
 
-        <div className="flex flex-col md:flex-row md:justify-center md:space-x-12 space-y-12 md:space-y-0">
-          {steps.map(({ id, title, description, icon }) => (
-            <div key={id} className="bg-white rounded-lg p-6 shadow-md flex-1">
-              <div className="mb-4">{icon}</div>
-              <h3 className="text-xl font-semibold mb-2 text-black">{title}</h3>
-              <p className="text-gray-600">{description}</p>
-            </div>
+        <Text type="secondary" style={{ fontSize: 15 }}>
+          Follow these simple steps to get your medicines delivered hassle-free.
+        </Text>
+
+        {/* Steps */}
+        <Row gutter={[24, 24]} style={{ marginTop: 50 }}>
+          {steps.map((step, index) => (
+            <Col xs={24} md={8} key={step.id}>
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.15 }}
+                viewport={{ once: true }}
+              >
+                <Card
+                  style={{
+                    borderRadius: 18,
+                    padding: "20px 10px",
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+                    textAlign: "center",
+                    position: "relative",
+                  }}
+                >
+                  {/* Step Number */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: -15,
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      background: "#1677ff",
+                      color: "#fff",
+                      width: 35,
+                      height: 35,
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {step.id}
+                  </div>
+
+                  {/* Icon */}
+                  <div
+                    style={{
+                      background: "#e6f4ff",
+                      width: 70,
+                      height: 70,
+                      margin: "20px auto",
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#1677ff",
+                    }}
+                  >
+                    {step.icon}
+                  </div>
+
+                  {/* Content */}
+                  <Title level={4}>{step.title}</Title>
+                  <Text type="secondary">{step.description}</Text>
+                </Card>
+              </motion.div>
+            </Col>
           ))}
-        </div>
+        </Row>
       </div>
-    </section>
+
+      {/* Hover Effect */}
+      <style>
+        {`
+        .ant-card:hover {
+          transform: translateY(-10px);
+          box-shadow: 0 25px 50px rgba(0,0,0,0.15) !important;
+        }
+        `}
+      </style>
+    </div>
   );
 };
 
