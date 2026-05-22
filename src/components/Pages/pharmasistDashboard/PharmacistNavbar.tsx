@@ -49,7 +49,7 @@ const PharmacistNavbar = () => {
         if (!token || !userId) return;
 
         const res = await fetch(
-          "https://pharma-door-backend.vercel.app/api/v1/medicine",
+          "https://pharmadoor-backend-v2.vercel.app/api/v1/medicine",
           {
             headers: {
               Authorization: `${token}`,
@@ -130,7 +130,7 @@ const PharmacistNavbar = () => {
     },
     {
       key: "logout",
-      label: <Link to="/logout">Logout</Link>,
+      label: <Link to="/login">Logout</Link>,
     },
   ];
 

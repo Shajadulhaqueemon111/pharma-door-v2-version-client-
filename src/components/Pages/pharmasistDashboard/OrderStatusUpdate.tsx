@@ -24,7 +24,7 @@ const OrderStatusUpdate = () => {
         toast.error("does not accessToke your localStorage");
       }
       const response = await axios.patch(
-        `https://pharma-door-backend.vercel.app/api/v1/order/${_id}`,
+        `https://pharmadoor-backend-v2.vercel.app/api/v1/order/${_id}`,
         { status },
         {
           headers: {

@@ -15,7 +15,7 @@ const Invoice = () => {
 
       try {
         const res = await fetch(
-          `https://pharma-door-backend.vercel.app/api/v1/order/${_id}`,
+          `https://pharmadoor-backend-v2.vercel.app/api/v1/order/${_id}`,
           {
             headers: {
               Authorization: `${token}`,

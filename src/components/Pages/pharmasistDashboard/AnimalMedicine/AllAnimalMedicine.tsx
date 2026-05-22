@@ -39,7 +39,7 @@ const AllAnimalMedicinePage = () => {
         const token = localStorage.getItem("accessToken");
 
         const response = await axios.get(
-          "https://pharma-door-backend.vercel.app/api/v1/animal-medicine",
+          "https://pharmadoor-backend-v2.vercel.app/api/v1/animal-medicine",
           {
             headers: { Authorization: `${token}` },
           },
@@ -76,7 +76,7 @@ const AllAnimalMedicinePage = () => {
           const token = localStorage.getItem("accessToken");
 
           const res = await axios.delete(
-            `https://pharma-door-backend.vercel.app/api/v1/animal-medicine/${_id}`,
+            `https://pharmadoor-backend-v2.vercel.app/api/v1/animal-medicine/${_id}`,
             {
               headers: { Authorization: `${token}` },
             },

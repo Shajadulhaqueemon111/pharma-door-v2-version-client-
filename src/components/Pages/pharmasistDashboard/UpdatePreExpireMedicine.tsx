@@ -23,7 +23,7 @@ const UpdatePreExpireMedicines = () => {
       setLoading(true);
       try {
         const res = await axios.get(
-          `https://pharma-door-backend.vercel.app/api/v1/medicine/${_id}`,
+          `https://pharmadoor-backend-v2.vercel.app/api/v1/medicine/${_id}`,
         );
 
         const fetchedDate = res.data?.data?.expiryDate;
@@ -79,7 +79,7 @@ const UpdatePreExpireMedicines = () => {
         }
 
         await axios.patch(
-          `https://pharma-door-backend.vercel.app/api/v1/medicine/${_id}`,
+          `https://pharmadoor-backend-v2.vercel.app/api/v1/medicine/${_id}`,
           { expiryDate: newDate.toISOString() },
           {
             headers: { Authorization: token },

@@ -31,7 +31,7 @@ const BlogPostForm = () => {
       }
 
       const response = await axios.post(
-        "https://pharma-door-backend.vercel.app/api/v1/blog/create-blog",
+        "https://pharmadoor-backend-v2.vercel.app/api/v1/blog/create-blog",
         blogData,
         {
           headers: {

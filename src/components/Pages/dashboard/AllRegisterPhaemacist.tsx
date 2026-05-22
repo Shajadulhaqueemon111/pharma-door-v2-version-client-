@@ -21,7 +21,7 @@ const AllRegisterPharmacist = () => {
     try {
       const token = localStorage.getItem("accessToken");
       const res = await axios.get(
-        "https://pharma-door-backend.vercel.app/api/v1/users",
+        "https://pharmadoor-backend-v2.vercel.app/api/v1/users",
         {
           headers: {
             Authorization: `${token}`,
@@ -61,7 +61,7 @@ const AllRegisterPharmacist = () => {
           }
 
           await axios.delete(
-            `https://pharma-door-backend.vercel.app/api/v1/users/${_id}`,
+            `https://pharmadoor-backend-v2.vercel.app/api/v1/users/${_id}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,

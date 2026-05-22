@@ -20,7 +20,7 @@ const SeclodetailsPage = () => {
   const [medicine, setMedicine] = useState<SecloMedicine | null>(null);
 
   useEffect(() => {
-    fetch("https://pharma-door-backend.vercel.app/api/v1/medicine")
+    fetch("https://pharmadoor-backend-v2.vercel.app/api/v1/medicine")
       .then((res) => res.json())
       .then((resData) => {
         console.log("API response:", resData);

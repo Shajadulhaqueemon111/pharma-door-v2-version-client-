@@ -21,7 +21,7 @@ const AllUsers = () => {
   const fetchUsers = async () => {
     try {
       const res = await axios.get(
-        "https://pharma-door-backend.vercel.app/api/v1/users",
+        "https://pharmadoor-backend-v2.vercel.app/api/v1/users",
         {
           headers: {
             Authorization: ` ${localStorage.getItem("accessToken")}`,
@@ -66,7 +66,7 @@ const AllUsers = () => {
           }
 
           await axios.delete(
-            `https://pharma-door-backend.vercel.app/api/v1/users/${_id}`,
+            `https://pharmadoor-backend-v2.vercel.app/api/v1/users/${_id}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,

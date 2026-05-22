@@ -87,7 +87,7 @@ const PharmacistRegister = () => {
 
       // ৩) POST request
       const response = await axios.post(
-        "https://pharma-door-backend.vercel.app/api/v1/users/create-phermasist",
+        "https://pharmadoor-backend-v2.vercel.app/api/v1/users/create-phermasist",
         form,
       );
 

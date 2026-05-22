@@ -10,7 +10,6 @@ import {
   Modal,
   Image,
   Spin,
-  Space,
   Typography,
   Divider,
 } from "antd";
@@ -57,7 +56,7 @@ const PharmacistDocument = () => {
       const token = localStorage.getItem("accessToken");
 
       const res = await axios.get(
-        "https://pharma-door-backend.vercel.app/api/v1/phermacist",
+        "https://pharmadoor-backend-v2.vercel.app/api/v1/phermacist",
         {
           headers: { Authorization: `${token}` },
         },

@@ -31,7 +31,7 @@ const UpdateOfferPage = () => {
     const fetchProduct = async () => {
       try {
         const response = await axios.get(
-          `https://pharma-door-backend.vercel.app/api/v1/offer/${_id}`,
+          `https://pharmadoor-backend-v2.vercel.app/api/v1/offer/${_id}`,
         );
         setProduct(response.data.data);
       } catch (error) {
@@ -54,7 +54,7 @@ const UpdateOfferPage = () => {
     try {
       const token = localStorage.getItem("accessToken");
       const response = await axios.patch(
-        `https://pharma-door-backend.vercel.app/api/v1/offer/${_id}`,
+        `https://pharmadoor-backend-v2.vercel.app/api/v1/offer/${_id}`,
         product,
         {
           headers: {

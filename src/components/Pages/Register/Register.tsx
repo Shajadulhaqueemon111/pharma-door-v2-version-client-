@@ -1,161 +1,190 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
-import bgVideo from "../../../assets/Science Laboratory 4K Stock Video.mp4";
+import { Button, Card, Form, Input, Typography } from "antd";
+
+import {
+  EyeInvisibleOutlined,
+  EyeTwoTone,
+  MailOutlined,
+  LockOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+
 import toast from "react-hot-toast";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 
+const { Title, Text } = Typography;
+
 const Register = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const [form] = Form.useForm();
+
+  const handleRegister = async (values: {
+    name: string;
+    email: string;
+    password: string;
+  }) => {
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\d])(?=.*[\W_]).{8,}$/;
 
-    if (!passwordRegex.test(password)) {
+    if (!passwordRegex.test(values.password)) {
       toast.error(
-        "Password must be at least 8 characters long, include one uppercase and one lowercase letter and one speacial charecter",
+        "Password must contain uppercase, lowercase, number & special character",
       );
       return;
     }
-    const userData = {
-      name,
-      email,
-      password,
-    };
 
     try {
+      setLoading(true);
+
+      const userData = {
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      };
+
       const response = await axios.post(
-        "https://pharma-door-backend.vercel.app/api/v1/users/create-user",
+        "https://pharmadoor-backend-v2.vercel.app/api/v1/users/create-user",
         userData,
       );
 
-      toast.success("Registration successful!");
-      console.log("User created:", response.data);
+      console.log(response.data);
+
+      toast.success("Registration successful 🎉");
+
+      form.resetFields();
+
       navigate("/login");
     } catch (error: any) {
-      console.error(
-        "Registration error:",
-        error.response?.data || error.message,
-      );
+      console.error(error.response?.data || error.message);
+
       toast.error("Registration failed!");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-900">
-      {/* Background Video */}
-      <video
-        autoPlay
-        loop
-        muted
-        className="absolute w-full h-full object-cover brightness-75 contrast-110 saturate-110 filter z-0"
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <Card
+        className="w-full max-w-md rounded-2xl shadow-lg"
+        styles={{
+          body: {
+            padding: "32px",
+          },
+        }}
       >
-        <source src={bgVideo} type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-
-      {/* Overlay with subtle blur */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-10"></div>
-
-      {/* Form Container */}
-      <div className="relative z-20 bg-white bg-opacity-90 backdrop-blur-md shadow-2xl rounded-3xl p-10 w-full max-w-md mx-4">
-        <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-8 tracking-wide">
-          Create Your Account
-        </h2>
-
-        <form className="space-y-6" onSubmit={handleRegister}>
-          {/* Full Name */}
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-semibold text-gray-700 mb-2"
-            >
-              Full Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              placeholder="Your full name"
-              className="w-full px-5 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-400 focus:border-indigo-600 transition"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 rounded-full bg-indigo-500 flex items-center justify-center mx-auto mb-4">
+            <UserOutlined
+              style={{
+                color: "white",
+                fontSize: 28,
+              }}
             />
           </div>
+
+          <Title
+            level={3}
+            style={{
+              marginBottom: 4,
+            }}
+          >
+            Create Account
+          </Title>
+
+          <Text type="secondary">Register your Pharma account</Text>
+        </div>
+
+        {/* Form */}
+        <Form form={form} layout="vertical" onFinish={handleRegister}>
+          {/* Name */}
+          <Form.Item
+            label="Full Name"
+            name="name"
+            rules={[
+              {
+                required: true,
+                message: "Please enter your name",
+              },
+            ]}
+          >
+            <Input
+              size="large"
+              prefix={<UserOutlined />}
+              placeholder="Enter your full name"
+            />
+          </Form.Item>
 
           {/* Email */}
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-semibold text-gray-700 mb-2"
-            >
-              Email Address
-            </label>
-            <input
-              id="email"
-              type="email"
-              placeholder="Your email address"
-              className="w-full px-5 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-400 focus:border-indigo-600 transition"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              {
+                required: true,
+                message: "Please enter your email",
+              },
+              {
+                type: "email",
+                message: "Enter a valid email",
+              },
+            ]}
+          >
+            <Input
+              size="large"
+              prefix={<MailOutlined />}
+              placeholder="Enter your email"
             />
-          </div>
+          </Form.Item>
 
           {/* Password */}
-          <div className="relative">
-            <label
-              htmlFor="password"
-              className="block text-sm font-semibold text-gray-700 mb-2"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="Create a password"
-              className="w-full px-5 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-400 focus:border-indigo-600 transition pr-12"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[
+              {
+                required: true,
+                message: "Please enter your password",
+              },
+            ]}
+          >
+            <Input.Password
+              size="large"
+              prefix={<LockOutlined />}
+              placeholder="Create password"
+              iconRender={(visible) =>
+                visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+              }
             />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center text-gray-500"
-              aria-label={showPassword ? "Hide password" : "Show password"}
+          </Form.Item>
+
+          {/* Submit */}
+          <Form.Item className="mt-6">
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              loading={loading}
+              block
             >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
-          </div>
+              Register
+            </Button>
+          </Form.Item>
+        </Form>
 
-          {/* Register Button */}
-          <button
-            type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-lg transition duration-300"
-          >
-            Register
-          </button>
-        </form>
-
-        {/* Login Link */}
-        <p className="mt-6 text-center text-gray-600 text-sm">
-          Already have an account?{" "}
-          <Link
-            to="/login"
-            className="font-semibold text-indigo-600 hover:text-indigo-800 hover:underline"
-          >
-            Login here
-          </Link>
-        </p>
-      </div>
+        {/* Footer */}
+        <div className="text-center mt-4">
+          <Text type="secondary">
+            Already have an account? <Link to="/login">Login here</Link>
+          </Text>
+        </div>
+      </Card>
     </div>
   );
 };

@@ -52,7 +52,7 @@ const CreateAnimalMedicine = () => {
       const token = localStorage.getItem("accessToken");
 
       const response = await axios.post(
-        "https://pharma-door-backend.vercel.app/api/v1/animal-medicine/create-animalmedicine",
+        "https://pharmadoor-backend-v2.vercel.app/api/v1/animal-medicine/create-animalmedicine",
         payload,
         {
           headers: { Authorization: `${token}` },

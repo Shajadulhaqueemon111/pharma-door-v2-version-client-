@@ -1,13 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
-import hdVedio from "../../../assets/medicine.mp4";
+import { Button, Card, Form, Input, Typography, Divider } from "antd";
+
+import {
+  MailOutlined,
+  LockOutlined,
+  UserOutlined,
+  SafetyCertificateOutlined,
+} from "@ant-design/icons";
+
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
 import axios from "axios";
-import { useAuth } from "../privateRoute/AuthContext";
+import toast from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
-// import GoogleLogin from "./GoogleLogin";
+
+import { useAuth } from "../privateRoute/AuthContext";
+
+const { Title, Text } = Typography;
 
 interface DecodedToken {
   name: string;
@@ -18,25 +28,31 @@ interface DecodedToken {
 }
 
 const Login = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
-  const { login } = useAuth();
   const location = useLocation();
+
+  const { login } = useAuth();
+
   const from = (location.state as { from?: Location })?.from?.pathname || "/";
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const [form] = Form.useForm();
 
+  const onFinish = async (values: { email: string; password: string }) => {
     try {
-      const response = await axios.post(
-        "https://pharma-door-backend.vercel.app/api/v1/auth/login",
-        { email, password },
-        { withCredentials: true },
-      );
+      setLoading(true);
 
-      console.log("Full login response:", response.data);
+      const response = await axios.post(
+        "https://pharmadoor-backend-v2.vercel.app/api/v1/auth/login",
+        {
+          email: values.email,
+          password: values.password,
+        },
+        {
+          withCredentials: true,
+        },
+      );
 
       const accessToken = response.data?.data?.accessToken;
 
@@ -45,12 +61,9 @@ const Login = () => {
       }
 
       const decoded = jwtDecode<DecodedToken>(accessToken);
+
       const role = decoded.role;
       const status = decoded.status;
-      const profileImage = decoded.profileImage;
-      const name = decoded.name;
-      console.log(profileImage, name);
-      console.log(decoded);
 
       if (role === "pharmacist" && status !== "approved") {
         toast.error(
@@ -60,7 +73,8 @@ const Login = () => {
       }
 
       login(accessToken);
-      toast.success("Login successful");
+
+      toast.success("Login Successful 🎉");
 
       if (from && from !== "/login" && from !== "/") {
         navigate(from, { replace: true });
@@ -69,146 +83,140 @@ const Login = () => {
           navigate("/admin-dashboard", { replace: true });
         } else if (role === "pharmacist") {
           navigate("/pharmacist-dashboard", { replace: true });
-        } else if (role === "user") {
-          navigate("/", { replace: true });
         } else {
-          toast.error("Unknown user role");
+          navigate("/", { replace: true });
         }
       }
     } catch (error: any) {
       toast.error("Invalid email or password");
-      console.error("Login failed:", error.response?.data || error.message);
-    }
-  };
-
-  const fillDemoCredentials = (role: "admin" | "pharmacist") => {
-    if (role === "admin") {
-      setEmail("admin@gmail.com");
-      setPassword("admin1234");
-    } else if (role === "pharmacist") {
-      setEmail("mdshajdulhaqueemon8@gmail.com");
-      setPassword("12345");
+      console.error(error.response?.data || error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-gray-900">
-      {/* Background video */}
-      <video
-        autoPlay
-        loop
-        muted
-        className="absolute w-full h-full object-cover brightness-75 contrast-125 saturate-125 filter"
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <Card
+        className="w-full max-w-md rounded-2xl shadow-lg"
+        styles={{
+          body: {
+            padding: "32px",
+          },
+        }}
       >
-        <source src={hdVedio} type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
+        {/* Header */}
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <SafetyCertificateOutlined
+              style={{
+                color: "white",
+                fontSize: 28,
+              }}
+            />
+          </div>
 
-      {/* Overlay with blur */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-10"></div>
+          <Title level={3} style={{ marginBottom: 4 }}>
+            Welcome Back
+          </Title>
 
-      {/* Login form container */}
-      <div className="relative z-20 bg-white bg-opacity-90 backdrop-blur-md p-10 rounded-3xl shadow-2xl w-full max-w-md mx-4">
-        <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-8 tracking-wide">
-          Welcome Back
-        </h2>
-
-        {/* Demo Credentials Buttons */}
-        <div className="flex justify-center gap-4 mb-8">
-          <button
-            type="button"
-            onClick={() => fillDemoCredentials("admin")}
-            className="bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold px-5 py-2 rounded-lg shadow-md transition"
-          >
-            Fill Admin Credentials
-          </button>
-          <button
-            type="button"
-            onClick={() => fillDemoCredentials("pharmacist")}
-            className="bg-green-100 hover:bg-green-200 text-green-700 font-semibold px-5 py-2 rounded-lg shadow-md transition"
-          >
-            Fill Pharmacist Credentials
-          </button>
+          <Text type="secondary">Login to your Pharma Dashboard</Text>
         </div>
 
-        <form className="space-y-6" onSubmit={handleLogin}>
-          {/* Email */}
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-5 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-4 focus:ring-indigo-400 focus:border-indigo-600 transition shadow-sm"
-              placeholder="Enter your email"
-              required
-            />
-          </div>
-
-          {/* Password */}
-          <div className="relative">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Password
-            </label>
-            <input
-              type={showPassword ? "text" : "password"}
-              id="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-5 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-4 focus:ring-indigo-400 focus:border-indigo-600 transition pr-12 shadow-sm"
-              placeholder="Enter your password"
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-indigo-600 transition"
-              aria-label={showPassword ? "Hide password" : "Show password"}
-            >
-              {showPassword ? <EyeOff size={24} /> : <Eye size={24} />}
-            </button>
-          </div>
-
-          {/* Submit button */}
-          <button
-            type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-lg transition"
+        {/* Demo Buttons */}
+        <div className="space-y-3 mb-6">
+          <Button
+            block
+            size="large"
+            icon={<UserOutlined />}
+            onClick={() => {
+              form.setFieldsValue({
+                email: "admin@gmail.com",
+                password: "admin1234",
+              });
+            }}
           >
-            Login
-          </button>
+            Admin Demo
+          </Button>
 
-          {/* Register links */}
-          <p className="text-center text-sm text-gray-600 mt-4">
-            Don&apos;t have an account?{" "}
-            <Link
-              to="/register"
-              className="font-semibold text-indigo-600 hover:text-indigo-800"
+          <Button
+            block
+            size="large"
+            icon={<SafetyCertificateOutlined />}
+            onClick={() => {
+              form.setFieldsValue({
+                email: "mdshajdulhaqueemon8@gmail.com",
+                password: "12345",
+              });
+            }}
+          >
+            Pharmacist Demo
+          </Button>
+        </div>
+
+        <Divider />
+
+        {/* Form */}
+        <Form form={form} layout="vertical" onFinish={onFinish}>
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              {
+                required: true,
+                message: "Please enter your email",
+              },
+            ]}
+          >
+            <Input
+              size="large"
+              prefix={<MailOutlined />}
+              placeholder="Enter your email"
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[
+              {
+                required: true,
+                message: "Please enter your password",
+              },
+            ]}
+          >
+            <Input.Password
+              size="large"
+              prefix={<LockOutlined />}
+              placeholder="Enter your password"
+            />
+          </Form.Item>
+
+          <Form.Item className="mt-6">
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              loading={loading}
+              block
             >
-              Register
-            </Link>
+              Login
+            </Button>
+          </Form.Item>
+        </Form>
+
+        {/* Footer */}
+        <div className="text-center space-y-2">
+          <p>
+            Don&apos;t have an account? <Link to="/register">Register</Link>
           </p>
-          <p className="text-center text-sm text-gray-600 mt-1">
+
+          <p>
             Are you a Pharmacist?{" "}
-            <Link
-              to="/phermacist-register"
-              className="font-semibold text-indigo-600 hover:text-indigo-800"
-            >
-              Register here
-            </Link>
+            <Link to="/phermacist-register">Register here</Link>
           </p>
-        </form>
-      </div>
+        </div>
+      </Card>
     </div>
   );
 };

@@ -29,7 +29,7 @@ const AllOfferProducts = () => {
 
     try {
       const response = await axios.get(
-        "https://pharma-door-backend.vercel.app/api/v1/offer",
+        "https://pharmadoor-backend-v2.vercel.app/api/v1/offer",
       );
       console.log(response);
       setOfferProducts(response.data.data);
@@ -61,7 +61,7 @@ const AllOfferProducts = () => {
           toast.error("accessToken does not exist");
         }
         const response = await axios.delete(
-          `https://pharma-door-backend.vercel.app/api/v1/offer/${_id}`,
+          `https://pharmadoor-backend-v2.vercel.app/api/v1/offer/${_id}`,
           {
             headers: {
               Authorization: `${token}`,

@@ -80,7 +80,7 @@ const ProfileTab = ({ user, updateUser }: { user: any; updateUser: any }) => {
     try {
       const token = localStorage.getItem("accessToken");
       const res = await axios.patch(
-        `https://pharma-door-backend.vercel.app/api/v1/users/${user?._id}`,
+        `https://pharmadoor-backend-v2.vercel.app/api/v1/users/${user?._id}`,
         { ...values, profileImage },
         { headers: { Authorization: `${token}` } },
       );

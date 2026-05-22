@@ -24,7 +24,7 @@ const BlogDetailsPage = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `https://pharma-door-backend.vercel.app/api/v1/blog/${_id}`,
+          `https://pharmadoor-backend-v2.vercel.app/api/v1/blog/${_id}`,
         );
         setBlog(response.data.data);
       } catch (error) {

@@ -40,7 +40,7 @@ const PreExpiryNotification: React.FC = () => {
       if (!token) return;
 
       const res = await axios.get(
-        "https://pharma-door-backend.vercel.app/api/v1/medicine",
+        "https://pharmadoor-backend-v2.vercel.app/api/v1/medicine",
         {
           headers: {
             Authorization: `${token}`,
@@ -79,7 +79,7 @@ const PreExpiryNotification: React.FC = () => {
       const token = localStorage.getItem("accessToken");
 
       const res = await axios.delete(
-        `https://pharma-door-backend.vercel.app/api/v1/medicine/${_id}`,
+        `https://pharmadoor-backend-v2.vercel.app/api/v1/medicine/${_id}`,
         {
           headers: {
             Authorization: `${token}`,
