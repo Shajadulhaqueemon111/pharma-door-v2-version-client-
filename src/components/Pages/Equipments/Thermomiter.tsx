@@ -49,7 +49,7 @@ const ThermometerPage = () => {
   }, []);
 
   useEffect(() => {
-    fetch("https://pharmadoor-backend-v2.vercel.app/api/v1/equipment")
+    fetch("http://localhost:5001/api/v1/equipment")
       .then((res) => res.json())
       .then((data) => {
         setMedicalProducts(data.data);

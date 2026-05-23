@@ -62,7 +62,6 @@ const PharmacistRegister = () => {
     try {
       const form = new FormData();
 
-      // ১) ফাইলগুলো append
       form.append("profileImage", images.profileImage);
       form.append("drugLicenseImage", images.drugLicenseImage);
       form.append("nidImage", images.nidImage);
@@ -87,7 +86,7 @@ const PharmacistRegister = () => {
 
       // ৩) POST request
       const response = await axios.post(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/users/create-phermasist",
+        "http://localhost:5001/api/v1/users/create-phermasist",
         form,
       );
 
@@ -114,7 +113,7 @@ const PharmacistRegister = () => {
         <source src={bgVideo} type="video/mp4" />
       </video>
 
-      <div className="relative z-10 max-w-xl w-full p-6 bg-white/90 rounded shadow">
+      <div className="relative z-10 max-w-xl w-full p-6 bg-white  rounded shadow-lg">
         <h2 className="text-2xl font-bold mb-4 text-center">
           Pharmacist Registration
         </h2>

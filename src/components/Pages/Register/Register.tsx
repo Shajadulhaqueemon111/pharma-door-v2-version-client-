@@ -48,7 +48,7 @@ const Register = () => {
       };
 
       const response = await axios.post(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/users/create-user",
+        "http://localhost:5001/api/v1/users/create-user",
         userData,
       );
 

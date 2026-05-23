@@ -28,7 +28,7 @@ const AnimalMedicine = () => {
   const { searchText } = useOutletContext<OutletContextType>();
 
   useEffect(() => {
-    fetch("https://pharmadoor-backend-v2.vercel.app/api/v1/animal-medicine")
+    fetch("http://localhost:5001/api/v1/animal-medicine")
       .then((res) => res.json())
       .then((data) => {
         const filtered = data.data.filter((item: AnimalMedicineType) =>

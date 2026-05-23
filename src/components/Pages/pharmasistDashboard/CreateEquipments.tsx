@@ -63,7 +63,7 @@ const CreateEquipments = () => {
 
       const token = localStorage.getItem("accessToken");
       const response = await axios.post(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/equipment/create-equipment",
+        "http://localhost:5001/api/v1/equipment/create-equipment",
         payload,
         {
           headers: { Authorization: `${token}` },

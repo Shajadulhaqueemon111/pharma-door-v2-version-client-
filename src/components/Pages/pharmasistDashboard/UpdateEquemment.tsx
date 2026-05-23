@@ -37,7 +37,7 @@ const UpdateEquipment = () => {
         }
 
         const res = await axios.get(
-          `https://pharmadoor-backend-v2.vercel.app/api/v1/equipment/${_id}`,
+          `http://localhost:5001/api/v1/equipment/${_id}`,
           {
             headers: {
               Authorization: `${token}`,
@@ -91,7 +91,7 @@ const UpdateEquipment = () => {
       }
 
       await axios.patch(
-        `https://pharmadoor-backend-v2.vercel.app/api/v1/equipment/${_id}`,
+        `http://localhost:5001/api/v1/equipment/${_id}`,
         formData,
         {
           headers: {

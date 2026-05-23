@@ -53,7 +53,7 @@ const CreateOfferProduct = () => {
       }
 
       await axios.post(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/offer/create-offer",
+        "http://localhost:5001/api/v1/offer/create-offer",
         formData,
         {
           headers: {

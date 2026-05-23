@@ -20,9 +20,7 @@ const AnimalMedicineDetails = () => {
   const [medicine, setMedicine] = useState<AnimalMedicineType | null>(null);
 
   useEffect(() => {
-    fetch(
-      `https://pharmadoor-backend-v2.vercel.app/api/v1/animal-medicine/${_id}`,
-    )
+    fetch(`http://localhost:5001/api/v1/animal-medicine/${_id}`)
       .then((res) => res.json())
       .then((data) => {
         setMedicine(data.data || null);

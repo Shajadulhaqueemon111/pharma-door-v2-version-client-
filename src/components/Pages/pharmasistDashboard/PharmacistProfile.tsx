@@ -13,7 +13,7 @@ import {
   Switch,
   Card,
   Divider,
-  Tag,
+  // Tag,
   Row,
   Col,
   message,
@@ -23,7 +23,7 @@ import {
   KeyOutlined,
   BgColorsOutlined,
   DesktopOutlined,
-  LogoutOutlined,
+  // LogoutOutlined,
   CloseOutlined,
   EyeInvisibleOutlined,
   EyeTwoTone,
@@ -80,7 +80,7 @@ const ProfileTab = ({ user, updateUser }: { user: any; updateUser: any }) => {
     try {
       const token = localStorage.getItem("accessToken");
       const res = await axios.patch(
-        `https://pharmadoor-backend-v2.vercel.app/api/v1/users/${user?._id}`,
+        `http://localhost:5001/api/v1/users/${user?._id}`,
         { ...values, profileImage },
         { headers: { Authorization: `${token}` } },
       );
@@ -249,7 +249,7 @@ const ProfileTab = ({ user, updateUser }: { user: any; updateUser: any }) => {
         </Text>
 
         {/* Mobile */}
-        <Form.Item
+        {/* <Form.Item
           name="phone"
           label={<span style={{ color: "#e6edf3" }}>Mobile Number</span>}
         >
@@ -258,8 +258,8 @@ const ProfileTab = ({ user, updateUser }: { user: any; updateUser: any }) => {
             prefix={<span style={{ fontSize: 16 }}>🇧🇩</span>}
             placeholder="+880 XXXX XXXXXX"
           />
-        </Form.Item>
-        <Text
+        </Form.Item> */}
+        {/* <Text
           style={{
             color: "#8b949e",
             fontSize: 12,
@@ -269,7 +269,7 @@ const ProfileTab = ({ user, updateUser }: { user: any; updateUser: any }) => {
           }}
         >
           Your mobile number is used for account recovery and security.
-        </Text>
+        </Text> */}
 
         <Form.Item>
           <Button
@@ -306,7 +306,8 @@ const AccountTab = () => {
     <div>
       <Text style={{ color: "#8b949e", fontSize: 13 }}>
         Manage your account settings, including your Agency information and
-        security settings.
+        security settings.{" "}
+        <span className="text-2xl font-bold">(upcomming soon)</span>
       </Text>
 
       <div style={{ display: "flex", gap: 8, margin: "20px 0 28px 0" }}>
@@ -485,439 +486,439 @@ const AccountTab = () => {
 // ══════════════════════════════════════════════════════════
 // TAB 3 — APPEARANCE
 // ══════════════════════════════════════════════════════════
-const AppearanceTab = () => {
-  const [selectedMode, setSelectedMode] = useState("dark");
-  const [selectedColor, setSelectedColor] = useState("default");
-  const [scaled, setScaled] = useState(false);
+// const AppearanceTab = () => {
+//   const [selectedMode, setSelectedMode] = useState("dark");
+//   const [selectedColor, setSelectedColor] = useState("default");
+//   const [scaled, setScaled] = useState(false);
 
-  const modes = [
-    {
-      key: "light",
-      label: "Light",
-      preview: (
-        <div
-          style={{
-            background: "#f0f0f0",
-            borderRadius: 4,
-            padding: 8,
-            width: 100,
-          }}
-        >
-          {[80, 60, 60, 40].map((w, i) => (
-            <div
-              key={i}
-              style={{
-                background: "#ccc",
-                borderRadius: 2,
-                height: 6,
-                width: `${w}%`,
-                marginBottom: i < 3 ? 5 : 0,
-              }}
-            />
-          ))}
-          <div style={{ display: "flex", gap: 4, marginTop: 6 }}>
-            <div
-              style={{
-                width: 16,
-                height: 16,
-                borderRadius: "50%",
-                background: "#aaa",
-              }}
-            />
-            <div style={{ flex: 1, background: "#ddd", borderRadius: 2 }} />
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: "dark",
-      label: "Dark",
-      preview: (
-        <div
-          style={{
-            background: "#1c2128",
-            borderRadius: 4,
-            padding: 8,
-            width: 100,
-          }}
-        >
-          {[80, 60, 60].map((w, i) => (
-            <div
-              key={i}
-              style={{
-                background: "#444",
-                borderRadius: 2,
-                height: 6,
-                width: `${w}%`,
-                marginBottom: 5,
-              }}
-            />
-          ))}
-          <div style={{ display: "flex", gap: 4, marginTop: 2 }}>
-            <div
-              style={{
-                width: 16,
-                height: 16,
-                borderRadius: "50%",
-                background: "#1a7fd4",
-              }}
-            />
-            <div style={{ flex: 1, background: "#333", borderRadius: 2 }} />
-          </div>
-        </div>
-      ),
-    },
-  ];
+//   const modes = [
+//     {
+//       key: "light",
+//       label: "Light",
+//       preview: (
+//         <div
+//           style={{
+//             background: "#f0f0f0",
+//             borderRadius: 4,
+//             padding: 8,
+//             width: 100,
+//           }}
+//         >
+//           {[80, 60, 60, 40].map((w, i) => (
+//             <div
+//               key={i}
+//               style={{
+//                 background: "#ccc",
+//                 borderRadius: 2,
+//                 height: 6,
+//                 width: `${w}%`,
+//                 marginBottom: i < 3 ? 5 : 0,
+//               }}
+//             />
+//           ))}
+//           <div style={{ display: "flex", gap: 4, marginTop: 6 }}>
+//             <div
+//               style={{
+//                 width: 16,
+//                 height: 16,
+//                 borderRadius: "50%",
+//                 background: "#aaa",
+//               }}
+//             />
+//             <div style={{ flex: 1, background: "#ddd", borderRadius: 2 }} />
+//           </div>
+//         </div>
+//       ),
+//     },
+//     {
+//       key: "dark",
+//       label: "Dark",
+//       preview: (
+//         <div
+//           style={{
+//             background: "#1c2128",
+//             borderRadius: 4,
+//             padding: 8,
+//             width: 100,
+//           }}
+//         >
+//           {[80, 60, 60].map((w, i) => (
+//             <div
+//               key={i}
+//               style={{
+//                 background: "#444",
+//                 borderRadius: 2,
+//                 height: 6,
+//                 width: `${w}%`,
+//                 marginBottom: 5,
+//               }}
+//             />
+//           ))}
+//           <div style={{ display: "flex", gap: 4, marginTop: 2 }}>
+//             <div
+//               style={{
+//                 width: 16,
+//                 height: 16,
+//                 borderRadius: "50%",
+//                 background: "#1a7fd4",
+//               }}
+//             />
+//             <div style={{ flex: 1, background: "#333", borderRadius: 2 }} />
+//           </div>
+//         </div>
+//       ),
+//     },
+//   ];
 
-  const colorThemes = [
-    { key: "default", color: "#1a7fd4" },
-    { key: "red", color: "#f85149" },
-    { key: "blue2", color: "#388bfd" },
-  ];
+//   const colorThemes = [
+//     { key: "default", color: "#1a7fd4" },
+//     { key: "red", color: "#f85149" },
+//     { key: "blue2", color: "#388bfd" },
+//   ];
 
-  return (
-    <div>
-      <Title level={4} style={{ color: "#e6edf3", margin: 0 }}>
-        Appearance
-      </Title>
-      <Text style={{ color: "#8b949e", fontSize: 13 }}>
-        Customize the appearance of the app. Automatically switch between day
-        and night themes.
-      </Text>
-      <Divider style={{ borderColor: "#21262d", margin: "16px 0 28px 0" }} />
+//   return (
+//     <div>
+//       <Title level={4} style={{ color: "#e6edf3", margin: 0 }}>
+//         Appearance
+//       </Title>
+//       <Text style={{ color: "#8b949e", fontSize: 13 }}>
+//         Customize the appearance of the app. Automatically switch between day
+//         and night themes.
+//       </Text>
+//       <Divider style={{ borderColor: "#21262d", margin: "16px 0 28px 0" }} />
 
-      <div style={{ marginBottom: 32 }}>
-        <Text
-          style={{
-            color: "#e6edf3",
-            fontWeight: 600,
-            fontSize: 14,
-            display: "block",
-            marginBottom: 4,
-          }}
-        >
-          Mode
-        </Text>
-        <Text
-          style={{
-            color: "#8b949e",
-            fontSize: 13,
-            display: "block",
-            marginBottom: 16,
-          }}
-        >
-          Choose between light and dark mode.
-        </Text>
-        <div style={{ display: "flex", gap: 20 }}>
-          {modes.map((m) => (
-            <div
-              key={m.key}
-              onClick={() => setSelectedMode(m.key)}
-              style={{
-                cursor: "pointer",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              <div
-                style={{
-                  border:
-                    selectedMode === m.key
-                      ? "2px solid #1a7fd4"
-                      : "2px solid #30363d",
-                  borderRadius: 8,
-                  padding: 8,
-                  background: "#161b22",
-                  transition: "border-color 0.2s",
-                }}
-              >
-                {m.preview}
-              </div>
-              <Text style={{ color: "#e6edf3", fontSize: 13 }}>{m.label}</Text>
-            </div>
-          ))}
-        </div>
-      </div>
+//       <div style={{ marginBottom: 32 }}>
+//         <Text
+//           style={{
+//             color: "#e6edf3",
+//             fontWeight: 600,
+//             fontSize: 14,
+//             display: "block",
+//             marginBottom: 4,
+//           }}
+//         >
+//           Mode
+//         </Text>
+//         <Text
+//           style={{
+//             color: "#8b949e",
+//             fontSize: 13,
+//             display: "block",
+//             marginBottom: 16,
+//           }}
+//         >
+//           Choose between light and dark mode.
+//         </Text>
+//         <div style={{ display: "flex", gap: 20 }}>
+//           {modes.map((m) => (
+//             <div
+//               key={m.key}
+//               onClick={() => setSelectedMode(m.key)}
+//               style={{
+//                 cursor: "pointer",
+//                 display: "flex",
+//                 flexDirection: "column",
+//                 alignItems: "center",
+//                 gap: 8,
+//               }}
+//             >
+//               <div
+//                 style={{
+//                   border:
+//                     selectedMode === m.key
+//                       ? "2px solid #1a7fd4"
+//                       : "2px solid #30363d",
+//                   borderRadius: 8,
+//                   padding: 8,
+//                   background: "#161b22",
+//                   transition: "border-color 0.2s",
+//                 }}
+//               >
+//                 {m.preview}
+//               </div>
+//               <Text style={{ color: "#e6edf3", fontSize: 13 }}>{m.label}</Text>
+//             </div>
+//           ))}
+//         </div>
+//       </div>
 
-      <div style={{ marginBottom: 32 }}>
-        <Text
-          style={{
-            color: "#e6edf3",
-            fontWeight: 600,
-            fontSize: 14,
-            display: "block",
-            marginBottom: 4,
-          }}
-        >
-          Theme Color
-        </Text>
-        <Text
-          style={{
-            color: "#8b949e",
-            fontSize: 13,
-            display: "block",
-            marginBottom: 16,
-          }}
-        >
-          Select the base color for your theme.
-        </Text>
-        <div style={{ display: "flex", gap: 16 }}>
-          {colorThemes.map((ct) => (
-            <div
-              key={ct.key}
-              onClick={() => setSelectedColor(ct.key)}
-              style={{
-                cursor: "pointer",
-                border:
-                  selectedColor === ct.key
-                    ? `2px solid ${ct.color}`
-                    : "2px solid #30363d",
-                borderRadius: 8,
-                padding: 10,
-                background: "#161b22",
-                width: 110,
-                transition: "border-color 0.2s",
-              }}
-            >
-              <div
-                style={{
-                  background: "#21262d",
-                  borderRadius: 4,
-                  padding: "6px 8px",
-                }}
-              >
-                <div
-                  style={{
-                    background: ct.color,
-                    borderRadius: 2,
-                    height: 6,
-                    width: "70%",
-                    marginBottom: 5,
-                  }}
-                />
-                <div
-                  style={{
-                    background: ct.color + "88",
-                    borderRadius: 2,
-                    height: 6,
-                    width: "90%",
-                    marginBottom: 5,
-                  }}
-                />
-                <div style={{ display: "flex", gap: 4, marginTop: 2 }}>
-                  <div
-                    style={{
-                      width: 12,
-                      height: 12,
-                      borderRadius: "50%",
-                      background: ct.color,
-                    }}
-                  />
-                  <div
-                    style={{
-                      flex: 1,
-                      background: ct.color + "44",
-                      borderRadius: 2,
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+//       <div style={{ marginBottom: 32 }}>
+//         <Text
+//           style={{
+//             color: "#e6edf3",
+//             fontWeight: 600,
+//             fontSize: 14,
+//             display: "block",
+//             marginBottom: 4,
+//           }}
+//         >
+//           Theme Color
+//         </Text>
+//         <Text
+//           style={{
+//             color: "#8b949e",
+//             fontSize: 13,
+//             display: "block",
+//             marginBottom: 16,
+//           }}
+//         >
+//           Select the base color for your theme.
+//         </Text>
+//         <div style={{ display: "flex", gap: 16 }}>
+//           {colorThemes.map((ct) => (
+//             <div
+//               key={ct.key}
+//               onClick={() => setSelectedColor(ct.key)}
+//               style={{
+//                 cursor: "pointer",
+//                 border:
+//                   selectedColor === ct.key
+//                     ? `2px solid ${ct.color}`
+//                     : "2px solid #30363d",
+//                 borderRadius: 8,
+//                 padding: 10,
+//                 background: "#161b22",
+//                 width: 110,
+//                 transition: "border-color 0.2s",
+//               }}
+//             >
+//               <div
+//                 style={{
+//                   background: "#21262d",
+//                   borderRadius: 4,
+//                   padding: "6px 8px",
+//                 }}
+//               >
+//                 <div
+//                   style={{
+//                     background: ct.color,
+//                     borderRadius: 2,
+//                     height: 6,
+//                     width: "70%",
+//                     marginBottom: 5,
+//                   }}
+//                 />
+//                 <div
+//                   style={{
+//                     background: ct.color + "88",
+//                     borderRadius: 2,
+//                     height: 6,
+//                     width: "90%",
+//                     marginBottom: 5,
+//                   }}
+//                 />
+//                 <div style={{ display: "flex", gap: 4, marginTop: 2 }}>
+//                   <div
+//                     style={{
+//                       width: 12,
+//                       height: 12,
+//                       borderRadius: "50%",
+//                       background: ct.color,
+//                     }}
+//                   />
+//                   <div
+//                     style={{
+//                       flex: 1,
+//                       background: ct.color + "44",
+//                       borderRadius: 2,
+//                     }}
+//                   />
+//                 </div>
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+//       </div>
 
-      <Card style={cardStyle} styles={{ body: { padding: 16 } }}>
-        <Row justify="space-between" align="middle">
-          <Col>
-            <Text style={{ color: "#e6edf3", fontWeight: 600 }}>
-              Scaled Theme
-            </Text>
-            <br />
-            <Text style={{ color: "#8b949e", fontSize: 12 }}>
-              Choose between regular and scaled theme.
-            </Text>
-          </Col>
-          <Col>
-            <Switch
-              checked={scaled}
-              onChange={setScaled}
-              style={{ background: scaled ? "#1a7fd4" : "#30363d" }}
-            />
-          </Col>
-        </Row>
-      </Card>
+//       <Card style={cardStyle} styles={{ body: { padding: 16 } }}>
+//         <Row justify="space-between" align="middle">
+//           <Col>
+//             <Text style={{ color: "#e6edf3", fontWeight: 600 }}>
+//               Scaled Theme
+//             </Text>
+//             <br />
+//             <Text style={{ color: "#8b949e", fontSize: 12 }}>
+//               Choose between regular and scaled theme.
+//             </Text>
+//           </Col>
+//           <Col>
+//             <Switch
+//               checked={scaled}
+//               onChange={setScaled}
+//               style={{ background: scaled ? "#1a7fd4" : "#30363d" }}
+//             />
+//           </Col>
+//         </Row>
+//       </Card>
 
-      <Button
-        type="primary"
-        style={{
-          background: "#1a7fd4",
-          border: "none",
-          borderRadius: 6,
-          fontWeight: 600,
-          height: 38,
-          padding: "0 28px",
-          marginTop: 24,
-        }}
-      >
-        Save Theme Preferences
-      </Button>
-    </div>
-  );
-};
+//       <Button
+//         type="primary"
+//         style={{
+//           background: "#1a7fd4",
+//           border: "none",
+//           borderRadius: 6,
+//           fontWeight: 600,
+//           height: 38,
+//           padding: "0 28px",
+//           marginTop: 24,
+//         }}
+//       >
+//         Save Theme Preferences
+//       </Button>
+//     </div>
+//   );
+// };
 
 // ══════════════════════════════════════════════════════════
 // TAB 4 — SESSIONS
 // ══════════════════════════════════════════════════════════
-const SessionsTab = () => {
-  const sessions = [
-    {
-      browser: "Chrome",
-      ip: "43.204.144.227",
-      lastActive: "Apr 05, 2026 at 10:38 AM",
-      created: "Apr 05, 2026 at 10:37 AM",
-      current: true,
-    },
-    {
-      browser: "Chrome",
-      ip: "3.110.99.93",
-      lastActive: "Apr 05, 2026 at 10:17 AM",
-      created: "Apr 05, 2026 at 10:17 AM",
-      current: false,
-    },
-    {
-      browser: "Chrome",
-      ip: "13.235.74.128",
-      lastActive: "Apr 02, 2026 at 02:25 PM",
-      created: "Apr 02, 2026 at 10:59 AM",
-      current: false,
-    },
-    {
-      browser: "Chrome",
-      ip: "13.205.18.58",
-      lastActive: "Apr 02, 2026 at 04:54 PM",
-      created: "Apr 02, 2026 at 10:44 AM",
-      current: false,
-    },
-  ];
+// const SessionsTab = () => {
+//   const sessions = [
+//     {
+//       browser: "Chrome",
+//       ip: "43.204.144.227",
+//       lastActive: "Apr 05, 2026 at 10:38 AM",
+//       created: "Apr 05, 2026 at 10:37 AM",
+//       current: true,
+//     },
+//     {
+//       browser: "Chrome",
+//       ip: "3.110.99.93",
+//       lastActive: "Apr 05, 2026 at 10:17 AM",
+//       created: "Apr 05, 2026 at 10:17 AM",
+//       current: false,
+//     },
+//     {
+//       browser: "Chrome",
+//       ip: "13.235.74.128",
+//       lastActive: "Apr 02, 2026 at 02:25 PM",
+//       created: "Apr 02, 2026 at 10:59 AM",
+//       current: false,
+//     },
+//     {
+//       browser: "Chrome",
+//       ip: "13.205.18.58",
+//       lastActive: "Apr 02, 2026 at 04:54 PM",
+//       created: "Apr 02, 2026 at 10:44 AM",
+//       current: false,
+//     },
+//   ];
 
-  return (
-    <div>
-      <Title level={4} style={{ color: "#e6edf3", margin: 0 }}>
-        Sessions
-      </Title>
-      <Text style={{ color: "#8b949e", fontSize: 13 }}>
-        Manage and monitor your active sessions across all devices.
-      </Text>
-      <Divider style={{ borderColor: "#21262d", margin: "16px 0 28px 0" }} />
+//   return (
+//     <div>
+//       <Title level={4} style={{ color: "#e6edf3", margin: 0 }}>
+//         Sessions
+//       </Title>
+//       <Text style={{ color: "#8b949e", fontSize: 13 }}>
+//         Manage and monitor your active sessions across all devices.
+//       </Text>
+//       <Divider style={{ borderColor: "#21262d", margin: "16px 0 28px 0" }} />
 
-      <Card style={cardStyle} styles={{ body: { padding: 24 } }}>
-        <Row
-          justify="space-between"
-          align="middle"
-          style={{ marginBottom: 20 }}
-        >
-          <Col>
-            <Title level={5} style={{ color: "#e6edf3", margin: "0 0 4px 0" }}>
-              Active Sessions
-            </Title>
-            <Text style={{ color: "#8b949e", fontSize: 12 }}>
-              Manage your active sessions across all devices. You can log out of
-              individual sessions or all sessions at once.
-            </Text>
-          </Col>
-          <Col>
-            <Button
-              danger
-              icon={<LogoutOutlined />}
-              style={{
-                background: "#da3633",
-                border: "none",
-                color: "#fff",
-                borderRadius: 6,
-                fontWeight: 600,
-              }}
-            >
-              Logout All Sessions
-            </Button>
-          </Col>
-        </Row>
+//       <Card style={cardStyle} styles={{ body: { padding: 24 } }}>
+//         <Row
+//           justify="space-between"
+//           align="middle"
+//           style={{ marginBottom: 20 }}
+//         >
+//           <Col>
+//             <Title level={5} style={{ color: "#e6edf3", margin: "0 0 4px 0" }}>
+//               Active Sessions
+//             </Title>
+//             <Text style={{ color: "#8b949e", fontSize: 12 }}>
+//               Manage your active sessions across all devices. You can log out of
+//               individual sessions or all sessions at once.
+//             </Text>
+//           </Col>
+//           <Col>
+//             <Button
+//               danger
+//               icon={<LogoutOutlined />}
+//               style={{
+//                 background: "#da3633",
+//                 border: "none",
+//                 color: "#fff",
+//                 borderRadius: 6,
+//                 fontWeight: 600,
+//               }}
+//             >
+//               Logout All Sessions
+//             </Button>
+//           </Col>
+//         </Row>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {sessions.map((s, i) => (
-            <div
-              key={i}
-              style={{
-                background: s.current ? "rgba(26,127,212,0.08)" : "#0f1117",
-                border: s.current
-                  ? "1px solid rgba(26,127,212,0.3)"
-                  : "1px solid #21262d",
-                borderRadius: 8,
-                padding: "14px 16px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                <DesktopOutlined style={{ fontSize: 22, color: "#8b949e" }} />
-                <div>
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: 8 }}
-                  >
-                    <Text style={{ color: "#e6edf3", fontWeight: 600 }}>
-                      {s.browser}
-                    </Text>
-                    {s.current && (
-                      <Tag
-                        color="blue"
-                        style={{
-                          fontSize: 11,
-                          padding: "0 6px",
-                          borderRadius: 4,
-                        }}
-                      >
-                        Current session
-                      </Tag>
-                    )}
-                  </div>
-                  <Text
-                    style={{ color: "#8b949e", fontSize: 12, display: "block" }}
-                  >
-                    IP: {s.ip}
-                  </Text>
-                  <Text
-                    style={{ color: "#8b949e", fontSize: 12, display: "block" }}
-                  >
-                    Last active: {s.lastActive}
-                  </Text>
-                  <Text
-                    style={{ color: "#8b949e", fontSize: 12, display: "block" }}
-                  >
-                    Created: {s.created}
-                  </Text>
-                </div>
-              </div>
-              {!s.current && (
-                <Button
-                  type="text"
-                  icon={
-                    <LogoutOutlined
-                      style={{ color: "#da3633", fontSize: 16 }}
-                    />
-                  }
-                  style={{ background: "transparent", border: "none" }}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-      </Card>
-    </div>
-  );
-};
+//         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+//           {sessions.map((s, i) => (
+//             <div
+//               key={i}
+//               style={{
+//                 background: s.current ? "rgba(26,127,212,0.08)" : "#0f1117",
+//                 border: s.current
+//                   ? "1px solid rgba(26,127,212,0.3)"
+//                   : "1px solid #21262d",
+//                 borderRadius: 8,
+//                 padding: "14px 16px",
+//                 display: "flex",
+//                 alignItems: "center",
+//                 justifyContent: "space-between",
+//               }}
+//             >
+//               <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+//                 <DesktopOutlined style={{ fontSize: 22, color: "#8b949e" }} />
+//                 <div>
+//                   <div
+//                     style={{ display: "flex", alignItems: "center", gap: 8 }}
+//                   >
+//                     <Text style={{ color: "#e6edf3", fontWeight: 600 }}>
+//                       {s.browser}
+//                     </Text>
+//                     {s.current && (
+//                       <Tag
+//                         color="blue"
+//                         style={{
+//                           fontSize: 11,
+//                           padding: "0 6px",
+//                           borderRadius: 4,
+//                         }}
+//                       >
+//                         Current session
+//                       </Tag>
+//                     )}
+//                   </div>
+//                   <Text
+//                     style={{ color: "#8b949e", fontSize: 12, display: "block" }}
+//                   >
+//                     IP: {s.ip}
+//                   </Text>
+//                   <Text
+//                     style={{ color: "#8b949e", fontSize: 12, display: "block" }}
+//                   >
+//                     Last active: {s.lastActive}
+//                   </Text>
+//                   <Text
+//                     style={{ color: "#8b949e", fontSize: 12, display: "block" }}
+//                   >
+//                     Created: {s.created}
+//                   </Text>
+//                 </div>
+//               </div>
+//               {!s.current && (
+//                 <Button
+//                   type="text"
+//                   icon={
+//                     <LogoutOutlined
+//                       style={{ color: "#da3633", fontSize: 16 }}
+//                     />
+//                   }
+//                   style={{ background: "transparent", border: "none" }}
+//                 />
+//               )}
+//             </div>
+//           ))}
+//         </div>
+//       </Card>
+//     </div>
+//   );
+// };
 
 // ══════════════════════════════════════════════════════════
 // MAIN — PharmacistProfile
@@ -939,10 +940,10 @@ const PharmacistProfile = () => {
         return <ProfileTab user={user} updateUser={updateUser} />;
       case "account":
         return <AccountTab />;
-      case "appearance":
-        return <AppearanceTab />;
-      case "sessions":
-        return <SessionsTab />;
+      // case "appearance":
+      //   return <AppearanceTab />;
+      // case "sessions":
+      //   return <SessionsTab />;
       default:
         return null;
     }

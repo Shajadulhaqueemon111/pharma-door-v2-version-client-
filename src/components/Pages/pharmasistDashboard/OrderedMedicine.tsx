@@ -32,7 +32,7 @@ const OrderedMedicine = () => {
         }
 
         const res = await fetch(
-          "https://pharmadoor-backend-v2.vercel.app/api/v1/order/ordered-medicine",
+          "http://localhost:5001/api/v1/order/ordered-medicine",
           {
             headers: {
               Authorization: `${token}`,
@@ -93,7 +93,7 @@ const OrderedMedicine = () => {
       try {
         const token = localStorage.getItem("accessToken");
         const res = await axios.delete(
-          `https://pharmadoor-backend-v2.vercel.app/api/v1/order/${_id}`,
+          `http://localhost:5001/api/v1/order/${_id}`,
           {
             headers: {
               Authorization: `${token}`,

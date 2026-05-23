@@ -14,6 +14,7 @@ import {
   LogoutOutlined,
 } from "@ant-design/icons";
 import { useAuth } from "../privateRoute/AuthContext";
+import PharmacistNavbar from "./PharmacistNavbar";
 
 const { Sider, Content, Header } = Layout;
 
@@ -179,19 +180,30 @@ const PharmacistSidebar = ({ children }: AdminSidebarProps) => {
       {/* Right Side */}
       <Layout>
         {/* Header */}
+        {/* Header */}
         <Header
           style={{
             padding: "0 16px",
-            background: "#fff",
+            background: "#1677ff",
             display: "flex",
             alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            position: "sticky",
+            top: 0,
+            zIndex: 1000,
           }}
         >
+          {/* Left: Toggle Button */}
           <Button
             type="text"
             onClick={() => setCollapsed(!collapsed)}
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            style={{ color: "white", fontSize: "18px" }} // ✅ white icon
           />
+
+          {/* Right: Navbar (notification, avatar, title etc.) */}
+          <PharmacistNavbar />
         </Header>
 
         {/* Content */}

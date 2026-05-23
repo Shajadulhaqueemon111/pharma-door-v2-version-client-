@@ -36,9 +36,7 @@ const OfferSection = () => {
   const fetchOfferMedicine = async () => {
     setLoading(true);
     try {
-      const response = await axios(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/offer",
-      );
+      const response = await axios("http://localhost:5001/api/v1/offer");
       setMedicineOffers(response.data.data);
     } catch (err) {
       console.log(err);

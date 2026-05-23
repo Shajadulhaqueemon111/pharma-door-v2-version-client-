@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     try {
       await axios.post(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/auth/logout",
+        "http://localhost:5001/api/v1/auth/logout",
         {},
         { withCredentials: true },
       );
@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const refreshToken = async () => {
     try {
       const res = await axios.post(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/auth/refresh-token",
+        "http://localhost:5001/api/v1/auth/refresh-token",
         {},
         { withCredentials: true },
       );

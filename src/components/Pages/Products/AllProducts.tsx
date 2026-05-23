@@ -27,7 +27,7 @@ const AllProducts = () => {
   const [sortBy, setSortBy] = useState("default");
 
   useEffect(() => {
-    fetch("https://pharmadoor-backend-v2.vercel.app/api/v1/medicine")
+    fetch("http://localhost:5001/api/v1/medicine")
       .then((res) => res.json())
       .then((data) => {
         const today = new Date();

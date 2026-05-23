@@ -25,7 +25,7 @@ const StethoscopeDetails = () => {
   const [equipment, setEquipment] = useState<MedicalProduct | null>(null);
 
   useEffect(() => {
-    fetch(`https://pharmadoor-backend-v2.vercel.app/api/v1/equipment/${_id}`)
+    fetch(`http://localhost:5001/api/v1/equipment/${_id}`)
       .then((res) => res.json())
       .then((data) => {
         setEquipment(data.data || null);

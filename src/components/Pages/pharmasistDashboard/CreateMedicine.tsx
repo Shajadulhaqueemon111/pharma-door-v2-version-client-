@@ -62,13 +62,9 @@ const CreateMedicine = () => {
       };
 
       const token = localStorage.getItem("accessToken");
-      await axios.post(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/medicine",
-        payload,
-        {
-          headers: { Authorization: `${token}` },
-        },
-      );
+      await axios.post("http://localhost:5001/api/v1/medicine", payload, {
+        headers: { Authorization: `${token}` },
+      });
 
       toast.success("Medicine created successfully!");
       navigate("/pharmacist-dashboard/all-medicine");

@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import PharmacistSidebar from "./PharmacistSidebar";
 import { Toaster } from "react-hot-toast";
-import PharmacistNavbar from "./PharmacistNavbar";
+// import PharmacistNavbar from "./PharmacistNavbar";
 
 const PharmasistMainLayout = () => {
   return (
@@ -13,7 +13,7 @@ const PharmasistMainLayout = () => {
           background: "#f5f5f5", // matches your Content bg
         }}
       >
-        <PharmacistNavbar />
+        {/* <PharmacistNavbar /> */}
         <Outlet />
         <Toaster />
       </div>

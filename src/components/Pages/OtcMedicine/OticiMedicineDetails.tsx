@@ -23,7 +23,7 @@ const OtcMedicineDetails = () => {
     AOS.init({ duration: 1000 });
   }, []);
   useEffect(() => {
-    fetch("https://pharmadoor-backend-v2.vercel.app/api/v1/medicine")
+    fetch("http://localhost:5001/api/v1/medicine")
       .then((res) => res.json())
       .then((response) => {
         const allMedicines: Medicine[] = response.data;

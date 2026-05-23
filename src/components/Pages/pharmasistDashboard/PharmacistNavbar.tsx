@@ -48,15 +48,12 @@ const PharmacistNavbar = () => {
         const token = localStorage.getItem("accessToken");
         if (!token || !userId) return;
 
-        const res = await fetch(
-          "https://pharmadoor-backend-v2.vercel.app/api/v1/medicine",
-          {
-            headers: {
-              Authorization: `${token}`,
-              "Content-Type": "application/json",
-            },
+        const res = await fetch("http://localhost:5001/api/v1/medicine", {
+          headers: {
+            Authorization: `${token}`,
+            "Content-Type": "application/json",
           },
-        );
+        });
 
         if (!res.ok) throw new Error("Failed to fetch medicines");
 
@@ -151,7 +148,7 @@ const PharmacistNavbar = () => {
         }}
       >
         <Title level={4} style={{ color: "#fff", margin: 0 }}>
-          Pharmacist Panel
+          {/* Pharmacist Panel */}
         </Title>
 
         <Space size="middle">

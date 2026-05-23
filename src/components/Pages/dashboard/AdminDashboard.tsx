@@ -48,15 +48,12 @@ const AdminDashboard = () => {
         const token = localStorage.getItem("accessToken");
 
         const [userRes, orderRes] = await Promise.all([
-          axios.get("https://pharmadoor-backend-v2.vercel.app/api/v1/users", {
+          axios.get("http://localhost:5001/api/v1/users", {
             headers: { Authorization: `${token}` },
           }),
-          axios.get(
-            "https://pharmadoor-backend-v2.vercel.app/api/v1/order/ordered-medicine",
-            {
-              headers: { Authorization: `${token}` },
-            },
-          ),
+          axios.get("http://localhost:5001/api/v1/order/ordered-medicine", {
+            headers: { Authorization: `${token}` },
+          }),
         ]);
 
         // USERS

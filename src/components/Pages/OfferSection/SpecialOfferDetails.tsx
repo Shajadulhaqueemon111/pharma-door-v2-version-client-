@@ -30,9 +30,7 @@ const SpecialOfferDetails = () => {
   useEffect(() => {
     const fetchOfferProduct = async () => {
       try {
-        const response = await axios.get(
-          "https://pharmadoor-backend-v2.vercel.app/api/v1/offer",
-        );
+        const response = await axios.get("http://localhost:5001/api/v1/offer");
         const found = response.data.data.find(
           (item: OfferProduct) => item._id === _id,
         );

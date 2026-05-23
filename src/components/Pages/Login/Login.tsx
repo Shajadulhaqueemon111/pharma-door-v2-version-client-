@@ -44,7 +44,7 @@ const Login = () => {
       setLoading(true);
 
       const response = await axios.post(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/auth/login",
+        "http://localhost:5001/api/v1/auth/login",
         {
           email: values.email,
           password: values.password,

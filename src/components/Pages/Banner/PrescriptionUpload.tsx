@@ -46,7 +46,7 @@ const PrescriptionUpload = () => {
       }
 
       const response = await fetch(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/medicine/prescription",
+        "http://localhost:5001/api/v1/medicine/prescription",
         {
           method: "POST",
           headers: {
