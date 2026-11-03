@@ -9,12 +9,32 @@ import AddToCart from "../Pages/AddToCart/CartBtn";
 
 const MainRoute = () => {
   const [searchText, setSearchText] = useState("");
+
   return (
-    <div className=" min-h-screen bg-white text-black  dark:text-white">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 antialiased font-sans">
       <FirstNavbar searchText={searchText} setSearchText={setSearchText} />
-      <Toaster />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: "#0f172a",
+            color: "#fff",
+            fontSize: "13px",
+            borderRadius: "12px",
+            padding: "12px 16px",
+          },
+          success: {
+            iconTheme: {
+              primary: "#10b981",
+              secondary: "#fff",
+            },
+          },
+        }}
+      />
       <AddToCart />
-      <Outlet context={{ searchText }} />
+      <main className="flex-1">
+        <Outlet context={{ searchText }} />
+      </main>
       <ScrollingBtn />
       <WhatsAppButton />
       <Footer />

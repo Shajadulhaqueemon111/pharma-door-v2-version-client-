@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-
-import { FaArrowUp } from "react-icons/fa"; // npm install react-icons
+import { ArrowUp } from "lucide-react";
 
 const ScrollingBtn = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -18,17 +17,17 @@ const ScrollingBtn = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  if (!showScrollTop) return null;
+
   return (
-    <div>
-      {showScrollTop && (
-        <button
-          onClick={handleScrollToTop}
-          className="fixed bottom-6 left-6 z-50 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300"
-        >
-          <FaArrowUp />
-        </button>
-      )}
-    </div>
+    <button
+      onClick={handleScrollToTop}
+      className="fixed bottom-6 left-6 z-40 bg-white hover:bg-teal-50 text-slate-700 hover:text-teal-700 p-3 rounded-full shadow-lg border border-slate-200/80 hover:border-teal-300 transition-all duration-300 hover:-translate-y-1 cursor-pointer flex items-center justify-center group"
+      aria-label="Scroll to top"
+      title="Back to Top"
+    >
+      <ArrowUp size={18} className="group-hover:-translate-y-0.5 transition-transform" />
+    </button>
   );
 };
 

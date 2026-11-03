@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
-import { Card, Row, Col, Typography, Button } from "antd";
 import { ScaleLoader } from "react-spinners";
 import { motion } from "framer-motion";
-
-const { Title, Text } = Typography;
+import { ArrowRight, CheckCircle2, AlertCircle, HeartPulse } from "lucide-react";
 
 type AnimalMedicineType = {
   _id: string;
@@ -21,165 +19,137 @@ type OutletContextType = {
 };
 
 const AnimalMedicine = () => {
-  const [animalMedicines, setAnimalMedicines] = useState<AnimalMedicineType[]>(
-    [],
-  );
+  const [animalMedicines, setAnimalMedicines] = useState<AnimalMedicineType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const { searchText } = useOutletContext<OutletContextType>();
 
   useEffect(() => {
-    fetch("http://localhost:5001/api/v1/animal-medicine")
+    fetch("https://pharmadoor-backend-v2.vercel.app/api/v1/animal-medicine")
       .then((res) => res.json())
       .then((data) => {
-        const filtered = data.data.filter((item: AnimalMedicineType) =>
-          item.name?.toLowerCase().includes(searchText.toLowerCase()),
+        const list = Array.isArray(data?.data) ? data.data : [];
+        const filtered = list.filter((item: AnimalMedicineType) =>
+          item.name?.toLowerCase().includes((searchText || "").toLowerCase()),
         );
         setAnimalMedicines(filtered);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        console.error("Animal medicine error:", err);
+        setLoading(false);
+      });
   }, [searchText]);
 
-  // Loader
   if (loading) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", marginTop: 80 }}>
-        <ScaleLoader color="#1677ff" />
+      <div className="flex justify-center py-16">
+        <ScaleLoader color="#0d9488" height={30} />
       </div>
     );
   }
 
   return (
-    <div style={{ padding: "50px 20px", background: "#f5f7fa" }}>
-      <div style={{ maxWidth: 1200, margin: "auto" }}>
-        {/* Title */}
-        <Title
-          level={2}
-          style={{
-            textAlign: "center",
-            marginBottom: 40,
-            fontWeight: 700,
-          }}
-        >
-          🐾 Animal Medicines
-        </Title>
+    <section className="py-12 bg-slate-50/60 border-t border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-xs font-bold mb-2">
+            <HeartPulse size={14} className="text-emerald-600" />
+            <span>Veterinary & Pet Care</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Animal & Livestock Medicines
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1.5">
+            Quality animal health formulations, poultry supplements, and livestock care products.
+          </p>
+        </div>
 
         {/* Grid */}
         {animalMedicines.length > 0 ? (
-          <Row gutter={[24, 24]}>
-            {animalMedicines.map((medicine, index) => (
-              <Col xs={24} sm={12} md={8} lg={6} key={medicine._id}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {animalMedicines.map((medicine, index) => {
+              const inStock = Number(medicine.stock) > 0;
+
+              return (
                 <motion.div
-                  initial={{ opacity: 0, y: 30 }}
+                  key={medicine._id}
+                  initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                  transition={{ duration: 0.35, delay: index * 0.05 }}
                   viewport={{ once: true }}
+                  className="group bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-xl hover:border-teal-300 transition-all duration-300 flex flex-col justify-between overflow-hidden"
                 >
-                  <Card
-                    hoverable
-                    style={{
-                      borderRadius: 18,
-                      overflow: "hidden",
-                      boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
-                    }}
-                    bodyStyle={{ padding: 15 }}
-                    cover={
-                      <div style={{ overflow: "hidden" }}>
-                        <img
-                          src={medicine.medicineImage}
-                          alt={medicine.name}
-                          style={{
-                            height: 180,
-                            width: "100%",
-                            objectFit: "cover",
-                            transition: "0.3s",
-                          }}
-                          className="hover-img"
-                        />
+                  <div>
+                    {/* Image */}
+                    <div className="relative bg-slate-50 p-4 h-48 flex items-center justify-center overflow-hidden border-b border-slate-100">
+                      <img
+                        src={medicine.medicineImage}
+                        alt={medicine.name}
+                        className="max-h-40 max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                      />
+
+                      {/* Stock Badge */}
+                      <div className="absolute top-3 right-3">
+                        {inStock ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <CheckCircle2 size={11} />
+                            In Stock
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-200">
+                            <AlertCircle size={11} />
+                            Out of Stock
+                          </span>
+                        )}
                       </div>
-                    }
-                  >
-                    <Title level={5} style={{ marginBottom: 5 }}>
-                      {medicine.name}
-                    </Title>
+                    </div>
 
-                    <Text type="secondary" style={{ fontSize: 13 }}>
-                      {medicine.category}
-                    </Text>
-
-                    {/* Stock */}
-                    <div style={{ marginTop: 6 }}>
-                      <Text>
-                        Stock:{" "}
-                        <span
-                          style={{
-                            color:
-                              parseInt(medicine.stock) > 0
-                                ? "#52c41a"
-                                : "#ff4d4f",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {parseInt(medicine.stock) > 0
-                            ? "In Stock"
-                            : "Out of Stock"}
+                    {/* Details */}
+                    <div className="p-4">
+                      {medicine.category && (
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md inline-block mb-1.5">
+                          {medicine.category}
                         </span>
-                      </Text>
-                    </div>
+                      )}
 
-                    {/* Price */}
-                    <div style={{ marginTop: 10 }}>
-                      <Text
-                        strong
-                        style={{
-                          fontSize: 18,
-                          color: "#1677ff",
-                        }}
-                      >
-                        ৳{medicine.price}
-                      </Text>
-                    </div>
+                      <h3 className="text-sm font-bold text-slate-800 group-hover:text-teal-700 transition-colors line-clamp-2">
+                        {medicine.name}
+                      </h3>
 
-                    {/* Button */}
-                    <Link to={`/animal-medicine/${medicine._id}`}>
-                      <Button
-                        type="primary"
-                        block
-                        style={{
-                          marginTop: 12,
-                          borderRadius: 10,
-                          fontWeight: 600,
-                        }}
-                      >
-                        View Details
-                      </Button>
+                      <div className="mt-3 flex items-baseline justify-between">
+                        <span className="text-base font-extrabold text-teal-700">
+                          ৳{medicine.price}
+                        </span>
+                        <span className="text-[11px] text-slate-400">
+                          Stock: {medicine.stock}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action */}
+                  <div className="p-4 pt-0">
+                    <Link
+                      to={`/animal-medicine/${medicine._id}`}
+                      className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-900 group-hover:bg-teal-600 text-white text-xs font-semibold transition-all shadow-xs"
+                    >
+                      <span>View Details</span>
+                      <ArrowRight size={13} />
                     </Link>
-                  </Card>
+                  </div>
                 </motion.div>
-              </Col>
-            ))}
-          </Row>
+              );
+            })}
+          </div>
         ) : (
-          <Text style={{ display: "block", textAlign: "center" }}>
-            No animal medicines found.
-          </Text>
+          <div className="text-center py-12 text-slate-400 text-sm">
+            No animal medicines found matching your criteria.
+          </div>
         )}
       </div>
-
-      {/* Hover Animation */}
-      <style>
-        {`
-        .ant-card:hover {
-          transform: translateY(-8px);
-          box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
-        }
-
-        .hover-img:hover {
-          transform: scale(1.1);
-        }
-        `}
-      </style>
-    </div>
+    </section>
   );
 };
 

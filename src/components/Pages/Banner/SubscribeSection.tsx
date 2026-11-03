@@ -1,122 +1,98 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Input, Button, Typography, Card } from "antd";
-import { MailOutlined } from "@ant-design/icons";
-
-const { Title, Text } = Typography;
+import { Mail, CheckCircle2, Send, ShieldCheck } from "lucide-react";
+import toast from "react-hot-toast";
 
 const SubscribeSection = () => {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = () => {
-    if (email.trim()) {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email.trim() && email.includes("@")) {
       setSubmitted(true);
+      toast.success("Thank you for subscribing to PharmaDoor health updates!");
       setEmail("");
+    } else {
+      toast.error("Please enter a valid email address");
     }
   };
 
   return (
-    <div style={{ padding: "60px 20px", background: "#f5f7fa" }}>
-      <div style={{ maxWidth: 900, margin: "auto", textAlign: "center" }}>
-        {/* Title */}
-        <Title level={2} style={{ marginBottom: 10 }}>
-          📩 Subscribe for Updates & Offers
-        </Title>
-
-        <Text type="secondary">
-          Get the latest medicine deals, health tips & exclusive offers.
-        </Text>
-
-        {/* Card */}
+    <section className="py-12 sm:py-16 bg-white">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 25 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
-          style={{ marginTop: 40 }}
+          className="relative rounded-3xl bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 text-white p-8 sm:p-12 md:p-16 overflow-hidden shadow-2xl border border-teal-800/40"
         >
-          <Card
-            style={{
-              borderRadius: 20,
-              padding: 30,
-              background: "linear-gradient(135deg, #1677ff, #69b1ff)",
-              color: "#fff",
-              boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
-            }}
-            bodyStyle={{ padding: 0 }}
-          >
-            <Title level={3} style={{ color: "#fff" }}>
-              Stay Connected 💙
-            </Title>
+          {/* Subtle background glow */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-            <Text style={{ color: "#e6f4ff" }}>
-              Join our newsletter for exclusive updates and offers.
-            </Text>
+          <div className="relative z-10 max-w-2xl mx-auto text-center">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 border border-teal-400/30 text-xs font-bold mb-4">
+              <Mail size={13} />
+              <span>PharmaDoor Health Newsletter</span>
+            </span>
 
-            {/* Form */}
-            <div
-              style={{
-                marginTop: 25,
-                display: "flex",
-                gap: 10,
-                flexWrap: "wrap",
-                justifyContent: "center",
-              }}
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">
+              Get Medicine Discounts & Verified Health Tips
+            </h2>
+
+            <p className="text-xs sm:text-sm text-slate-300 mt-2.5 max-w-lg mx-auto leading-relaxed">
+              Subscribe to receive weekly prescription refill alerts, exclusive cashback vouchers, and doctor-approved wellness guides.
+            </p>
+
+            <form
+              onSubmit={handleSubmit}
+              className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto"
             >
-              <Input
-                size="large"
-                prefix={<MailOutlined />}
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                style={{
-                  maxWidth: 300,
-                  borderRadius: 10,
-                }}
-              />
+              <div className="relative w-full">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                <input
+                  type="email"
+                  placeholder="Enter your email address..."
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 bg-white/10 text-white placeholder:text-slate-400 rounded-full border border-white/20 focus:outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-400/30 text-xs sm:text-sm backdrop-blur-md transition"
+                />
+              </div>
 
-              <Button
-                type="primary"
-                size="large"
-                onClick={handleSubmit}
-                style={{
-                  background: "#fff",
-                  color: "#1677ff",
-                  fontWeight: 600,
-                  borderRadius: 10,
-                }}
+              <button
+                type="submit"
+                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white text-xs sm:text-sm font-bold rounded-full shadow-lg transition-all shrink-0 flex items-center justify-center gap-2 cursor-pointer"
               >
-                Subscribe
-              </Button>
-            </div>
+                <span>Subscribe</span>
+                <Send size={14} />
+              </button>
+            </form>
 
-            {/* Success Message */}
             {submitted && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                style={{ marginTop: 15 }}
+                className="mt-4 inline-flex items-center gap-1.5 text-xs text-emerald-300 font-semibold bg-emerald-950/60 px-4 py-1.5 rounded-full border border-emerald-500/40"
               >
-                <Text style={{ color: "#d9f7be", fontWeight: 500 }}>
-                  ✅ Thank you for subscribing!
-                </Text>
+                <CheckCircle2 size={14} />
+                <span>You are successfully subscribed to our newsletter!</span>
               </motion.div>
             )}
-          </Card>
+
+            <div className="mt-6 flex items-center justify-center gap-4 text-[11px] text-slate-400">
+              <span className="flex items-center gap-1">
+                <ShieldCheck size={13} className="text-teal-400" />
+                No Spam, unsubscribe anytime
+              </span>
+              <span>•</span>
+              <span>Strict Privacy Protected</span>
+            </div>
+          </div>
         </motion.div>
       </div>
-
-      {/* Hover Effect */}
-      <style>
-        {`
-        .ant-card:hover {
-          transform: translateY(-6px);
-          box-shadow: 0 30px 60px rgba(0,0,0,0.2) !important;
-        }
-        `}
-      </style>
-    </div>
+    </section>
   );
 };
 

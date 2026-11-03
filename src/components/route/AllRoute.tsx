@@ -75,6 +75,9 @@ import Disclaimer from "../Pages/Footer/DisClimerPage";
 import ContactUs from "../Pages/Footer/ContactPgae";
 import Blogs from "../Pages/Footer/Blog";
 import FAQ from "../Pages/Footer/FaquePage";
+import ConsultationRoom from "../Pages/OnlineDoctor/ConsultationRoom";
+import DoctorManagement from "../Pages/dashboard/DoctorManagement";
+import AdminProfile from "../Pages/dashboard/AdminProfile";
 
 const router = createBrowserRouter([
   {
@@ -233,6 +236,10 @@ const router = createBrowserRouter([
         element: <OnlineDoctors />,
       },
       {
+        path: "/consultation-room/:roomId",
+        element: <ConsultationRoom />,
+      },
+      {
         path: "/otc-medicine-details",
         element: <OtciMedicineDetails />,
       },
@@ -255,6 +262,14 @@ const router = createBrowserRouter([
       {
         path: "",
         element: <AdminDashboard />,
+      },
+      {
+        path: "doctors",
+        element: <DoctorManagement />,
+      },
+      {
+        path: "profile",
+        element: <AdminProfile />,
       },
       {
         path: "all-users",

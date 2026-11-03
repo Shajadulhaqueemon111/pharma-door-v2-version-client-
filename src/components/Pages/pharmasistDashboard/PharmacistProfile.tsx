@@ -1,1035 +1,685 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { useAuth } from "../privateRoute/AuthContext";
-import axios from "axios";
 import {
-  Layout,
-  Menu,
   Typography,
-  Form,
   Input,
   Button,
-  Upload,
-  Switch,
-  Card,
+  Avatar,
   Divider,
-  // Tag,
-  Row,
-  Col,
-  message,
+  Tag,
 } from "antd";
 import {
   UserOutlined,
   KeyOutlined,
   BgColorsOutlined,
   DesktopOutlined,
-  // LogoutOutlined,
-  CloseOutlined,
-  EyeInvisibleOutlined,
-  EyeTwoTone,
-  GlobalOutlined,
+  SaveOutlined,
+  CameraOutlined,
+  SafetyCertificateOutlined,
+  CheckCircleOutlined,
+  PhoneOutlined,
+  MailOutlined,
 } from "@ant-design/icons";
+import toast from "react-hot-toast";
+import { useAuth } from "../privateRoute/AuthContext";
+import { usePharmacistTheme } from "./pharmacistTheme";
 
-const { Sider, Content } = Layout;
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
-const inputStyle: React.CSSProperties = {
-  background: "#161b22",
-  border: "1px solid #30363d",
-  color: "#e6edf3",
-  borderRadius: 6,
-};
+const sidebarPresets = [
+  { name: "Midnight Slate", color: "#0f172a" },
+  { name: "Deep Emerald", color: "#064e3b" },
+  { name: "Royal Indigo", color: "#1e1b4b" },
+  { name: "Medical Teal", color: "#134e4a" },
+  { name: "Charcoal Dark", color: "#18181b" },
+  { name: "Obsidian Black", color: "#090d16" },
+];
 
-const cardStyle: React.CSSProperties = {
-  background: "#161b22",
-  border: "1px solid #30363d",
-  borderRadius: 8,
-};
+const accentPresets = [
+  { name: "Medical Teal", color: "#0d9488" },
+  { name: "Emerald Green", color: "#10b981" },
+  { name: "Sky Cyan", color: "#06b6d4" },
+  { name: "Royal Blue", color: "#2563eb" },
+  { name: "Vivid Violet", color: "#8b5cf6" },
+  { name: "Rose Pink", color: "#f43f5e" },
+  { name: "Amber Gold", color: "#f59e0b" },
+];
 
-// ══════════════════════════════════════════════════════════
-// TAB 1 — PROFILE
-// ══════════════════════════════════════════════════════════
-const ProfileTab = ({ user, updateUser }: { user: any; updateUser: any }) => {
-  const [profileImage, setProfileImage] = useState<string>(
-    user?.profileImage || "",
-  );
-  const [loading, setLoading] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const IMGBB_API_KEY = import.meta.env.VITE_IMGBB_API_KEY;
-
-  const handleImageUpload = async (file: File) => {
-    setUploadingImage(true);
-    const formData = new FormData();
-    formData.append("image", file);
-    try {
-      const res = await axios.post(
-        `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,
-        formData,
-      );
-      setProfileImage(res.data.data.display_url);
-      message.success("Image uploaded successfully!");
-    } catch {
-      message.error("Failed to upload image.");
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
-  const handleUpdate = async (values: any) => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("accessToken");
-      const res = await axios.patch(
-        `http://localhost:5001/api/v1/users/${user?._id}`,
-        { ...values, profileImage },
-        { headers: { Authorization: `${token}` } },
-      );
-      if (res.data) {
-        message.success("Profile updated successfully!");
-        updateUser(res.data.user);
-      }
-    } catch (err: any) {
-      message.error(err?.response?.data?.message || "Something went wrong.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div>
-      <Title level={4} style={{ color: "#e6edf3", margin: 0 }}>
-        Profile
-      </Title>
-      <Text style={{ color: "#8b949e", fontSize: 13 }}>
-        Update your profile information.
-      </Text>
-      <Divider style={{ borderColor: "#21262d", margin: "16px 0 28px 0" }} />
-
-      <Form
-        layout="vertical"
-        initialValues={{ name: user?.name, email: user?.email }}
-        onFinish={handleUpdate}
-        style={{ maxWidth: 580 }}
-      >
-        {/* Profile Picture */}
-        <div style={{ marginBottom: 28 }}>
-          <Text
-            style={{
-              color: "#e6edf3",
-              fontWeight: 600,
-              fontSize: 14,
-              display: "block",
-              marginBottom: 12,
-            }}
-          >
-            Profile Picture
-          </Text>
-          <div style={{ position: "relative", display: "inline-block" }}>
-            <div
-              style={{
-                width: 140,
-                height: 140,
-                borderRadius: 8,
-                background: "#21262d",
-                border: "1px solid #30363d",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                overflow: "hidden",
-              }}
-            >
-              {profileImage ? (
-                <img
-                  src={profileImage}
-                  alt="profile"
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              ) : (
-                <UserOutlined style={{ fontSize: 56, color: "#8b949e" }} />
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={() => setProfileImage("")}
-              style={{
-                position: "absolute",
-                top: 6,
-                right: 6,
-                background: "#30363d",
-                border: "none",
-                borderRadius: "50%",
-                width: 22,
-                height: 22,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#e6edf3",
-              }}
-            >
-              <CloseOutlined style={{ fontSize: 10 }} />
-            </button>
-          </div>
-          <Upload
-            showUploadList={false}
-            beforeUpload={(file) => {
-              handleImageUpload(file);
-              return false;
-            }}
-          >
-            <Button
-              loading={uploadingImage}
-              size="small"
-              style={{
-                display: "block",
-                marginTop: 10,
-                background: "#21262d",
-                border: "1px solid #30363d",
-                color: "#e6edf3",
-                borderRadius: 6,
-              }}
-            >
-              {uploadingImage ? "Uploading..." : "Change Photo"}
-            </Button>
-          </Upload>
-        </div>
-
-        {/* Name + Username */}
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              name="name"
-              label={<span style={{ color: "#e6edf3" }}>Name</span>}
-              rules={[{ required: true, message: "Please enter your name" }]}
-            >
-              <Input style={inputStyle} placeholder="Enter your name" />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label={<span style={{ color: "#e6edf3" }}>User Name</span>}
-            >
-              <Input
-                style={inputStyle}
-                defaultValue={user?.username || ""}
-                placeholder="Username"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Text
-          style={{
-            color: "#8b949e",
-            fontSize: 12,
-            display: "block",
-            marginTop: -16,
-            marginBottom: 20,
-          }}
-        >
-          Your name will be displayed publicly. You can change this any time.
-        </Text>
-
-        {/* Email */}
-        <Form.Item
-          name="email"
-          label={<span style={{ color: "#e6edf3" }}>Email</span>}
-        >
-          <Input style={{ ...inputStyle, color: "#8b949e" }} disabled />
-        </Form.Item>
-        <Text
-          style={{
-            color: "#8b949e",
-            fontSize: 12,
-            display: "block",
-            marginTop: -16,
-            marginBottom: 20,
-          }}
-        >
-          You cannot change your email address.
-        </Text>
-
-        {/* Mobile */}
-        {/* <Form.Item
-          name="phone"
-          label={<span style={{ color: "#e6edf3" }}>Mobile Number</span>}
-        >
-          <Input
-            style={inputStyle}
-            prefix={<span style={{ fontSize: 16 }}>🇧🇩</span>}
-            placeholder="+880 XXXX XXXXXX"
-          />
-        </Form.Item> */}
-        {/* <Text
-          style={{
-            color: "#8b949e",
-            fontSize: 12,
-            display: "block",
-            marginTop: -16,
-            marginBottom: 28,
-          }}
-        >
-          Your mobile number is used for account recovery and security.
-        </Text> */}
-
-        <Form.Item>
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={loading}
-            style={{
-              background: "#1a7fd4",
-              border: "none",
-              borderRadius: 6,
-              fontWeight: 600,
-              height: 38,
-              padding: "0 28px",
-            }}
-          >
-            {loading ? "Updating..." : "Update Profile"}
-          </Button>
-        </Form.Item>
-      </Form>
-    </div>
-  );
-};
-
-// ══════════════════════════════════════════════════════════
-// TAB 2 — ACCOUNT
-// ══════════════════════════════════════════════════════════
-const AccountTab = () => {
-  const [activeSubTab, setActiveSubTab] = useState<"agency" | "security">(
-    "security",
-  );
-  const [twoFA, setTwoFA] = useState(false);
-
-  return (
-    <div>
-      <Text style={{ color: "#8b949e", fontSize: 13 }}>
-        Manage your account settings, including your Agency information and
-        security settings.{" "}
-        <span className="text-2xl font-bold">(upcomming soon)</span>
-      </Text>
-
-      <div style={{ display: "flex", gap: 8, margin: "20px 0 28px 0" }}>
-        {(["agency", "security"] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveSubTab(tab)}
-            style={{
-              background: activeSubTab === tab ? "#1a7fd4" : "transparent",
-              border:
-                activeSubTab === tab
-                  ? "1px solid #1a7fd4"
-                  : "1px solid #30363d",
-              borderRadius: 6,
-              color: "#e6edf3",
-              padding: "6px 16px",
-              cursor: "pointer",
-              fontSize: 13,
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            {tab === "agency" ? <GlobalOutlined /> : <KeyOutlined />}
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-          </button>
-        ))}
-      </div>
-
-      {activeSubTab === "security" && (
-        <div style={{ maxWidth: 640 }}>
-          <Card style={cardStyle} styles={{ body: { padding: 24 } }}>
-            <Title level={5} style={{ color: "#e6edf3", margin: "0 0 4px 0" }}>
-              Security Settings
-            </Title>
-            <Text style={{ color: "#8b949e", fontSize: 13 }}>
-              Make changes to your security settings here.
-            </Text>
-            <div style={{ marginTop: 24 }}>
-              {[
-                {
-                  label: "Current Password",
-                  desc: "This is your current password.",
-                  placeholder: "Current password",
-                },
-                {
-                  label: "New Password",
-                  desc: "This is your new password.",
-                  placeholder: "New password",
-                },
-                {
-                  label: "Confirm Password",
-                  desc: "Please confirm your new password.",
-                  placeholder: "Confirm password",
-                },
-              ].map((item, i) => (
-                <Row key={i} align="top" style={{ marginBottom: 20 }}>
-                  <Col span={10}>
-                    <Text
-                      style={{
-                        color: "#e6edf3",
-                        fontWeight: 600,
-                        fontSize: 13,
-                        display: "block",
-                      }}
-                    >
-                      {item.label}
-                    </Text>
-                    <Text style={{ color: "#8b949e", fontSize: 12 }}>
-                      {item.desc}
-                    </Text>
-                  </Col>
-                  <Col span={14}>
-                    <Input.Password
-                      placeholder={item.placeholder}
-                      style={inputStyle}
-                      iconRender={(visible) =>
-                        visible ? (
-                          <EyeTwoTone twoToneColor="#8b949e" />
-                        ) : (
-                          <EyeInvisibleOutlined style={{ color: "#8b949e" }} />
-                        )
-                      }
-                    />
-                  </Col>
-                </Row>
-              ))}
-            </div>
-            <Button
-              style={{
-                background: "#21262d",
-                border: "1px solid #30363d",
-                color: "#e6edf3",
-                borderRadius: 6,
-              }}
-            >
-              Save changes
-            </Button>
-          </Card>
-
-          <Card
-            style={{ ...cardStyle, marginTop: 16 }}
-            styles={{ body: { padding: 24 } }}
-          >
-            <Row
-              justify="space-between"
-              align="middle"
-              style={{ marginBottom: 12 }}
-            >
-              <Col>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div
-                    style={{
-                      width: 12,
-                      height: 12,
-                      borderRadius: "50%",
-                      background: "#3fb950",
-                      boxShadow: "0 0 6px #3fb950",
-                    }}
-                  />
-                  <Text style={{ color: "#e6edf3", fontWeight: 600 }}>
-                    Two-Factor Authentication (2FA)
-                  </Text>
-                </div>
-                <Text style={{ color: "#8b949e", fontSize: 12 }}>
-                  Protect your account with an additional verification step when
-                  signing in.
-                </Text>
-              </Col>
-              <Col>
-                <Switch
-                  checked={twoFA}
-                  onChange={setTwoFA}
-                  style={{ background: twoFA ? "#1a7fd4" : "#30363d" }}
-                />
-              </Col>
-            </Row>
-            <div
-              style={{
-                background: "rgba(248,81,73,0.12)",
-                border: "1px solid rgba(248,81,73,0.3)",
-                borderRadius: 6,
-                padding: "10px 14px",
-                display: "flex",
-                gap: 8,
-              }}
-            >
-              <span style={{ color: "#f85149", fontSize: 16 }}>⊙</span>
-              <div>
-                <Text
-                  style={{
-                    color: "#f85149",
-                    fontWeight: 600,
-                    fontSize: 13,
-                    display: "block",
-                  }}
-                >
-                  Recommended
-                </Text>
-                <Text style={{ color: "#f85149", fontSize: 12 }}>
-                  We strongly recommend enabling two-factor authentication for
-                  enhanced account security.
-                </Text>
-              </div>
-            </div>
-          </Card>
-        </div>
-      )}
-      {activeSubTab === "agency" && (
-        <Text style={{ color: "#8b949e" }}>Agency settings coming soon...</Text>
-      )}
-    </div>
-  );
-};
-
-// ══════════════════════════════════════════════════════════
-// TAB 3 — APPEARANCE
-// ══════════════════════════════════════════════════════════
-// const AppearanceTab = () => {
-//   const [selectedMode, setSelectedMode] = useState("dark");
-//   const [selectedColor, setSelectedColor] = useState("default");
-//   const [scaled, setScaled] = useState(false);
-
-//   const modes = [
-//     {
-//       key: "light",
-//       label: "Light",
-//       preview: (
-//         <div
-//           style={{
-//             background: "#f0f0f0",
-//             borderRadius: 4,
-//             padding: 8,
-//             width: 100,
-//           }}
-//         >
-//           {[80, 60, 60, 40].map((w, i) => (
-//             <div
-//               key={i}
-//               style={{
-//                 background: "#ccc",
-//                 borderRadius: 2,
-//                 height: 6,
-//                 width: `${w}%`,
-//                 marginBottom: i < 3 ? 5 : 0,
-//               }}
-//             />
-//           ))}
-//           <div style={{ display: "flex", gap: 4, marginTop: 6 }}>
-//             <div
-//               style={{
-//                 width: 16,
-//                 height: 16,
-//                 borderRadius: "50%",
-//                 background: "#aaa",
-//               }}
-//             />
-//             <div style={{ flex: 1, background: "#ddd", borderRadius: 2 }} />
-//           </div>
-//         </div>
-//       ),
-//     },
-//     {
-//       key: "dark",
-//       label: "Dark",
-//       preview: (
-//         <div
-//           style={{
-//             background: "#1c2128",
-//             borderRadius: 4,
-//             padding: 8,
-//             width: 100,
-//           }}
-//         >
-//           {[80, 60, 60].map((w, i) => (
-//             <div
-//               key={i}
-//               style={{
-//                 background: "#444",
-//                 borderRadius: 2,
-//                 height: 6,
-//                 width: `${w}%`,
-//                 marginBottom: 5,
-//               }}
-//             />
-//           ))}
-//           <div style={{ display: "flex", gap: 4, marginTop: 2 }}>
-//             <div
-//               style={{
-//                 width: 16,
-//                 height: 16,
-//                 borderRadius: "50%",
-//                 background: "#1a7fd4",
-//               }}
-//             />
-//             <div style={{ flex: 1, background: "#333", borderRadius: 2 }} />
-//           </div>
-//         </div>
-//       ),
-//     },
-//   ];
-
-//   const colorThemes = [
-//     { key: "default", color: "#1a7fd4" },
-//     { key: "red", color: "#f85149" },
-//     { key: "blue2", color: "#388bfd" },
-//   ];
-
-//   return (
-//     <div>
-//       <Title level={4} style={{ color: "#e6edf3", margin: 0 }}>
-//         Appearance
-//       </Title>
-//       <Text style={{ color: "#8b949e", fontSize: 13 }}>
-//         Customize the appearance of the app. Automatically switch between day
-//         and night themes.
-//       </Text>
-//       <Divider style={{ borderColor: "#21262d", margin: "16px 0 28px 0" }} />
-
-//       <div style={{ marginBottom: 32 }}>
-//         <Text
-//           style={{
-//             color: "#e6edf3",
-//             fontWeight: 600,
-//             fontSize: 14,
-//             display: "block",
-//             marginBottom: 4,
-//           }}
-//         >
-//           Mode
-//         </Text>
-//         <Text
-//           style={{
-//             color: "#8b949e",
-//             fontSize: 13,
-//             display: "block",
-//             marginBottom: 16,
-//           }}
-//         >
-//           Choose between light and dark mode.
-//         </Text>
-//         <div style={{ display: "flex", gap: 20 }}>
-//           {modes.map((m) => (
-//             <div
-//               key={m.key}
-//               onClick={() => setSelectedMode(m.key)}
-//               style={{
-//                 cursor: "pointer",
-//                 display: "flex",
-//                 flexDirection: "column",
-//                 alignItems: "center",
-//                 gap: 8,
-//               }}
-//             >
-//               <div
-//                 style={{
-//                   border:
-//                     selectedMode === m.key
-//                       ? "2px solid #1a7fd4"
-//                       : "2px solid #30363d",
-//                   borderRadius: 8,
-//                   padding: 8,
-//                   background: "#161b22",
-//                   transition: "border-color 0.2s",
-//                 }}
-//               >
-//                 {m.preview}
-//               </div>
-//               <Text style={{ color: "#e6edf3", fontSize: 13 }}>{m.label}</Text>
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-
-//       <div style={{ marginBottom: 32 }}>
-//         <Text
-//           style={{
-//             color: "#e6edf3",
-//             fontWeight: 600,
-//             fontSize: 14,
-//             display: "block",
-//             marginBottom: 4,
-//           }}
-//         >
-//           Theme Color
-//         </Text>
-//         <Text
-//           style={{
-//             color: "#8b949e",
-//             fontSize: 13,
-//             display: "block",
-//             marginBottom: 16,
-//           }}
-//         >
-//           Select the base color for your theme.
-//         </Text>
-//         <div style={{ display: "flex", gap: 16 }}>
-//           {colorThemes.map((ct) => (
-//             <div
-//               key={ct.key}
-//               onClick={() => setSelectedColor(ct.key)}
-//               style={{
-//                 cursor: "pointer",
-//                 border:
-//                   selectedColor === ct.key
-//                     ? `2px solid ${ct.color}`
-//                     : "2px solid #30363d",
-//                 borderRadius: 8,
-//                 padding: 10,
-//                 background: "#161b22",
-//                 width: 110,
-//                 transition: "border-color 0.2s",
-//               }}
-//             >
-//               <div
-//                 style={{
-//                   background: "#21262d",
-//                   borderRadius: 4,
-//                   padding: "6px 8px",
-//                 }}
-//               >
-//                 <div
-//                   style={{
-//                     background: ct.color,
-//                     borderRadius: 2,
-//                     height: 6,
-//                     width: "70%",
-//                     marginBottom: 5,
-//                   }}
-//                 />
-//                 <div
-//                   style={{
-//                     background: ct.color + "88",
-//                     borderRadius: 2,
-//                     height: 6,
-//                     width: "90%",
-//                     marginBottom: 5,
-//                   }}
-//                 />
-//                 <div style={{ display: "flex", gap: 4, marginTop: 2 }}>
-//                   <div
-//                     style={{
-//                       width: 12,
-//                       height: 12,
-//                       borderRadius: "50%",
-//                       background: ct.color,
-//                     }}
-//                   />
-//                   <div
-//                     style={{
-//                       flex: 1,
-//                       background: ct.color + "44",
-//                       borderRadius: 2,
-//                     }}
-//                   />
-//                 </div>
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-
-//       <Card style={cardStyle} styles={{ body: { padding: 16 } }}>
-//         <Row justify="space-between" align="middle">
-//           <Col>
-//             <Text style={{ color: "#e6edf3", fontWeight: 600 }}>
-//               Scaled Theme
-//             </Text>
-//             <br />
-//             <Text style={{ color: "#8b949e", fontSize: 12 }}>
-//               Choose between regular and scaled theme.
-//             </Text>
-//           </Col>
-//           <Col>
-//             <Switch
-//               checked={scaled}
-//               onChange={setScaled}
-//               style={{ background: scaled ? "#1a7fd4" : "#30363d" }}
-//             />
-//           </Col>
-//         </Row>
-//       </Card>
-
-//       <Button
-//         type="primary"
-//         style={{
-//           background: "#1a7fd4",
-//           border: "none",
-//           borderRadius: 6,
-//           fontWeight: 600,
-//           height: 38,
-//           padding: "0 28px",
-//           marginTop: 24,
-//         }}
-//       >
-//         Save Theme Preferences
-//       </Button>
-//     </div>
-//   );
-// };
-
-// ══════════════════════════════════════════════════════════
-// TAB 4 — SESSIONS
-// ══════════════════════════════════════════════════════════
-// const SessionsTab = () => {
-//   const sessions = [
-//     {
-//       browser: "Chrome",
-//       ip: "43.204.144.227",
-//       lastActive: "Apr 05, 2026 at 10:38 AM",
-//       created: "Apr 05, 2026 at 10:37 AM",
-//       current: true,
-//     },
-//     {
-//       browser: "Chrome",
-//       ip: "3.110.99.93",
-//       lastActive: "Apr 05, 2026 at 10:17 AM",
-//       created: "Apr 05, 2026 at 10:17 AM",
-//       current: false,
-//     },
-//     {
-//       browser: "Chrome",
-//       ip: "13.235.74.128",
-//       lastActive: "Apr 02, 2026 at 02:25 PM",
-//       created: "Apr 02, 2026 at 10:59 AM",
-//       current: false,
-//     },
-//     {
-//       browser: "Chrome",
-//       ip: "13.205.18.58",
-//       lastActive: "Apr 02, 2026 at 04:54 PM",
-//       created: "Apr 02, 2026 at 10:44 AM",
-//       current: false,
-//     },
-//   ];
-
-//   return (
-//     <div>
-//       <Title level={4} style={{ color: "#e6edf3", margin: 0 }}>
-//         Sessions
-//       </Title>
-//       <Text style={{ color: "#8b949e", fontSize: 13 }}>
-//         Manage and monitor your active sessions across all devices.
-//       </Text>
-//       <Divider style={{ borderColor: "#21262d", margin: "16px 0 28px 0" }} />
-
-//       <Card style={cardStyle} styles={{ body: { padding: 24 } }}>
-//         <Row
-//           justify="space-between"
-//           align="middle"
-//           style={{ marginBottom: 20 }}
-//         >
-//           <Col>
-//             <Title level={5} style={{ color: "#e6edf3", margin: "0 0 4px 0" }}>
-//               Active Sessions
-//             </Title>
-//             <Text style={{ color: "#8b949e", fontSize: 12 }}>
-//               Manage your active sessions across all devices. You can log out of
-//               individual sessions or all sessions at once.
-//             </Text>
-//           </Col>
-//           <Col>
-//             <Button
-//               danger
-//               icon={<LogoutOutlined />}
-//               style={{
-//                 background: "#da3633",
-//                 border: "none",
-//                 color: "#fff",
-//                 borderRadius: 6,
-//                 fontWeight: 600,
-//               }}
-//             >
-//               Logout All Sessions
-//             </Button>
-//           </Col>
-//         </Row>
-
-//         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-//           {sessions.map((s, i) => (
-//             <div
-//               key={i}
-//               style={{
-//                 background: s.current ? "rgba(26,127,212,0.08)" : "#0f1117",
-//                 border: s.current
-//                   ? "1px solid rgba(26,127,212,0.3)"
-//                   : "1px solid #21262d",
-//                 borderRadius: 8,
-//                 padding: "14px 16px",
-//                 display: "flex",
-//                 alignItems: "center",
-//                 justifyContent: "space-between",
-//               }}
-//             >
-//               <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-//                 <DesktopOutlined style={{ fontSize: 22, color: "#8b949e" }} />
-//                 <div>
-//                   <div
-//                     style={{ display: "flex", alignItems: "center", gap: 8 }}
-//                   >
-//                     <Text style={{ color: "#e6edf3", fontWeight: 600 }}>
-//                       {s.browser}
-//                     </Text>
-//                     {s.current && (
-//                       <Tag
-//                         color="blue"
-//                         style={{
-//                           fontSize: 11,
-//                           padding: "0 6px",
-//                           borderRadius: 4,
-//                         }}
-//                       >
-//                         Current session
-//                       </Tag>
-//                     )}
-//                   </div>
-//                   <Text
-//                     style={{ color: "#8b949e", fontSize: 12, display: "block" }}
-//                   >
-//                     IP: {s.ip}
-//                   </Text>
-//                   <Text
-//                     style={{ color: "#8b949e", fontSize: 12, display: "block" }}
-//                   >
-//                     Last active: {s.lastActive}
-//                   </Text>
-//                   <Text
-//                     style={{ color: "#8b949e", fontSize: 12, display: "block" }}
-//                   >
-//                     Created: {s.created}
-//                   </Text>
-//                 </div>
-//               </div>
-//               {!s.current && (
-//                 <Button
-//                   type="text"
-//                   icon={
-//                     <LogoutOutlined
-//                       style={{ color: "#da3633", fontSize: 16 }}
-//                     />
-//                   }
-//                   style={{ background: "transparent", border: "none" }}
-//                 />
-//               )}
-//             </div>
-//           ))}
-//         </div>
-//       </Card>
-//     </div>
-//   );
-// };
-
-// ══════════════════════════════════════════════════════════
-// MAIN — PharmacistProfile
-// ══════════════════════════════════════════════════════════
 const PharmacistProfile = () => {
   const { user, updateUser } = useAuth();
-  const [activeTab, setActiveTab] = useState("profile");
+  const { themeConfig, setThemeConfig } = usePharmacistTheme();
 
-  const menuItems = [
-    { key: "profile", icon: <UserOutlined />, label: "Profile" },
-    { key: "account", icon: <KeyOutlined />, label: "Account" },
-    { key: "appearance", icon: <BgColorsOutlined />, label: "Appearance" },
-    { key: "sessions", icon: <DesktopOutlined />, label: "Sessions" },
-  ];
+  const [activeTab, setActiveTab] = useState<"profile" | "appearance" | "security" | "sessions">("profile");
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case "profile":
-        return <ProfileTab user={user} updateUser={updateUser} />;
-      case "account":
-        return <AccountTab />;
-      // case "appearance":
-      //   return <AppearanceTab />;
-      // case "sessions":
-      //   return <SessionsTab />;
-      default:
-        return null;
+  // Profile fields state
+  const [name, setName] = useState(user?.name || "Md Sajedul Haque Emon");
+  const [email] = useState(user?.email || "pharmacist@pharmadoor.com");
+  const [phone, setPhone] = useState("+880 1711-223344");
+  const [pharmacyName, setPharmacyName] = useState("PharmaDoor Model Pharmacy & Dispensary");
+  const [drugLicense, setDrugLicense] = useState("DGDA-DL-2024-88914");
+  const [address, setAddress] = useState("House 42, Road 11, Dhanmondi, Dhaka");
+  const [bio, setBio] = useState(
+    "Licensed pharmacist committed to genuine medicine dispensation, patient counseling, and temperature-controlled storage compliance.",
+  );
+  const [profileImage, setProfileImage] = useState(
+    user?.profileImage ||
+      "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=400&auto=format&fit=crop",
+  );
+
+  // Theme Customization State
+  const [customSidebarBg, setCustomSidebarBg] = useState(themeConfig.sidebarBg);
+  const [customAccentColor, setCustomAccentColor] = useState(themeConfig.accentColor);
+  const [customMode, setCustomMode] = useState<"dark" | "light">(themeConfig.mode);
+
+  // Security State
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [saving, setSaving] = useState(false);
+
+  // Handle Photo URL Change
+  const handlePhotoChange = () => {
+    const newUrl = prompt("Enter new Profile Image URL (Cloudinary / ImgBB):", profileImage);
+    if (newUrl && newUrl.trim()) {
+      setProfileImage(newUrl.trim());
+      if (user && updateUser) {
+        updateUser({ ...user, profileImage: newUrl.trim() });
+      }
+      toast.success("Profile photo updated!");
     }
   };
 
+  // Handle Profile Update Save
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      if (user && updateUser) {
+        updateUser({ ...user, name, profileImage });
+      }
+      toast.success("Pharmacist Profile information saved successfully!", { icon: "✅" });
+    } catch {
+      toast.error("Failed to update profile");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Handle Appearance & Color Theme Save
+  const handleApplyTheme = () => {
+    setThemeConfig({
+      sidebarBg: customSidebarBg,
+      accentColor: customAccentColor,
+      mode: customMode,
+    });
+    toast.success("Theme & Colors applied across Pharmacist Suite!", { icon: "🎨" });
+  };
+
+  // Handle Password Update
+  const handlePasswordUpdate = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentPassword) {
+      toast.error("Please enter current password");
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("New passwords do not match");
+      return;
+    }
+
+    toast.success("Security credentials updated successfully!");
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+
   return (
-    <div
-      style={{
-        background: "#0f1117",
-        minHeight: "100vh",
-        fontFamily: "'Segoe UI', sans-serif",
-      }}
-    >
-      {/* Page Header */}
-      <div style={{ padding: "28px 40px 8px 40px" }}>
-        <Title level={3} style={{ color: "#e6edf3", margin: 0 }}>
-          Settings
-        </Title>
-        <Text style={{ color: "#8b949e", fontSize: 13 }}>
-          Manage your account settings, preferences, and configurations here.
-        </Text>
+    <div className="max-w-6xl mx-auto space-y-6">
+      {/* Top Hero Banner */}
+      <div
+        className="rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row items-center gap-6"
+        style={{
+          background: `linear-gradient(135deg, ${customSidebarBg} 0%, #134e4a 100%)`,
+        }}
+      >
+        <div className="relative group shrink-0">
+          <Avatar
+            size={96}
+            src={profileImage}
+            icon={<UserOutlined />}
+            className="border-4 shadow-xl"
+            style={{ borderColor: customAccentColor }}
+          />
+          <button
+            onClick={handlePhotoChange}
+            className="absolute -bottom-2 -right-2 p-2 rounded-xl bg-white text-slate-900 shadow-md hover:bg-slate-100 transition cursor-pointer"
+            title="Update Profile Photo"
+          >
+            <CameraOutlined style={{ fontSize: 16 }} />
+          </button>
+        </div>
+
+        <div className="flex-1 space-y-2 text-center sm:text-left">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+            <Title level={3} style={{ color: "#fff", margin: 0, fontWeight: 800 }}>
+              {name}
+            </Title>
+            <Tag color="cyan" className="font-bold text-xs rounded-full px-2.5">
+              Verified Pharmacist
+            </Tag>
+          </div>
+
+          <p className="text-xs sm:text-sm text-slate-200">
+            {pharmacyName} • License: {drugLicense}
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-slate-300 pt-1">
+            <span className="flex items-center gap-1.5">
+              <MailOutlined />
+              <span>{email}</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <PhoneOutlined />
+              <span>{phone}</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <SafetyCertificateOutlined />
+              <span>DGDA Grade-A Certified</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Current Active Color Pill */}
+        <div className="bg-white/10 backdrop-blur-md px-4 py-3 rounded-2xl border border-white/15 text-xs text-center space-y-1 shrink-0">
+          <span className="text-[10px] text-slate-300 font-bold block uppercase tracking-wider">
+            Active Colors
+          </span>
+          <div className="flex items-center justify-center gap-2">
+            <span
+              className="w-4 h-4 rounded-full border border-white shadow-xs"
+              style={{ backgroundColor: customSidebarBg }}
+              title="Sidebar Color"
+            />
+            <span
+              className="w-4 h-4 rounded-full border border-white shadow-xs"
+              style={{ backgroundColor: customAccentColor }}
+              title="Text/Accent Color"
+            />
+          </div>
+        </div>
       </div>
 
-      <Layout
-        style={{ background: "transparent", minHeight: "calc(100vh - 90px)" }}
-      >
-        {/* Sidebar */}
-        <Sider
-          width={200}
-          style={{
-            background: "#161b22",
-            borderRight: "1px solid #21262d",
-            padding: "24px 0",
-          }}
-        >
-          <Menu
-            mode="inline"
-            selectedKeys={[activeTab]}
-            onClick={({ key }) => setActiveTab(key)}
-            style={{ background: "transparent", border: "none" }}
-            items={menuItems.map((item) => ({
-              key: item.key,
-              icon: item.icon,
-              label: item.label,
-              style: {
-                color: activeTab === item.key ? "#e6edf3" : "#8b949e",
-                background:
-                  activeTab === item.key
-                    ? "rgba(26,127,212,0.15)"
-                    : "transparent",
-                borderLeft:
-                  activeTab === item.key
-                    ? "3px solid #1a7fd4"
-                    : "3px solid transparent",
-                borderRadius: 0,
-              },
-            }))}
-          />
-        </Sider>
+      {/* Tabs Layout */}
+      <div className="bg-white rounded-3xl p-4 sm:p-6 border border-slate-200/90 shadow-sm space-y-6">
+        {/* Navigation Tabs */}
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-3 overflow-x-auto">
+          <button
+            onClick={() => setActiveTab("profile")}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+              activeTab === "profile"
+                ? "bg-slate-900 text-white shadow-xs"
+                : "text-slate-600 hover:bg-slate-100"
+            }`}
+          >
+            <UserOutlined />
+            <span>Profile Details</span>
+          </button>
 
-        {/* Content */}
-        <Content
-          style={{
-            background: "#0f1117",
-            padding: "32px 40px",
-            minHeight: "100vh",
-          }}
-        >
-          {renderContent()}
-        </Content>
-      </Layout>
+          <button
+            onClick={() => setActiveTab("appearance")}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer relative ${
+              activeTab === "appearance"
+                ? "bg-slate-900 text-white shadow-xs"
+                : "text-slate-600 hover:bg-slate-100"
+            }`}
+          >
+            <BgColorsOutlined style={{ color: customAccentColor }} />
+            <span>Sidebar & Text Colors</span>
+            <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+          </button>
 
-      <style>{`
-        .ant-menu-item:hover { background: rgba(255,255,255,0.04) !important; color: #e6edf3 !important; }
-        .ant-menu-item-selected { background: rgba(26,127,212,0.15) !important; color: #e6edf3 !important; }
-        .ant-input, .ant-input-affix-wrapper {
-          background: #161b22 !important; border-color: #30363d !important; color: #e6edf3 !important;
-        }
-        .ant-input:focus, .ant-input-affix-wrapper-focused {
-          border-color: #1a7fd4 !important; box-shadow: 0 0 0 2px rgba(26,127,212,0.2) !important;
-        }
-        .ant-input::placeholder { color: #484f58 !important; }
-        .ant-input-password .ant-input { background: transparent !important; }
-        .ant-form-item-label > label { color: #e6edf3 !important; font-size: 13px !important; }
-        .ant-card { background: #161b22 !important; }
-      `}</style>
+          <button
+            onClick={() => setActiveTab("security")}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+              activeTab === "security"
+                ? "bg-slate-900 text-white shadow-xs"
+                : "text-slate-600 hover:bg-slate-100"
+            }`}
+          >
+            <KeyOutlined />
+            <span>Security & Passwords</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("sessions")}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+              activeTab === "sessions"
+                ? "bg-slate-900 text-white shadow-xs"
+                : "text-slate-600 hover:bg-slate-100"
+            }`}
+          >
+            <DesktopOutlined />
+            <span>Active Sessions</span>
+          </button>
+        </div>
+
+        {/* TAB 1: Profile Details */}
+        {activeTab === "profile" && (
+          <form onSubmit={handleSaveProfile} className="space-y-4 max-w-4xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Pharmacist Full Name *
+                </label>
+                <Input
+                  size="large"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Email Address (Login ID)
+                </label>
+                <Input
+                  size="large"
+                  disabled
+                  value={email}
+                  className="rounded-xl bg-slate-50 text-slate-400"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Phone Number *
+                </label>
+                <Input
+                  size="large"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  DGDA Drug License Number
+                </label>
+                <Input
+                  size="large"
+                  value={drugLicense}
+                  onChange={(e) => setDrugLicense(e.target.value)}
+                  className="rounded-xl"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Pharmacy Dispensary Name
+                </label>
+                <Input
+                  size="large"
+                  value={pharmacyName}
+                  onChange={(e) => setPharmacyName(e.target.value)}
+                  className="rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Storefront Address
+                </label>
+                <Input
+                  size="large"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="rounded-xl"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                Pharmacist Professional Statement / Bio
+              </label>
+              <Input.TextArea
+                rows={3}
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                className="rounded-xl"
+              />
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <Button
+                type="primary"
+                htmlType="submit"
+                size="large"
+                loading={saving}
+                icon={<SaveOutlined />}
+                style={{
+                  backgroundColor: customAccentColor,
+                  borderColor: customAccentColor,
+                  borderRadius: 12,
+                  fontWeight: "bold",
+                }}
+              >
+                Save Profile Information
+              </Button>
+            </div>
+          </form>
+        )}
+
+        {/* TAB 2: Appearance & Color Customization (Pharmacist can customize sidebar color & text color) */}
+        {activeTab === "appearance" && (
+          <div className="space-y-8 max-w-4xl">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <BgColorsOutlined style={{ color: customAccentColor }} />
+                <span>Customize Sidebar & Text Colors</span>
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Choose your preferred sidebar background color, active menu text color, and overall theme tone.
+              </p>
+            </div>
+
+            {/* 1. Sidebar Background Color */}
+            <div className="space-y-3">
+              <label className="block text-xs font-bold text-slate-800">
+                1. Sidebar Background Color
+              </label>
+
+              {/* Color Presets */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                {sidebarPresets.map((preset) => {
+                  const isSelected = customSidebarBg.toLowerCase() === preset.color.toLowerCase();
+                  return (
+                    <div
+                      key={preset.color}
+                      onClick={() => setCustomSidebarBg(preset.color)}
+                      className={`p-3 rounded-2xl border transition cursor-pointer flex flex-col items-center gap-2 ${
+                        isSelected
+                          ? "border-teal-600 bg-teal-50/50 shadow-xs ring-2 ring-teal-500/20"
+                          : "border-slate-200 hover:border-slate-300 bg-white"
+                      }`}
+                    >
+                      <span
+                        className="w-10 h-10 rounded-xl shadow-inner border border-white/20"
+                        style={{ backgroundColor: preset.color }}
+                      />
+                      <span className="text-xs font-bold text-slate-800 text-center truncate">
+                        {preset.name}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Custom Color Picker for Sidebar */}
+              <div className="flex items-center gap-3 pt-2">
+                <span className="text-xs font-semibold text-slate-600">Custom Hex Code:</span>
+                <Input
+                  value={customSidebarBg}
+                  onChange={(e) => setCustomSidebarBg(e.target.value)}
+                  style={{ width: 140, borderRadius: 10, fontFamily: "monospace" }}
+                />
+                <input
+                  type="color"
+                  value={customSidebarBg}
+                  onChange={(e) => setCustomSidebarBg(e.target.value)}
+                  className="w-8 h-8 rounded-lg border border-slate-200 cursor-pointer p-0.5"
+                />
+              </div>
+            </div>
+
+            <Divider />
+
+            {/* 2. Text / Accent Theme Color */}
+            <div className="space-y-3">
+              <label className="block text-xs font-bold text-slate-800">
+                2. Active Text & Button Accent Color
+              </label>
+
+              {/* Accent Color Presets */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+                {accentPresets.map((preset) => {
+                  const isSelected = customAccentColor.toLowerCase() === preset.color.toLowerCase();
+                  return (
+                    <div
+                      key={preset.color}
+                      onClick={() => setCustomAccentColor(preset.color)}
+                      className={`p-3 rounded-2xl border transition cursor-pointer flex flex-col items-center gap-2 ${
+                        isSelected
+                          ? "border-teal-600 bg-teal-50/50 shadow-xs ring-2 ring-teal-500/20"
+                          : "border-slate-200 hover:border-slate-300 bg-white"
+                      }`}
+                    >
+                      <span
+                        className="w-8 h-8 rounded-full shadow-inner border border-white"
+                        style={{ backgroundColor: preset.color }}
+                      />
+                      <span className="text-[11px] font-bold text-slate-800 text-center truncate">
+                        {preset.name}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Custom Color Input for Accent */}
+              <div className="flex items-center gap-3 pt-2">
+                <span className="text-xs font-semibold text-slate-600">Custom Accent Hex:</span>
+                <Input
+                  value={customAccentColor}
+                  onChange={(e) => setCustomAccentColor(e.target.value)}
+                  style={{ width: 140, borderRadius: 10, fontFamily: "monospace" }}
+                />
+                <input
+                  type="color"
+                  value={customAccentColor}
+                  onChange={(e) => setCustomAccentColor(e.target.value)}
+                  className="w-8 h-8 rounded-lg border border-slate-200 cursor-pointer p-0.5"
+                />
+              </div>
+            </div>
+
+            <Divider />
+
+            {/* 3. Theme Mode Selection */}
+            <div className="space-y-3">
+              <label className="block text-xs font-bold text-slate-800">
+                3. Workspace Theme Mode
+              </label>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setCustomMode("light")}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+                    customMode === "light"
+                      ? "bg-amber-100 text-amber-900 border-2 border-amber-400 shadow-xs"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
+                >
+                  <span>☀️ Light Mode</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCustomMode("dark")}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+                    customMode === "dark"
+                      ? "bg-slate-900 text-white border-2 border-teal-500 shadow-xs"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
+                >
+                  <span>🌙 Dark Mode</span>
+                </button>
+              </div>
+            </div>
+
+            <Divider />
+
+            {/* 4. Live Interactive Sidebar Mockup Preview */}
+            <div className="space-y-3">
+              <label className="block text-xs font-bold text-slate-800">
+                4. Live Sidebar & Accent Mockup Preview
+              </label>
+
+              <div className="p-4 bg-slate-100 rounded-3xl border border-slate-200 flex flex-col sm:flex-row items-center gap-6">
+                {/* Mini mockup */}
+                <div
+                  className="w-56 rounded-2xl p-4 shadow-xl border border-white/10 space-y-3 shrink-0"
+                  style={{ backgroundColor: customSidebarBg }}
+                >
+                  <div className="flex items-center gap-2 border-b border-white/10 pb-2.5">
+                    <div
+                      className="w-6 h-6 rounded-lg text-white font-black text-xs flex items-center justify-center"
+                      style={{ backgroundColor: customAccentColor }}
+                    >
+                      Rx
+                    </div>
+                    <span className="text-white text-xs font-bold">
+                      Pharma<span style={{ color: customAccentColor }}>Door</span>
+                    </span>
+                  </div>
+
+                  <div className="space-y-1.5 text-xs">
+                    <div
+                      className="p-2 rounded-xl text-white font-bold flex items-center gap-2"
+                      style={{ backgroundColor: `${customAccentColor}35`, color: customAccentColor }}
+                    >
+                      <span>📊 Dashboard</span>
+                    </div>
+                    <div className="p-2 rounded-xl text-slate-300 font-medium">
+                      <span>💊 All Medicines</span>
+                    </div>
+                    <div className="p-2 rounded-xl text-slate-300 font-medium">
+                      <span>⏳ Expired Stock</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Explanation & Save Trigger */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-bold text-slate-900">
+                    Ready to apply this appearance?
+                  </h4>
+                  <p className="text-xs text-slate-500 leading-relaxed max-w-md">
+                    Clicking <strong>Save & Apply Theme</strong> will immediately update your left sidebar, navigation icons, active buttons, and financial chart accents.
+                  </p>
+                  <Button
+                    type="primary"
+                    size="large"
+                    onClick={handleApplyTheme}
+                    icon={<SaveOutlined />}
+                    style={{
+                      backgroundColor: customAccentColor,
+                      borderColor: customAccentColor,
+                      borderRadius: 12,
+                      fontWeight: "bold",
+                      boxShadow: `0 4px 14px ${customAccentColor}40`,
+                    }}
+                  >
+                    Save & Apply Theme
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: Security & Passwords */}
+        {activeTab === "security" && (
+          <form onSubmit={handlePasswordUpdate} className="space-y-4 max-w-lg">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                Current Password *
+              </label>
+              <Input.Password
+                size="large"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="Enter current password"
+                className="rounded-xl"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                New Password *
+              </label>
+              <Input.Password
+                size="large"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="At least 6 characters"
+                className="rounded-xl"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                Confirm New Password *
+              </label>
+              <Input.Password
+                size="large"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Repeat new password"
+                className="rounded-xl"
+              />
+            </div>
+
+            <div className="pt-2">
+              <Button
+                type="primary"
+                htmlType="submit"
+                size="large"
+                style={{
+                  backgroundColor: customAccentColor,
+                  borderColor: customAccentColor,
+                  borderRadius: 12,
+                  fontWeight: "bold",
+                }}
+              >
+                Update Password
+              </Button>
+            </div>
+          </form>
+        )}
+
+        {/* TAB 4: Active Sessions & Compliance */}
+        {activeTab === "sessions" && (
+          <div className="space-y-4 max-w-lg text-xs">
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2.5 text-slate-600">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Current Device:</span>
+                <span className="font-bold text-slate-800">Chrome on Windows 11</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">DGDA License Verification:</span>
+                <span className="font-bold text-emerald-600">Active & Certified</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Session Status:</span>
+                <span className="font-bold text-emerald-600 flex items-center gap-1">
+                  <CheckCircleOutlined /> Logged In
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

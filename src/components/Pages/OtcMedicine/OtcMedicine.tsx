@@ -4,17 +4,14 @@ import { Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 
-import { Card, Typography, Button } from "antd";
-
 import { Link } from "react-router-dom";
+import { Pill, ArrowRight, Sparkles } from "lucide-react";
 
 import OtcBannerPage from "./OtcBannerPage";
 import Review from "../Banner/Review";
 import SubscribeSection from "../Banner/SubscribeSection";
 import HowItWorks from "../BlogSection/HowItsWork";
 import AnimalMedicine from "../AnimalMedicine/AnimalMedicine";
-
-const { Title, Text } = Typography;
 
 type Medicine = {
   id: number;
@@ -30,134 +27,111 @@ const OtcMedicine = () => {
   useEffect(() => {
     fetch("/otcmedicine.json")
       .then((res) => res.json())
-      .then((data) => setMedicines(data));
+      .then((data) => setMedicines(data))
+      .catch((err) => console.error("Error fetching OTC medicines:", err));
   }, []);
 
   return (
-    <div style={{ padding: "40px 20px", background: "#f5f7fa" }}>
-      {/* Title */}
-      <Title
-        level={2}
-        style={{
-          textAlign: "center",
-          fontWeight: 700,
-          marginBottom: 30,
-        }}
-      >
-        💊 OTC Medicines Category
-      </Title>
+    <section className="py-12 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 text-teal-700 border border-teal-200/60 text-xs font-bold mb-2">
+            <Pill size={14} className="text-teal-600" />
+            <span>Over-The-Counter Categories</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Browse Medicines by Category
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1.5">
+            Safe, non-prescription remedies for pain relief, cough, cold, digestive care & everyday wellness.
+          </p>
+        </div>
 
-      {/* Slider */}
-      <Swiper
-        spaceBetween={25}
-        slidesPerView={1}
-        pagination={{ clickable: true }}
-        breakpoints={{
-          640: { slidesPerView: 1 },
-          768: { slidesPerView: 2 },
-          1024: { slidesPerView: 3 },
-        }}
-        modules={[Pagination, Autoplay]}
-        autoplay={{ delay: 2500, disableOnInteraction: false }}
-        className="px-2 py-6"
-      >
-        {medicines.map((med) => (
-          <SwiperSlide key={med.id}>
-            <Link to={`/otc-medicine-details?type=${med.medicineType}`}>
-              <Card
-                hoverable
-                style={{
-                  borderRadius: 18,
-                  overflow: "hidden",
-                  boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-                  transition: "0.3s",
-                  height: "100%",
-                }}
-                bodyStyle={{ padding: 20 }}
-                cover={
-                  <div
-                    style={{
-                      background: "#f0f5ff",
-                      padding: 20,
-                      display: "flex",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <img
-                      src={med.image}
-                      alt={med.name}
-                      style={{
-                        height: 150,
-                        objectFit: "contain",
-                        transition: "0.3s",
-                      }}
-                    />
-                  </div>
-                }
+        {/* Categories Swiper */}
+        <Swiper
+          spaceBetween={24}
+          slidesPerView={1}
+          pagination={{ clickable: true, dynamicBullets: true }}
+          breakpoints={{
+            640: { slidesPerView: 2 },
+            1024: { slidesPerView: 3 },
+          }}
+          modules={[Pagination, Autoplay]}
+          autoplay={{ delay: 3500, disableOnInteraction: false }}
+          className="pb-12"
+        >
+          {medicines.map((med) => (
+            <SwiperSlide key={med.id}>
+              <Link
+                to={`/otc-medicine-details?type=${encodeURIComponent(med.medicineType)}`}
+                className="group block h-full"
               >
-                <div style={{ textAlign: "center" }}>
-                  <Title level={4} style={{ marginBottom: 8 }}>
-                    {med.medicineType}
-                  </Title>
+                <div className="h-full bg-slate-50/70 hover:bg-white rounded-2xl p-6 border border-slate-200/70 hover:border-teal-400 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+                  <div>
+                    {/* Image Area */}
+                    <div className="w-full h-44 bg-white rounded-xl p-4 flex items-center justify-center border border-slate-100 shadow-2xs group-hover:scale-102 transition-transform duration-300">
+                      <img
+                        src={med.image}
+                        alt={med.name || med.medicineType}
+                        className="max-h-36 max-w-full object-contain"
+                        loading="lazy"
+                      />
+                    </div>
 
-                  <Text type="secondary" style={{ fontSize: 13 }}>
-                    {med.description}
-                  </Text>
+                    {/* Content */}
+                    <div className="mt-5">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-teal-600 mb-1">
+                        <Sparkles size={13} />
+                        <span>Featured Category</span>
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-800 group-hover:text-teal-700 transition-colors">
+                        {med.medicineType}
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                        {med.description}
+                      </p>
+                    </div>
+                  </div>
 
-                  <Button
-                    type="primary"
-                    shape="round"
-                    style={{
-                      marginTop: 15,
-                      padding: "0 25px",
-                      height: 40,
-                      fontWeight: 600,
-                    }}
-                  >
-                    Explore
-                  </Button>
+                  {/* Button */}
+                  <div className="mt-5 pt-3 border-t border-slate-200/50 flex items-center justify-between">
+                    <span className="text-xs font-bold text-teal-700 group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                      Explore Medicines
+                      <ArrowRight size={14} />
+                    </span>
+                    <span className="w-8 h-8 rounded-full bg-teal-50 group-hover:bg-teal-600 text-teal-700 group-hover:text-white flex items-center justify-center transition-colors">
+                      <ArrowRight size={14} />
+                    </span>
+                  </div>
                 </div>
-              </Card>
-            </Link>
-          </SwiperSlide>
-        ))}
-      </Swiper>
+              </Link>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
 
-      {/* Extra Sections */}
-      <div style={{ marginTop: 50 }}>
+      {/* Extra Sub-Sections */}
+      <div className="mt-6">
         <OtcBannerPage />
       </div>
 
-      <div style={{ marginTop: 50 }}>
+      <div className="mt-6" id="animal-medicine">
         <AnimalMedicine />
       </div>
 
-      <div style={{ marginTop: 50 }}>
+      <div className="mt-6">
         <HowItWorks />
       </div>
 
-      <div style={{ marginTop: 50 }}>
+      <div className="mt-6">
         <Review />
       </div>
 
-      <div style={{ marginTop: 50 }}>
+      <div className="mt-6">
         <SubscribeSection />
       </div>
-
-      {/* Hover Animation */}
-      <style>
-        {`
-        .ant-card:hover {
-          transform: translateY(-10px) scale(1.02);
-          box-shadow: 0 25px 50px rgba(0,0,0,0.15) !important;
-        }
-
-        .ant-card:hover img {
-          transform: scale(1.1);
-        }
-        `}
-      </style>
-    </div>
+    </section>
   );
 };
 

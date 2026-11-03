@@ -42,7 +42,7 @@ const AllMedicinePage = () => {
         if (!token || !userId) return;
 
         const response = await axios.get(
-          "http://localhost:5001/api/v1/medicine",
+          "https://pharmadoor-backend-v2.vercel.app/api/v1/medicine",
           {
             headers: { Authorization: token },
           },
@@ -85,7 +85,7 @@ const AllMedicinePage = () => {
         }
 
         const res = await axios.delete(
-          `http://localhost:5001/api/v1/medicine/${_id}`,
+          `https://pharmadoor-backend-v2.vercel.app/api/v1/medicine/${_id}`,
           { headers: { Authorization: token } },
         );
 

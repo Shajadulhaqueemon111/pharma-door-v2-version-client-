@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { ArrowRight, ShoppingCart, ShieldCheck } from "lucide-react";
+
 type Props = {
   onCloseDrawer?: () => void;
 };
+
 const CalculateSummary = ({ onCloseDrawer }: Props) => {
   const [cartItems, setCartItems] = useState<any[]>([]);
 
@@ -25,7 +28,7 @@ const CalculateSummary = ({ onCloseDrawer }: Props) => {
   const calculate = () => {
     const total = cartItems.reduce(
       (sum, item) => sum + Number(item.price) * (item.quantity || 1),
-      0
+      0,
     );
     const tax = total * 0.05;
     const commission = total * 0.05;
@@ -41,39 +44,53 @@ const CalculateSummary = ({ onCloseDrawer }: Props) => {
 
   const summary = calculate();
 
-  return (
-    <div className="mt-8 p-6 border border-green-300 rounded-xl bg-gradient-to-r from-white to-green-50 shadow-md max-w-md mx-auto">
-      <h2 className="text-xl font-bold text-green-700 mb-4 text-center">
-        🧾 Cart Summary
-      </h2>
+  if (cartItems.length === 0) return null;
 
-      <div className="space-y-2 text-gray-700 text-base">
-        <p>
-          🧮 Total Price:{" "}
-          <span className="font-semibold">{summary.total} TK</span>
-        </p>
-        <p>
-          💸 Tax (5%): <span className="font-semibold">{summary.tax} TK</span>
-        </p>
-        <p>
-          🧾 Commission (5%):{" "}
-          <span className="font-semibold">{summary.commission} TK</span>
-        </p>
-        <p className="text-lg font-bold text-green-700 mt-2">
-          💰 Final Amount: <span>{summary.finalTotal} TK</span>
-        </p>
+  return (
+    <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 sm:p-5">
+      <h3 className="text-sm font-bold text-slate-800 pb-3 border-b border-slate-200/60 flex items-center justify-between">
+        <span>Order Summary</span>
+        <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full">
+          {cartItems.length} {cartItems.length === 1 ? "Item" : "Items"}
+        </span>
+      </h3>
+
+      <div className="py-3 space-y-2 text-xs sm:text-sm text-slate-600">
+        <div className="flex justify-between">
+          <span className="text-slate-500">Subtotal</span>
+          <span className="font-semibold text-slate-800">৳{summary.total}</span>
+        </div>
+
+        <div className="flex justify-between">
+          <span className="text-slate-500">Govt. VAT / Tax (5%)</span>
+          <span className="font-semibold text-slate-800">+৳{summary.tax}</span>
+        </div>
+
+        <div className="flex justify-between text-emerald-600">
+          <span>Promotional Discount (5%)</span>
+          <span className="font-semibold">-৳{summary.commission}</span>
+        </div>
+
+        <div className="pt-3 border-t border-slate-200 flex justify-between items-baseline">
+          <span className="text-sm font-bold text-slate-900">Total Payable</span>
+          <span className="text-lg font-extrabold text-teal-700">
+            ৳{summary.finalTotal}
+          </span>
+        </div>
       </div>
 
-      <Link to="/medicines/checkout">
-        <button
-          onClick={() => {
-            onCloseDrawer?.();
-          }}
-          className="mt-6 w-full bg-green-600 hover:bg-green-700 transition text-white font-semibold py-2 px-4 rounded-lg shadow"
-        >
-          🛒 Checkout
+      <Link to="/medicines/checkout" onClick={() => onCloseDrawer?.()}>
+        <button className="w-full mt-3 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-bold text-sm rounded-xl shadow-md shadow-teal-700/20 hover:shadow-teal-700/40 transition flex items-center justify-center gap-2 cursor-pointer">
+          <ShoppingCart size={16} />
+          <span>Proceed to Checkout</span>
+          <ArrowRight size={16} />
         </button>
       </Link>
+
+      <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
+        <ShieldCheck size={13} className="text-teal-600" />
+        <span>100% Secure Checkout Guarantee</span>
+      </div>
     </div>
   );
 };
