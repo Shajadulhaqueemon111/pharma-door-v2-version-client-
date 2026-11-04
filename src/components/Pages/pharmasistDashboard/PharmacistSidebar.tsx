@@ -160,12 +160,21 @@ const PharmacistSidebar = ({ children }: AdminSidebarProps) => {
         collapsible
         collapsed={collapsed}
         trigger={null}
+        breakpoint="lg"
+        collapsedWidth={0}
+        onBreakpoint={(broken) => {
+          setCollapsed(broken);
+        }}
         width={260}
-        collapsedWidth={80}
         style={{
           background: themeConfig.sidebarBg,
           borderRight: "1px solid rgba(255,255,255,0.08)",
           boxShadow: "2px 0 12px rgba(0,0,0,0.15)",
+          position: "sticky",
+          top: 0,
+          height: "100vh",
+          overflowY: "auto",
+          zIndex: 30,
         }}
       >
         {/* Brand Header */}

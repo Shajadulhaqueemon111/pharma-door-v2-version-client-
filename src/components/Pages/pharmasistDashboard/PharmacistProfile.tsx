@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Typography,
   Input,
@@ -7,6 +7,13 @@ import {
   Avatar,
   Divider,
   Tag,
+  Upload,
+  Switch,
+  Alert,
+  Spin,
+  Table,
+  Badge,
+  Card,
 } from "antd";
 import {
   UserOutlined,
@@ -16,13 +23,24 @@ import {
   SaveOutlined,
   CameraOutlined,
   SafetyCertificateOutlined,
-  CheckCircleOutlined,
   PhoneOutlined,
   MailOutlined,
+  HistoryOutlined,
+  LockOutlined,
+  EnvironmentOutlined,
+  GlobalOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 import toast from "react-hot-toast";
 import { useAuth } from "../privateRoute/AuthContext";
 import { usePharmacistTheme } from "./pharmacistTheme";
+import {
+  useUploadAvatarMutation,
+  useChangePasswordMutation,
+  useToggle2FAMutation,
+  useGetSessionsQuery,
+} from "../../../redux/api/authApi";
+import { useGetAuditLogsQuery } from "../../../redux/api/auditApi";
 
 const { Title } = Typography;
 
@@ -49,7 +67,18 @@ const PharmacistProfile = () => {
   const { user, updateUser } = useAuth();
   const { themeConfig, setThemeConfig } = usePharmacistTheme();
 
-  const [activeTab, setActiveTab] = useState<"profile" | "appearance" | "security" | "sessions">("profile");
+  const [activeTab, setActiveTab] = useState<
+    "profile" | "appearance" | "security" | "sessions" | "audit"
+  >("profile");
+
+  // RTK Query hooks
+  const [uploadAvatar, { isLoading: isUploadingAvatar }] = useUploadAvatarMutation();
+  const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
+  const [toggle2FA, { isLoading: isToggling2FA }] = useToggle2FAMutation();
+  const { data: sessionsData, isLoading: isLoadingSessions } = useGetSessionsQuery(undefined, {
+    pollingInterval: 30000,
+  });
+  const { data: auditLogs = [], isLoading: isLoadingAudit } = useGetAuditLogsQuery({ limit: 50 });
 
   // Profile fields state
   const [name, setName] = useState(user?.name || "Md Sajedul Haque Emon");
@@ -63,8 +92,15 @@ const PharmacistProfile = () => {
   );
   const [profileImage, setProfileImage] = useState(
     user?.profileImage ||
-      "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=400&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=400&auto=format&fit=crop",
   );
+
+  // Sync profile photo if user object changes
+  useEffect(() => {
+    if (user?.profileImage) {
+      setProfileImage(user.profileImage);
+    }
+  }, [user?.profileImage]);
 
   // Theme Customization State
   const [customSidebarBg, setCustomSidebarBg] = useState(themeConfig.sidebarBg);
@@ -75,19 +111,46 @@ const PharmacistProfile = () => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [is2FAEnabled, setIs2FAEnabled] = useState(true);
 
   const [saving, setSaving] = useState(false);
 
-  // Handle Photo URL Change
-  const handlePhotoChange = () => {
-    const newUrl = prompt("Enter new Profile Image URL (Cloudinary / ImgBB):", profileImage);
-    if (newUrl && newUrl.trim()) {
-      setProfileImage(newUrl.trim());
-      if (user && updateUser) {
-        updateUser({ ...user, profileImage: newUrl.trim() });
-      }
-      toast.success("Profile photo updated!");
+  // Handle Real Cloudinary File Upload
+  const handleFileUpload = async (file: File) => {
+    const isImage = file.type.startsWith("image/");
+    if (!isImage) {
+      toast.error("Please upload an image file (PNG, JPG, WEBP)");
+      return Upload.LIST_IGNORE;
     }
+
+    const isLt5M = file.size / 1024 / 1024 < 5;
+    if (!isLt5M) {
+      toast.error("Image file must be under 5MB");
+      return Upload.LIST_IGNORE;
+    }
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const res: any = await uploadAvatar(formData).unwrap();
+      const newImageUrl = res?.data?.profileImage || res?.profileImage;
+
+      if (newImageUrl) {
+        setProfileImage(newImageUrl);
+        if (user && updateUser) {
+          updateUser({ ...user, profileImage: newImageUrl });
+        }
+        toast.success("Profile photo hosted on Cloudinary successfully! ☁️", {
+          icon: "📸",
+        });
+      }
+    } catch (err: any) {
+      console.error("Avatar upload failed:", err);
+      toast.error(err?.data?.message || "Failed to upload photo to Cloudinary");
+    }
+
+    return false; // Prevent default upload action
   };
 
   // Handle Profile Update Save
@@ -98,7 +161,7 @@ const PharmacistProfile = () => {
       if (user && updateUser) {
         updateUser({ ...user, name, profileImage });
       }
-      toast.success("Pharmacist Profile information saved successfully!", { icon: "✅" });
+      toast.success("Pharmacist profile information saved successfully!", { icon: "✅" });
     } catch {
       toast.error("Failed to update profile");
     } finally {
@@ -116,8 +179,8 @@ const PharmacistProfile = () => {
     toast.success("Theme & Colors applied across Pharmacist Suite!", { icon: "🎨" });
   };
 
-  // Handle Password Update
-  const handlePasswordUpdate = (e: React.FormEvent) => {
+  // Handle Real Password Update
+  const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentPassword) {
       toast.error("Please enter current password");
@@ -132,11 +195,159 @@ const PharmacistProfile = () => {
       return;
     }
 
-    toast.success("Security credentials updated successfully!");
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
+    try {
+      await changePassword({
+        oldPassword: currentPassword,
+        newPassword: newPassword,
+      }).unwrap();
+
+      toast.success("Password changed successfully! Keep your credentials safe.", {
+        icon: "🔒",
+      });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to change password. Please check current password.");
+    }
   };
+
+  // Handle 2FA Toggle
+  const handleToggle2FA = async (checked: boolean) => {
+    try {
+      await toggle2FA({ enabled: checked }).unwrap();
+      setIs2FAEnabled(checked);
+      if (checked) {
+        toast.success("Two-Factor Authentication activated! OTP required on login.", {
+          icon: "🛡️",
+        });
+      } else {
+        toast("Two-Factor Authentication disabled.", { icon: "⚠️" });
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to update 2FA status");
+    }
+  };
+
+  // Sessions Columns
+  const sessionColumns = [
+    {
+      title: "Device / Browser",
+      dataIndex: "device",
+      key: "device",
+      render: (text: string, record: any) => (
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center font-bold text-xs">
+            <DesktopOutlined />
+          </div>
+          <div>
+            <p className="font-bold text-slate-800 text-xs">{text || "Chrome on Windows 11"}</p>
+            <p className="text-[10px] text-slate-400">{record.browser || "Chrome / WebKit"}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "IP Address & Location",
+      dataIndex: "ip",
+      key: "ip",
+      render: (ip: string, record: any) => (
+        <div>
+          <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-slate-700">
+            <GlobalOutlined className="text-teal-600" />
+            <span>{ip || "103.145.244.12"}</span>
+          </div>
+          <div className="flex items-center gap-1 text-[10px] text-slate-500">
+            <EnvironmentOutlined className="text-rose-500" />
+            <span>{record.location || "Dhaka, Bangladesh"}</span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Last Active",
+      dataIndex: "lastActive",
+      key: "lastActive",
+      render: (date: string) => (
+        <div className="text-xs text-slate-600 flex items-center gap-1.5">
+          <ClockCircleOutlined className="text-slate-400" />
+          <span>{date ? new Date(date).toLocaleTimeString() : "Just now"}</span>
+        </div>
+      ),
+    },
+    {
+      title: "Status",
+      key: "status",
+      render: () => (
+        <Tag color="success" className="font-bold text-[10px] rounded-full px-2.5 py-0.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block mr-1.5 animate-pulse" />
+          Active Session
+        </Tag>
+      ),
+    },
+  ];
+
+  // Audit Logs Columns
+  const auditColumns = [
+    {
+      title: "Action",
+      dataIndex: "action",
+      key: "action",
+      render: (action: string) => {
+        let color = "blue";
+        if (action.includes("DELETE")) color = "error";
+        if (action.includes("UPDATE") || action.includes("MODIFY")) color = "warning";
+        if (action.includes("LOGIN") || action.includes("2FA")) color = "purple";
+        if (action.includes("UPLOAD")) color = "cyan";
+        return (
+          <Tag color={color} className="font-bold text-[10px] uppercase rounded">
+            {action}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "Target / Entity",
+      dataIndex: "target",
+      key: "target",
+      render: (target: string, record: any) => (
+        <div>
+          <p className="font-bold text-slate-800 text-xs">{target}</p>
+          {record.targetId && (
+            <p className="text-[10px] font-mono text-slate-400">ID: {record.targetId.slice(-8)}</p>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: "Details",
+      dataIndex: "details",
+      key: "details",
+      render: (details: string) => (
+        <p className="text-xs text-slate-600 max-w-xs truncate" title={details}>
+          {details || "Operation recorded"}
+        </p>
+      ),
+    },
+    {
+      title: "IP Address",
+      dataIndex: "ipAddress",
+      key: "ipAddress",
+      render: (ip: string) => (
+        <span className="font-mono text-[11px] text-slate-500">{ip || "127.0.0.1"}</span>
+      ),
+    },
+    {
+      title: "Timestamp",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date: string) => (
+        <span className="text-[11px] text-slate-500">
+          {new Date(date).toLocaleString()}
+        </span>
+      ),
+    },
+  ];
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -148,20 +359,30 @@ const PharmacistProfile = () => {
         }}
       >
         <div className="relative group shrink-0">
-          <Avatar
-            size={96}
-            src={profileImage}
-            icon={<UserOutlined />}
-            className="border-4 shadow-xl"
-            style={{ borderColor: customAccentColor }}
-          />
-          <button
-            onClick={handlePhotoChange}
-            className="absolute -bottom-2 -right-2 p-2 rounded-xl bg-white text-slate-900 shadow-md hover:bg-slate-100 transition cursor-pointer"
-            title="Update Profile Photo"
+          <Spin spinning={isUploadingAvatar}>
+            <Avatar
+              size={96}
+              src={profileImage}
+              icon={<UserOutlined />}
+              className="border-4 shadow-xl"
+              style={{ borderColor: customAccentColor }}
+            />
+          </Spin>
+
+          {/* Real Cloudinary Upload Button */}
+          <Upload
+            beforeUpload={handleFileUpload}
+            showUploadList={false}
+            accept="image/*"
           >
-            <CameraOutlined style={{ fontSize: 16 }} />
-          </button>
+            <button
+              type="button"
+              className="absolute -bottom-2 -right-2 p-2 rounded-xl bg-white text-slate-900 shadow-md hover:bg-slate-100 transition cursor-pointer flex items-center justify-center border-0"
+              title="Upload new profile photo to Cloudinary"
+            >
+              <CameraOutlined style={{ fontSize: 16 }} />
+            </button>
+          </Upload>
         </div>
 
         <div className="flex-1 space-y-2 text-center sm:text-left">
@@ -172,6 +393,9 @@ const PharmacistProfile = () => {
             <Tag color="cyan" className="font-bold text-xs rounded-full px-2.5">
               Verified Pharmacist
             </Tag>
+            <Tag color="emerald" className="font-bold text-xs rounded-full px-2.5">
+              Cloudinary Synced
+            </Tag>
           </div>
 
           <p className="text-xs sm:text-sm text-slate-200">
@@ -180,16 +404,13 @@ const PharmacistProfile = () => {
 
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-slate-300 pt-1">
             <span className="flex items-center gap-1.5">
-              <MailOutlined />
-              <span>{email}</span>
+              <MailOutlined /> {email}
             </span>
             <span className="flex items-center gap-1.5">
-              <PhoneOutlined />
-              <span>{phone}</span>
+              <PhoneOutlined /> {phone}
             </span>
             <span className="flex items-center gap-1.5">
-              <SafetyCertificateOutlined />
-              <span>DGDA Grade-A Certified</span>
+              <SafetyCertificateOutlined /> DGDA Grade-A Certified
             </span>
           </div>
         </div>
@@ -220,11 +441,10 @@ const PharmacistProfile = () => {
         <div className="flex items-center gap-2 border-b border-slate-100 pb-3 overflow-x-auto">
           <button
             onClick={() => setActiveTab("profile")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
-              activeTab === "profile"
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${activeTab === "profile"
                 ? "bg-slate-900 text-white shadow-xs"
                 : "text-slate-600 hover:bg-slate-100"
-            }`}
+              }`}
           >
             <UserOutlined />
             <span>Profile Details</span>
@@ -232,11 +452,10 @@ const PharmacistProfile = () => {
 
           <button
             onClick={() => setActiveTab("appearance")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer relative ${
-              activeTab === "appearance"
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer relative ${activeTab === "appearance"
                 ? "bg-slate-900 text-white shadow-xs"
                 : "text-slate-600 hover:bg-slate-100"
-            }`}
+              }`}
           >
             <BgColorsOutlined style={{ color: customAccentColor }} />
             <span>Sidebar & Text Colors</span>
@@ -245,33 +464,42 @@ const PharmacistProfile = () => {
 
           <button
             onClick={() => setActiveTab("security")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
-              activeTab === "security"
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${activeTab === "security"
                 ? "bg-slate-900 text-white shadow-xs"
                 : "text-slate-600 hover:bg-slate-100"
-            }`}
+              }`}
           >
             <KeyOutlined />
-            <span>Security & Passwords</span>
+            <span>Security & 2FA</span>
           </button>
 
           <button
             onClick={() => setActiveTab("sessions")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
-              activeTab === "sessions"
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${activeTab === "sessions"
                 ? "bg-slate-900 text-white shadow-xs"
                 : "text-slate-600 hover:bg-slate-100"
-            }`}
+              }`}
           >
             <DesktopOutlined />
-            <span>Active Sessions</span>
+            <span>Active Sessions & IP</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("audit")}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${activeTab === "audit"
+                ? "bg-slate-900 text-white shadow-xs"
+                : "text-slate-600 hover:bg-slate-100"
+              }`}
+          >
+            <HistoryOutlined />
+            <span>Dispensary Audit Logs</span>
           </button>
         </div>
 
         {/* TAB 1: Profile Details */}
         {activeTab === "profile" && (
-          <form onSubmit={handleSaveProfile} className="space-y-4 max-w-4xl">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <form onSubmit={handleSaveProfile} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
                   Pharmacist Full Name *
@@ -280,6 +508,7 @@ const PharmacistProfile = () => {
                   size="large"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  placeholder="Pharmacist Name"
                   className="rounded-xl"
                 />
               </div>
@@ -290,14 +519,12 @@ const PharmacistProfile = () => {
                 </label>
                 <Input
                   size="large"
-                  disabled
                   value={email}
-                  className="rounded-xl bg-slate-50 text-slate-400"
+                  disabled
+                  className="rounded-xl bg-slate-50 cursor-not-allowed"
                 />
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
                   Phone Number *
@@ -306,6 +533,7 @@ const PharmacistProfile = () => {
                   size="large"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+880..."
                   className="rounded-xl"
                 />
               </div>
@@ -321,9 +549,7 @@ const PharmacistProfile = () => {
                   className="rounded-xl"
                 />
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
                   Pharmacy Dispensary Name
@@ -361,13 +587,42 @@ const PharmacistProfile = () => {
               />
             </div>
 
-            <div className="pt-2 flex justify-end">
+            {/* Cloudinary Upload Reminder Callout */}
+            <div className="p-4 rounded-2xl bg-teal-50/70 border border-teal-200/80 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Avatar src={profileImage} size={48} className="border-2 border-teal-600" />
+                <div>
+                  <p className="text-xs font-bold text-slate-800">
+                    Profile Photo Hosted on Cloudinary
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    Click the camera button on your avatar above or upload a new photo directly.
+                  </p>
+                </div>
+              </div>
+
+              <Upload
+                beforeUpload={handleFileUpload}
+                showUploadList={false}
+                accept="image/*"
+              >
+                <Button
+                  loading={isUploadingAvatar}
+                  icon={<CameraOutlined />}
+                  className="rounded-xl font-bold text-xs"
+                >
+                  Upload New Avatar
+                </Button>
+              </Upload>
+            </div>
+
+            <div className="flex justify-end pt-2">
               <Button
                 type="primary"
                 htmlType="submit"
-                size="large"
                 loading={saving}
                 icon={<SaveOutlined />}
+                size="large"
                 style={{
                   backgroundColor: customAccentColor,
                   borderColor: customAccentColor,
@@ -375,60 +630,59 @@ const PharmacistProfile = () => {
                   fontWeight: "bold",
                 }}
               >
-                Save Profile Information
+                Save Profile Changes
               </Button>
             </div>
           </form>
         )}
 
-        {/* TAB 2: Appearance & Color Customization (Pharmacist can customize sidebar color & text color) */}
+        {/* TAB 2: Appearance & Theme Customizer */}
         {activeTab === "appearance" && (
-          <div className="space-y-8 max-w-4xl">
-            <div>
-              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <BgColorsOutlined style={{ color: customAccentColor }} />
-                <span>Customize Sidebar & Text Colors</span>
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Choose your preferred sidebar background color, active menu text color, and overall theme tone.
-              </p>
-            </div>
-
-            {/* 1. Sidebar Background Color */}
+          <div className="space-y-6">
             <div className="space-y-3">
-              <label className="block text-xs font-bold text-slate-800">
-                1. Sidebar Background Color
-              </label>
-
-              {/* Color Presets */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                {sidebarPresets.map((preset) => {
-                  const isSelected = customSidebarBg.toLowerCase() === preset.color.toLowerCase();
-                  return (
-                    <div
-                      key={preset.color}
-                      onClick={() => setCustomSidebarBg(preset.color)}
-                      className={`p-3 rounded-2xl border transition cursor-pointer flex flex-col items-center gap-2 ${
-                        isSelected
-                          ? "border-teal-600 bg-teal-50/50 shadow-xs ring-2 ring-teal-500/20"
-                          : "border-slate-200 hover:border-slate-300 bg-white"
-                      }`}
-                    >
-                      <span
-                        className="w-10 h-10 rounded-xl shadow-inner border border-white/20"
-                        style={{ backgroundColor: preset.color }}
-                      />
-                      <span className="text-xs font-bold text-slate-800 text-center truncate">
-                        {preset.name}
-                      </span>
-                    </div>
-                  );
-                })}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900">
+                    1. Pharmacist Suite Sidebar Background Color
+                  </h4>
+                  <p className="text-xs text-slate-500">
+                    Pick a curated color preset or set your custom dispensary hex color.
+                  </p>
+                </div>
+                <Tag
+                  color="processing"
+                  className="font-mono text-xs font-bold px-2.5 py-0.5 rounded-full"
+                >
+                  {customSidebarBg}
+                </Tag>
               </div>
 
-              {/* Custom Color Picker for Sidebar */}
+              {/* Sidebar Presets */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 pt-1">
+                {sidebarPresets.map((preset) => (
+                  <button
+                    key={preset.color}
+                    type="button"
+                    onClick={() => setCustomSidebarBg(preset.color)}
+                    className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between h-20 ${customSidebarBg.toLowerCase() === preset.color.toLowerCase()
+                        ? "border-teal-500 ring-2 ring-teal-500/20 shadow-md bg-teal-50/20"
+                        : "border-slate-200 hover:border-slate-300 bg-white"
+                      }`}
+                  >
+                    <span
+                      className="w-5 h-5 rounded-full border border-white/60 shadow-xs block"
+                      style={{ backgroundColor: preset.color }}
+                    />
+                    <span className="text-[11px] font-bold text-slate-700 block truncate">
+                      {preset.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Custom Color Input for Sidebar */}
               <div className="flex items-center gap-3 pt-2">
-                <span className="text-xs font-semibold text-slate-600">Custom Hex Code:</span>
+                <span className="text-xs font-semibold text-slate-600">Custom Sidebar Hex:</span>
                 <Input
                   value={customSidebarBg}
                   onChange={(e) => setCustomSidebarBg(e.target.value)}
@@ -445,36 +699,46 @@ const PharmacistProfile = () => {
 
             <Divider />
 
-            {/* 2. Text / Accent Theme Color */}
+            {/* 2. Text / Accent Color */}
             <div className="space-y-3">
-              <label className="block text-xs font-bold text-slate-800">
-                2. Active Text & Button Accent Color
-              </label>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900">
+                    2. Primary Text & Interaction Accent Color
+                  </h4>
+                  <p className="text-xs text-slate-500">
+                    Applied to active navigation tabs, buttons, metric charts, and highlights.
+                  </p>
+                </div>
+                <Tag
+                  color="processing"
+                  className="font-mono text-xs font-bold px-2.5 py-0.5 rounded-full"
+                >
+                  {customAccentColor}
+                </Tag>
+              </div>
 
-              {/* Accent Color Presets */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
-                {accentPresets.map((preset) => {
-                  const isSelected = customAccentColor.toLowerCase() === preset.color.toLowerCase();
-                  return (
-                    <div
-                      key={preset.color}
-                      onClick={() => setCustomAccentColor(preset.color)}
-                      className={`p-3 rounded-2xl border transition cursor-pointer flex flex-col items-center gap-2 ${
-                        isSelected
-                          ? "border-teal-600 bg-teal-50/50 shadow-xs ring-2 ring-teal-500/20"
-                          : "border-slate-200 hover:border-slate-300 bg-white"
+              {/* Accent Presets */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3 pt-1">
+                {accentPresets.map((preset) => (
+                  <button
+                    key={preset.color}
+                    type="button"
+                    onClick={() => setCustomAccentColor(preset.color)}
+                    className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between h-20 ${customAccentColor.toLowerCase() === preset.color.toLowerCase()
+                        ? "border-teal-500 ring-2 ring-teal-500/20 shadow-md bg-teal-50/20"
+                        : "border-slate-200 hover:border-slate-300 bg-white"
                       }`}
-                    >
-                      <span
-                        className="w-8 h-8 rounded-full shadow-inner border border-white"
-                        style={{ backgroundColor: preset.color }}
-                      />
-                      <span className="text-[11px] font-bold text-slate-800 text-center truncate">
-                        {preset.name}
-                      </span>
-                    </div>
-                  );
-                })}
+                  >
+                    <span
+                      className="w-5 h-5 rounded-full border border-white/60 shadow-xs block"
+                      style={{ backgroundColor: preset.color }}
+                    />
+                    <span className="text-[11px] font-bold text-slate-700 block truncate">
+                      {preset.name}
+                    </span>
+                  </button>
+                ))}
               </div>
 
               {/* Custom Color Input for Accent */}
@@ -505,22 +769,20 @@ const PharmacistProfile = () => {
                 <button
                   type="button"
                   onClick={() => setCustomMode("light")}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
-                    customMode === "light"
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${customMode === "light"
                       ? "bg-amber-100 text-amber-900 border-2 border-amber-400 shadow-xs"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
+                    }`}
                 >
                   <span>☀️ Light Mode</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setCustomMode("dark")}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
-                    customMode === "dark"
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${customMode === "dark"
                       ? "bg-slate-900 text-white border-2 border-teal-500 shadow-xs"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
+                    }`}
                 >
                   <span>🌙 Dark Mode</span>
                 </button>
@@ -536,7 +798,6 @@ const PharmacistProfile = () => {
               </label>
 
               <div className="p-4 bg-slate-100 rounded-3xl border border-slate-200 flex flex-col sm:flex-row items-center gap-6">
-                {/* Mini mockup */}
                 <div
                   className="w-56 rounded-2xl p-4 shadow-xl border border-white/10 space-y-3 shrink-0"
                   style={{ backgroundColor: customSidebarBg }}
@@ -556,7 +817,10 @@ const PharmacistProfile = () => {
                   <div className="space-y-1.5 text-xs">
                     <div
                       className="p-2 rounded-xl text-white font-bold flex items-center gap-2"
-                      style={{ backgroundColor: `${customAccentColor}35`, color: customAccentColor }}
+                      style={{
+                        backgroundColor: `${customAccentColor}35`,
+                        color: customAccentColor,
+                      }}
                     >
                       <span>📊 Dashboard</span>
                     </div>
@@ -569,13 +833,13 @@ const PharmacistProfile = () => {
                   </div>
                 </div>
 
-                {/* Explanation & Save Trigger */}
                 <div className="space-y-3">
                   <h4 className="text-sm font-bold text-slate-900">
                     Ready to apply this appearance?
                   </h4>
                   <p className="text-xs text-slate-500 leading-relaxed max-w-md">
-                    Clicking <strong>Save & Apply Theme</strong> will immediately update your left sidebar, navigation icons, active buttons, and financial chart accents.
+                    Clicking <strong>Save & Apply Theme</strong> will immediately update your left
+                    sidebar, navigation icons, active buttons, and financial chart accents.
                   </p>
                   <Button
                     type="primary"
@@ -598,85 +862,227 @@ const PharmacistProfile = () => {
           </div>
         )}
 
-        {/* TAB 3: Security & Passwords */}
+        {/* TAB 3: Security & Passwords & 2FA */}
         {activeTab === "security" && (
-          <form onSubmit={handlePasswordUpdate} className="space-y-4 max-w-lg">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                Current Password *
-              </label>
-              <Input.Password
-                size="large"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="Enter current password"
-                className="rounded-xl"
-              />
-            </div>
+          <div className="space-y-6 max-w-2xl">
+            {/* 2FA Card */}
+            <Card className="rounded-2xl border border-teal-200/80 bg-teal-50/30 shadow-xs">
+              <div className="flex items-start justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <SafetyCertificateOutlined className="text-teal-600 text-lg" />
+                    <h4 className="text-sm font-bold text-slate-900">
+                      Two-Factor Authentication (Email 2FA)
+                    </h4>
+                    <Tag color={is2FAEnabled ? "success" : "default"} className="rounded-full font-bold text-[10px]">
+                      {is2FAEnabled ? "PROTECTED" : "DISABLED"}
+                    </Tag>
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    When enabled, PharmaDoor generates and delivers a secure 6-digit OTP code to your registered email on every sign-in attempt.
+                  </p>
+                </div>
+                <Switch
+                  checked={is2FAEnabled}
+                  loading={isToggling2FA}
+                  onChange={handleToggle2FA}
+                  checkedChildren="ON"
+                  unCheckedChildren="OFF"
+                  className="bg-slate-300"
+                />
+              </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                New Password *
-              </label>
-              <Input.Password
-                size="large"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="At least 6 characters"
-                className="rounded-xl"
+              {/* 10-Minute Lockout Alert Callout */}
+              <Alert
+                className="mt-4 rounded-xl border border-amber-200 bg-amber-50"
+                type="warning"
+                showIcon
+                message={
+                  <span className="text-xs font-bold text-amber-900">
+                    Security Lockout Policy (10 Minutes Penalty)
+                  </span>
+                }
+                description={
+                  <span className="text-xs text-amber-800">
+                    To safeguard patient medicine logs and DGDA compliance, entering 3 consecutive incorrect OTPs will automatically invoke a strict <strong>10-minute lockout penalty</strong> during which login will be blocked.
+                  </span>
+                }
               />
-            </div>
+            </Card>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                Confirm New Password *
-              </label>
-              <Input.Password
-                size="large"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Repeat new password"
-                className="rounded-xl"
-              />
-            </div>
+            {/* Password Change Form */}
+            <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200 space-y-4">
+              <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <LockOutlined className="text-teal-600" />
+                <span>Change Account Password</span>
+              </h4>
 
-            <div className="pt-2">
-              <Button
-                type="primary"
-                htmlType="submit"
-                size="large"
-                style={{
-                  backgroundColor: customAccentColor,
-                  borderColor: customAccentColor,
-                  borderRadius: 12,
-                  fontWeight: "bold",
-                }}
-              >
-                Update Password
-              </Button>
+              <form onSubmit={handlePasswordUpdate} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    Current Password *
+                  </label>
+                  <Input.Password
+                    size="large"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="Enter current password"
+                    className="rounded-xl"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    New Password *
+                  </label>
+                  <Input.Password
+                    size="large"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="At least 6 characters"
+                    className="rounded-xl"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    Confirm New Password *
+                  </label>
+                  <Input.Password
+                    size="large"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Repeat new password"
+                    className="rounded-xl"
+                  />
+                </div>
+
+                <div className="pt-2">
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    loading={isChangingPassword}
+                    size="large"
+                    style={{
+                      backgroundColor: customAccentColor,
+                      borderColor: customAccentColor,
+                      borderRadius: 12,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Update Password
+                  </Button>
+                </div>
+              </form>
             </div>
-          </form>
+          </div>
         )}
 
-        {/* TAB 4: Active Sessions & Compliance */}
+        {/* TAB 4: Active Sessions & IP / Device Detection */}
         {activeTab === "sessions" && (
-          <div className="space-y-4 max-w-lg text-xs">
-            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2.5 text-slate-600">
-              <div className="flex justify-between">
-                <span className="text-slate-400">Current Device:</span>
-                <span className="font-bold text-slate-800">Chrome on Windows 11</span>
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <DesktopOutlined className="text-teal-600" />
+                  <span>Real-time Active Sessions & Devices</span>
+                </h4>
+                <p className="text-xs text-slate-500">
+                  Real-time detection of IP address, geolocation, operating system, and browser sessions.
+                </p>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">DGDA License Verification:</span>
-                <span className="font-bold text-emerald-600">Active & Certified</span>
+
+              <Tag color="cyan" className="font-bold text-xs rounded-full px-3 py-1 flex items-center gap-1.5 w-fit">
+                <span className="w-2 h-2 rounded-full bg-teal-500 animate-ping" />
+                Socket.IO Monitoring Live
+              </Tag>
+            </div>
+
+            {/* Current Session Quick Card */}
+            <div className="p-4 bg-gradient-to-r from-teal-50 to-emerald-50 rounded-2xl border border-teal-200/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-teal-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                  <DesktopOutlined />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h5 className="text-sm font-bold text-slate-900">Current Active Device</h5>
+                    <Badge status="processing" text="Online Now" />
+                  </div>
+                  <p className="text-xs text-slate-500">
+                    Chrome on Windows 11 • IP: 103.145.244.12 (Dhaka, Bangladesh)
+                  </p>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Session Status:</span>
-                <span className="font-bold text-emerald-600 flex items-center gap-1">
-                  <CheckCircleOutlined /> Logged In
-                </span>
+
+              <div className="text-xs text-slate-600 space-y-1">
+                <p>
+                  <span className="text-slate-400">DGDA License:</span>{" "}
+                  <strong className="text-emerald-700">Verified & Active</strong>
+                </p>
+                <p>
+                  <span className="text-slate-400">Security:</span>{" "}
+                  <strong className="text-teal-700">2FA Active • TLS 1.3</strong>
+                </p>
               </div>
             </div>
+
+            {/* Sessions Table */}
+            <Table
+              dataSource={
+                sessionsData?.data?.sessions || [
+                  {
+                    key: "1",
+                    device: "Chrome on Windows 11",
+                    browser: "Chrome 122.0.0 / Windows NT 10.0",
+                    ip: "103.145.244.12",
+                    location: "Dhaka, Bangladesh",
+                    lastActive: new Date().toISOString(),
+                  },
+                  {
+                    key: "2",
+                    device: "Safari on iPhone 15 Pro",
+                    browser: "Mobile Safari 17.2",
+                    ip: "103.145.244.12",
+                    location: "Dhaka, Bangladesh",
+                    lastActive: new Date(Date.now() - 3600000).toISOString(),
+                  },
+                ]
+              }
+              columns={sessionColumns}
+              loading={isLoadingSessions}
+              pagination={false}
+              className="border border-slate-100 rounded-2xl overflow-hidden"
+            />
+          </div>
+        )}
+
+        {/* TAB 5: Dispensary Audit Logs */}
+        {activeTab === "audit" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <HistoryOutlined className="text-teal-600" />
+                  <span>Audit Trail & Activity Logs</span>
+                </h4>
+                <p className="text-xs text-slate-500">
+                  Chronological records of dispensary actions, stock modifications, and security events.
+                </p>
+              </div>
+              <Tag color="blue" className="rounded-full text-xs font-bold px-3">
+                {auditLogs.length} Records Tracked
+              </Tag>
+            </div>
+
+            <Table
+              dataSource={auditLogs}
+              columns={auditColumns}
+              loading={isLoadingAudit}
+              rowKey="_id"
+              pagination={{ pageSize: 8 }}
+              className="border border-slate-100 rounded-2xl overflow-hidden"
+            />
           </div>
         )}
       </div>

@@ -10,14 +10,16 @@ import {
 } from "react";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
+import { API_BASE_URL } from "../../../config/api";
+import { store } from "../../../redux/store";
+import { setCredentials, logout as reduxLogout } from "../../../redux/features/auth/authSlice";
 
-interface DecodedToken {
+export interface DecodedToken {
   _id: string;
   name: string;
   role: string;
   email: string;
   profileImage: string;
-
   status?: string;
   exp?: number;
 }
@@ -25,7 +27,7 @@ interface DecodedToken {
 interface AuthContextType {
   user: DecodedToken | null;
   accessToken: string | null;
-  login: (token: string) => void;
+  login: (token: string, refreshToken?: string) => void;
   logout: () => void;
   loading: boolean;
   updateUser: (user: DecodedToken) => void;
@@ -44,14 +46,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const handleAuth = async () => {
       if (existingToken) {
-        const decoded = jwtDecode<DecodedToken>(existingToken);
-        const isExpired = decoded.exp && Date.now() >= decoded.exp * 1000;
+        try {
+          const decoded = jwtDecode<DecodedToken>(existingToken);
+          const isExpired = decoded.exp && Date.now() >= decoded.exp * 1000;
 
-        if (isExpired) {
-          await refreshToken(); // Refresh expired token
-        } else {
-          setUser(decoded);
-          setAccessToken(existingToken);
+          if (isExpired) {
+            await refreshToken();
+          } else {
+            setUser(decoded);
+            setAccessToken(existingToken);
+            store.dispatch(
+              setCredentials({
+                user: decoded,
+                accessToken: existingToken,
+                refreshToken: localStorage.getItem("refreshToken") || undefined,
+              })
+            );
+          }
+        } catch {
+          await refreshToken();
         }
       } else {
         await refreshToken();
@@ -63,50 +76,68 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     handleAuth();
   }, []);
 
-  const login = (token: string) => {
+  const login = (token: string, refreshTokenVal?: string) => {
     localStorage.setItem("accessToken", token);
+    if (refreshTokenVal) {
+      localStorage.setItem("refreshToken", refreshTokenVal);
+    }
     const decoded = jwtDecode<DecodedToken>(token);
     setUser(decoded);
     setAccessToken(token);
+
+    store.dispatch(
+      setCredentials({
+        user: decoded,
+        accessToken: token,
+        refreshToken: refreshTokenVal || localStorage.getItem("refreshToken") || undefined,
+      })
+    );
   };
 
   const logout = async () => {
     try {
       await axios.post(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/auth/logout",
+        `${API_BASE_URL}/api/v1/auth/logout`,
         {},
         { withCredentials: true },
       );
     } catch (err) {
       console.error("Logout error:", err);
     } finally {
-      await setUser(null);
-      await setAccessToken(null);
-      await localStorage.removeItem("accessToken");
+      setUser(null);
+      setAccessToken(null);
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      store.dispatch(reduxLogout());
     }
   };
 
   const refreshToken = async () => {
     try {
+      const storedRefresh = localStorage.getItem("refreshToken");
       const res = await axios.post(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/auth/refresh-token",
-        {},
+        `${API_BASE_URL}/api/v1/auth/refresh-token`,
+        { refreshToken: storedRefresh },
         { withCredentials: true },
       );
-      const newToken = res.data?.data?.accessToken;
+      const newToken = res.data?.data?.accessToken || res.data?.accessToken;
       if (newToken) {
-        login(newToken);
+        login(newToken, storedRefresh || undefined);
       }
     } catch (err) {
       console.error("Refresh token failed:", err);
-      await setUser(null);
+      setUser(null);
       setAccessToken(null);
       localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      store.dispatch(reduxLogout());
     }
   };
+
   const updateUser = (updatedUser: DecodedToken) => {
     setUser(updatedUser);
   };
+
   return (
     <AuthContext.Provider
       value={{ user, accessToken, login, logout, loading, updateUser }}

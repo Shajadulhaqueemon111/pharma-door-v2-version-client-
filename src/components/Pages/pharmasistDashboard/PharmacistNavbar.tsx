@@ -2,25 +2,35 @@
 import {
   BellOutlined,
   UserOutlined,
-  CloseOutlined,
   BgColorsOutlined,
   LogoutOutlined,
   IdcardOutlined,
   MedicineBoxOutlined,
+  CheckOutlined,
+  UndoOutlined,
+  CheckCircleOutlined,
+  AlertOutlined,
 } from "@ant-design/icons";
-import { Avatar, Dropdown, Modal, List, Badge, Space, Tooltip } from "antd";
+import { Avatar, Dropdown, Badge, Space, Tooltip, Tag, Empty } from "antd";
 import type { MenuProps } from "antd";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../privateRoute/AuthContext";
 import { usePharmacistTheme } from "./pharmacistTheme";
+import { API_BASE_URL } from "../../../config/api";
+import {
+  useGetNotificationsQuery,
+  useMarkAsReadMutation,
+  useMarkAllAsReadMutation,
+} from "../../../redux/api/notificationApi";
 
-interface Notification {
-  id: number;
+interface LocalAlert {
+  id: string;
   icon: string;
   message: string;
+  read: boolean;
+  createdAt: string;
 }
-
 
 const PharmacistNavbar = () => {
   const { user, logout } = useAuth();
@@ -30,9 +40,15 @@ const PharmacistNavbar = () => {
   const pharmacistName = user?.name || "Pharmacist";
   const { themeConfig } = usePharmacistTheme();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [hasSeenNotifications, setHasSeenNotifications] = useState(true);
+  // RTK Query Notifications
+  const { data: serverNotifications = [] } = useGetNotificationsQuery(undefined, {
+    pollingInterval: 15000,
+  });
+  const [markAsRead] = useMarkAsReadMutation();
+  const [markAllAsRead] = useMarkAllAsReadMutation();
+
+  const [localAlerts, setLocalAlerts] = useState<LocalAlert[]>([]);
+  const [filterMode, setFilterMode] = useState<"all" | "unread">("all");
   const notificationSoundRef = useRef<HTMLAudioElement | null>(null);
   const prevCount = useRef(0);
 
@@ -43,24 +59,21 @@ const PharmacistNavbar = () => {
     );
   }, []);
 
-  // Fetch notifications based on medicines
+  // Fetch local inventory-based alerts (DGDA compliance & expiry)
   useEffect(() => {
     const fetchMedicines = async () => {
       try {
         const token = localStorage.getItem("accessToken");
         if (!token || !userId) return;
 
-        const res = await fetch(
-          "https://pharmadoor-backend-v2.vercel.app/api/v1/medicine",
-          {
-            headers: {
-              Authorization: `${token}`,
-              "Content-Type": "application/json",
-            },
+        const res = await fetch(`${API_BASE_URL}/api/v1/medicine`, {
+          headers: {
+            Authorization: `${token}`,
+            "Content-Type": "application/json",
           },
-        );
+        });
 
-        if (!res.ok) throw new Error("Failed to fetch medicines");
+        if (!res.ok) return;
 
         const json = await res.json();
         const medicines = json?.data || [];
@@ -72,42 +85,40 @@ const PharmacistNavbar = () => {
         next30Days.setDate(today.getDate() + 30);
         next30Days.setHours(0, 0, 0, 0);
 
-        const expiredMedicines = medicines.filter((medicine: any) => {
-          const expiryDate = new Date(medicine.expiryDate);
-          expiryDate.setHours(0, 0, 0, 0);
-          return expiryDate <= today && medicine.createdBy?._id === userId;
+        const expired = medicines.filter((m: any) => {
+          const exp = new Date(m.expiryDate);
+          exp.setHours(0, 0, 0, 0);
+          return exp <= today && m.createdBy?._id === userId;
         });
 
-        const expiringSoonMedicines = medicines.filter((medicine: any) => {
-          const expiryDate = new Date(medicine.expiryDate);
-          expiryDate.setHours(0, 0, 0, 0);
-          return (
-            expiryDate > today &&
-            expiryDate <= next30Days &&
-            medicine.createdBy?._id === userId
-          );
+        const expiringSoon = medicines.filter((m: any) => {
+          const exp = new Date(m.expiryDate);
+          exp.setHours(0, 0, 0, 0);
+          return exp > today && exp <= next30Days && m.createdBy?._id === userId;
         });
 
-        const newNotifications: Notification[] = [];
-
-        if (expiredMedicines.length > 0) {
-          newNotifications.push({
-            id: 1,
-            icon: "⚠️",
-            message: `${expiredMedicines.length} medicine(s) have expired. Please update or clear them.`,
+        const alerts: LocalAlert[] = [];
+        if (expired.length > 0) {
+          alerts.push({
+            id: "local-expired",
+            icon: "🚨",
+            message: `${expired.length} medicine batch(es) expired. Immediate DGDA quarantine required.`,
+            read: false,
+            createdAt: new Date().toISOString(),
           });
         }
 
-        if (expiringSoonMedicines.length > 0) {
-          newNotifications.push({
-            id: 2,
+        if (expiringSoon.length > 0) {
+          alerts.push({
+            id: "local-expiring",
             icon: "⏳",
-            message: `${expiringSoonMedicines.length} medicine(s) will reach expiration within 30 days.`,
+            message: `${expiringSoon.length} medicine batch(es) expire within 30 days. Priority dispatch needed.`,
+            read: false,
+            createdAt: new Date().toISOString(),
           });
         }
 
-        setNotifications(newNotifications);
-        setHasSeenNotifications(newNotifications.length === 0);
+        setLocalAlerts(alerts);
       } catch (error) {
         console.error("Error fetching medicines for alerts:", error);
       }
@@ -116,61 +127,209 @@ const PharmacistNavbar = () => {
     fetchMedicines();
   }, [userId]);
 
-  // Play notification chime
+  // Combined notifications list
+  const allNotifications = useMemo(() => {
+    const list = [...localAlerts];
+    serverNotifications.forEach((sn) => {
+      list.push({
+        id: sn._id,
+        icon: sn.read ? "ℹ️" : "🔔",
+        message: sn.message,
+        read: sn.read,
+        createdAt: sn.createdAt,
+      });
+    });
+    return list;
+  }, [localAlerts, serverNotifications]);
+
+  // Unread count
+  const unreadCount = useMemo(() => {
+    return allNotifications.filter((n) => !n.read).length;
+  }, [allNotifications]);
+
+  // Play notification chime on new alert
   useEffect(() => {
-    if (notifications.length > prevCount.current) {
+    if (unreadCount > prevCount.current) {
       notificationSoundRef.current?.play().catch(() => { });
     }
-    prevCount.current = notifications.length;
-  }, [notifications]);
+    prevCount.current = unreadCount;
+  }, [unreadCount]);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
-  // Profile dropdown menu items
+  // Toggle single item read / unread
+  const handleToggleRead = async (id: string, currentRead: boolean) => {
+    if (id.startsWith("local-")) {
+      setLocalAlerts((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, read: !currentRead } : item)),
+      );
+    } else {
+      await markAsRead({ id, read: !currentRead });
+    }
+  };
+
+  // Mark all as read
+  const handleMarkAllRead = async () => {
+    setLocalAlerts((prev) => prev.map((item) => ({ ...item, read: true })));
+    await markAllAsRead();
+  };
+
+  // Filtered list
+  const displayedNotifications = useMemo(() => {
+    if (filterMode === "unread") {
+      return allNotifications.filter((n) => !n.read);
+    }
+    return allNotifications;
+  }, [allNotifications, filterMode]);
+
+  // Notification Dropdown Overlay Panel
+  const notificationOverlay = (
+    <div className="w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200/90 overflow-hidden text-slate-800">
+      {/* Header */}
+      <div className="p-3.5 bg-slate-900 text-white flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <BellOutlined className="text-teal-400 text-base" />
+          <span className="font-bold text-xs tracking-wide">Real-time Notifications</span>
+          {unreadCount > 0 && (
+            <Tag color="error" className="font-bold text-[10px] rounded-full px-2 py-0 border-0">
+              {unreadCount} New
+            </Tag>
+          )}
+        </div>
+
+        {unreadCount > 0 && (
+          <button
+            onClick={handleMarkAllRead}
+            className="text-[11px] font-bold text-teal-300 hover:text-teal-200 flex items-center gap-1 transition cursor-pointer"
+          >
+            <CheckCircleOutlined /> Mark all read
+          </button>
+        )}
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex items-center gap-1 p-2 bg-slate-50 border-b border-slate-100 text-xs">
+        <button
+          onClick={() => setFilterMode("all")}
+          className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${filterMode === "all"
+              ? "bg-white text-slate-900 shadow-xs border border-slate-200"
+              : "text-slate-500 hover:text-slate-800"
+            }`}
+        >
+          All ({allNotifications.length})
+        </button>
+        <button
+          onClick={() => setFilterMode("unread")}
+          className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${filterMode === "unread"
+              ? "bg-white text-teal-700 shadow-xs border border-teal-200"
+              : "text-slate-500 hover:text-slate-800"
+            }`}
+        >
+          Unread ({unreadCount})
+        </button>
+      </div>
+
+      {/* Notifications List */}
+      <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
+        {displayedNotifications.length > 0 ? (
+          displayedNotifications.map((note) => (
+            <div
+              key={note.id}
+              className={`p-3 transition flex items-start gap-3 hover:bg-slate-50 ${!note.read ? "bg-teal-50/40" : ""
+                }`}
+            >
+              <span className="text-lg shrink-0 mt-0.5">{note.icon}</span>
+
+              <div className="flex-1 min-w-0">
+                <p className={`text-xs leading-snug ${!note.read ? "font-bold text-slate-900" : "text-slate-600"}`}>
+                  {note.message}
+                </p>
+                <p className="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
+                  <span>{new Date(note.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  {!note.read && <span className="w-1.5 h-1.5 rounded-full bg-teal-500 inline-block" />}
+                </p>
+              </div>
+
+              {/* Action: Mark Read / Unread */}
+              <button
+                onClick={() => handleToggleRead(note.id, note.read)}
+                className={`p-1.5 rounded-lg text-xs font-bold transition cursor-pointer shrink-0 ${note.read
+                    ? "text-slate-400 hover:text-slate-600 hover:bg-slate-200"
+                    : "text-teal-600 hover:bg-teal-100 hover:text-teal-800"
+                  }`}
+                title={note.read ? "Mark as unread" : "Mark as read"}
+              >
+                {note.read ? <UndoOutlined /> : <CheckOutlined />}
+              </button>
+            </div>
+          ))
+        ) : (
+          <div className="py-8 text-center">
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={
+                <span className="text-xs text-slate-400">
+                  {filterMode === "unread" ? "No unread notifications" : "All quiet! Dispensary operates normally."}
+                </span>
+              }
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="p-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+        <span className="flex items-center gap-1">
+          <AlertOutlined className="text-emerald-500" />
+          Realtime Socket Connected
+        </span>
+        <Link
+          to="/pharmacist-dashboard/profile"
+          className="font-bold text-teal-600 hover:text-teal-700"
+        >
+          View Profile & Settings
+        </Link>
+      </div>
+    </div>
+  );
+
   const menuItems: MenuProps["items"] = [
     {
-      key: "info",
-      disabled: true,
+      key: "name",
       label: (
-        <div className="py-1 px-1">
-          <p className="font-bold text-slate-900 text-xs">{pharmacistName}</p>
-          <p className="text-[11px] text-slate-500">{user?.email || "Licensed Pharmacist"}</p>
-          <span
-            className="mt-1 inline-block text-[10px] font-bold px-2 py-0.5 rounded-full"
-            style={{
-              backgroundColor: `${themeConfig.accentColor}18`,
-              color: themeConfig.accentColor,
-            }}
-          >
-            Verified Dispenser
-          </span>
+        <div className="px-1 py-1 border-b border-slate-100">
+          <p className="text-xs font-bold text-slate-800">{pharmacistName}</p>
+          <p className="text-[10px] text-slate-400">DGDA Model Dispensary</p>
         </div>
       ),
+      disabled: true,
     },
-    { type: "divider" },
     {
       key: "profile",
       icon: <IdcardOutlined />,
-      label: <Link to="/pharmacist-dashboard/profile">Pharmacist Profile</Link>,
+      label: <Link to="/pharmacist-dashboard/profile">Dispensary Profile & 2FA</Link>,
     },
     {
       key: "theme",
-      icon: <BgColorsOutlined style={{ color: themeConfig.accentColor }} />,
-      label: <Link to="/pharmacist-dashboard/profile">Sidebar & Text Colors</Link>,
+      icon: <BgColorsOutlined />,
+      label: <Link to="/pharmacist-dashboard/profile">Theme & Sidebar Colors</Link>,
     },
     {
-      key: "medicines",
+      key: "all-medicine",
       icon: <MedicineBoxOutlined />,
-      label: <Link to="/pharmacist-dashboard/all-medicine">Manage Medicines</Link>,
+      label: <Link to="/pharmacist-dashboard/all-medicine">Medicine Inventory</Link>,
     },
-    { type: "divider" },
+    {
+      type: "divider",
+    },
     {
       key: "logout",
-      icon: <LogoutOutlined style={{ color: "#ef4444" }} />,
-      label: <span className="text-rose-600 font-bold">Logout</span>,
+      icon: <LogoutOutlined />,
+      danger: true,
+      label: "Sign Out",
       onClick: handleLogout,
     },
   ];
@@ -194,24 +353,21 @@ const PharmacistNavbar = () => {
           </Link>
         </Tooltip>
 
-        {/* Notification Bell */}
-        <Badge
-          count={!hasSeenNotifications ? notifications.length : 0}
-          dot={notifications.length > 0 && !hasSeenNotifications}
-          offset={[-2, 2]}
+        {/* Real-time Notification Dropdown */}
+        <Dropdown
+          dropdownRender={() => notificationOverlay}
+          trigger={["click"]}
+          placement="bottomRight"
         >
-          <div
-            onClick={() => {
-              setIsModalOpen(true);
-              setHasSeenNotifications(true);
-              notificationSoundRef.current?.play().catch(() => { });
-            }}
-            className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
-            title="Medicine Expiry Alerts"
-          >
-            <BellOutlined style={{ fontSize: 18 }} />
-          </div>
-        </Badge>
+          <Badge count={unreadCount} offset={[-2, 2]}>
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
+              title="Dispensary Notifications & Expiry Alerts"
+            >
+              <BellOutlined style={{ fontSize: 18 }} />
+            </div>
+          </Badge>
+        </Dropdown>
 
         <span className="h-6 w-px bg-slate-200 dark:bg-slate-700" />
 
@@ -238,38 +394,6 @@ const PharmacistNavbar = () => {
           </div>
         </Dropdown>
       </Space>
-
-      {/* Notifications Modal */}
-      <Modal
-        title={
-          <div className="flex items-center gap-2 text-slate-900 font-bold text-base">
-            <BellOutlined style={{ color: themeConfig.accentColor }} />
-            <span>Medicine Inventory & Expiration Alerts</span>
-          </div>
-        }
-        open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
-        footer={null}
-        closeIcon={<CloseOutlined />}
-      >
-        {notifications.length > 0 ? (
-          <List
-            dataSource={notifications}
-            renderItem={(note) => (
-              <List.Item className="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl mb-2 border border-slate-100 dark:border-slate-800">
-                <List.Item.Meta
-                  avatar={<span className="text-xl">{note.icon}</span>}
-                  description={<span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{note.message}</span>}
-                />
-              </List.Item>
-            )}
-          />
-        ) : (
-          <div className="text-center py-6 text-slate-400 text-xs">
-            No active medicine expiration alerts today. All stocks are safe.
-          </div>
-        )}
-      </Modal>
     </>
   );
 };

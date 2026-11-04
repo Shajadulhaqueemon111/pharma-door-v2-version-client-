@@ -4,7 +4,7 @@ export const getApiBaseUrl = (): string => {
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
-  // If running on localhost or 127.0.0.1, prioritize local backend on port 5001
+  // When running locally on localhost or 127.0.0.1, use local backend on port 5001
   if (
     typeof window !== 'undefined' &&
     (window.location.hostname === 'localhost' ||

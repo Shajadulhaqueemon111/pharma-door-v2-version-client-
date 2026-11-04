@@ -1,35 +1,55 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useForm } from "react-hook-form";
-import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
-import { toast } from "react-hot-toast";
 import { useEffect, useState } from "react";
-import { CloudUpload } from "lucide-react";
+import axios from "axios";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import {
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Button,
+  Card,
+  Typography,
+  Upload,
+  Row,
+  Col,
+  Divider,
+  Image,
+  Spin,
+} from "antd";
+import {
+  UploadOutlined,
+  ArrowLeftOutlined,
+  SaveOutlined,
+  DollarOutlined,
+  DatabaseOutlined,
+} from "@ant-design/icons";
+import { usePharmacistTheme } from "../pharmacistTheme";
 
-type FormValues = {
-  name: string;
-  category: string;
-  price: string;
-  stock: string;
-  medicineImage: FileList | null;
-};
+const { Title, Text } = Typography;
+const { Option } = Select;
+
+const animalCategories = [
+  "Cattle / Dairy / Bovine",
+  "Poultry & Avian",
+  "Pet Care (Dogs & Cats)",
+  "Sheep & Goats",
+  "Aquaculture & Fish Care",
+  "Equine / Horses",
+  "General Veterinary Supplement",
+];
 
 const UpdateAnimalMedicine = () => {
   const { _id } = useParams<{ _id: string }>();
   const navigate = useNavigate();
+  const { themeConfig } = usePharmacistTheme();
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
   const [existingImage, setExistingImage] = useState("");
+  const [newImageFile, setNewImageFile] = useState<File | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<FormValues>();
-
-  const watchImage = watch("medicineImage");
-
-  // Fetch existing data
   useEffect(() => {
     const fetchMedicine = async () => {
       try {
@@ -42,29 +62,37 @@ const UpdateAnimalMedicine = () => {
         );
 
         const data = res.data.data || res.data;
-        setValue("name", data.name);
-        setValue("category", data.category);
-        setValue("price", data.price);
-        setValue("stock", data.stock);
+        form.setFieldsValue({
+          name: data.name,
+          category: data.category,
+          price: Number(data.price),
+          stock: Number(data.stock),
+        });
         setExistingImage(data.medicineImage);
       } catch (err: any) {
-        console.error(err);
         toast.error("Failed to fetch animal medicine data");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchMedicine();
-  }, [_id, setValue]);
+    if (_id) fetchMedicine();
+  }, [_id, form]);
 
-  const onSubmit = async (data: FormValues) => {
+  const handleUpload = (file: any) => {
+    setNewImageFile(file);
+    setExistingImage(URL.createObjectURL(file));
+    return false;
+  };
+
+  const onFinish = async (values: any) => {
+    setUpdating(true);
     try {
       let imageUrl = existingImage;
 
-      // Upload new image if selected
-      if (data.medicineImage && data.medicineImage.length > 0) {
-        const imageFile = data.medicineImage[0];
+      if (newImageFile) {
         const formData = new FormData();
-        formData.append("image", imageFile);
+        formData.append("image", newImageFile);
 
         const imgbbApiKey = import.meta.env.VITE_IMGBB_API_KEY;
         const res = await axios.post(
@@ -74,138 +102,170 @@ const UpdateAnimalMedicine = () => {
         imageUrl = res.data?.data?.url;
       }
 
-      // Only update relevant fields
-      const payload: any = {
-        name: data.name,
-        category: data.category,
-        price: data.price,
-        stock: data.stock,
+      const payload = {
+        name: values.name,
+        category: values.category,
+        price: String(values.price),
+        stock: String(values.stock),
+        medicineImage: imageUrl,
       };
 
-      if (imageUrl) {
-        payload.medicineImage = imageUrl;
-      }
-
       const token = localStorage.getItem("accessToken");
-
-      const response = await axios.patch(
+      const res = await axios.patch(
         `https://pharmadoor-backend-v2.vercel.app/api/v1/animal-medicine/${_id}`,
         payload,
-        { headers: { Authorization: `${token}` } },
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        },
       );
 
-      if (response.data) {
-        toast.success("Animal medicine updated successfully!");
+      if (res.status === 200) {
+        toast.success("Veterinary medicine updated successfully!");
         navigate("/pharmacist-dashboard/All-animal-medicine");
       }
-    } catch (error: any) {
-      console.error(error?.response?.data);
-      toast.error(
-        error?.response?.data?.message || "Failed to update animal medicine",
-      );
+    } catch (err) {
+      toast.error("Failed to update medicine");
+    } finally {
+      setUpdating(false);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 gap-3">
+        <Spin size="large" />
+        <Text type="secondary" className="text-xs">Loading medicine details...</Text>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md">
-      <h2 className="text-2xl font-semibold mb-6 text-center">
-        Update Animal Medicine
-      </h2>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* Name */}
-        <div>
-          <label className="block font-medium">Name</label>
-          <input
-            type="text"
-            {...register("name", { required: "Name is required" })}
-            className="w-full border p-2 rounded"
-            placeholder="Enter medicine name"
-          />
-          {errors.name && (
-            <p className="text-red-500 text-sm">{errors.name.message}</p>
-          )}
-        </div>
-
-        {/* Category */}
-        <div>
-          <label className="block font-medium">Category</label>
-          <input
-            type="text"
-            {...register("category", { required: "Category is required" })}
-            className="w-full border p-2 rounded"
-            placeholder="Enter category"
-          />
-          {errors.category && (
-            <p className="text-red-500 text-sm">{errors.category.message}</p>
-          )}
-        </div>
-
-        {/* Price */}
-        <div>
-          <label className="block font-medium">Price</label>
-          <input
-            type="text"
-            {...register("price", { required: "Price is required" })}
-            className="w-full border p-2 rounded"
-            placeholder="Enter price"
-          />
-          {errors.price && (
-            <p className="text-red-500 text-sm">{errors.price.message}</p>
-          )}
-        </div>
-
-        {/* Stock */}
-        <div>
-          <label className="block font-medium">Stock</label>
-          <input
-            type="text"
-            {...register("stock", { required: "Stock is required" })}
-            className="w-full border p-2 rounded"
-            placeholder="Enter stock quantity"
-          />
-          {errors.stock && (
-            <p className="text-red-500 text-sm">{errors.stock.message}</p>
-          )}
-        </div>
-
-        {/* Medicine Image */}
-        <div>
-          <label className="block font-medium mb-1">Medicine Image</label>
-          <div className="relative w-full">
-            <input
-              type="file"
-              accept="image/*"
-              {...register("medicineImage")}
-              className="w-full h-10 pl-10 pr-2 py-1 rounded-md border"
-            />
-            <CloudUpload className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
-          </div>
-          <div className="mt-2">
-            <p className="text-sm text-gray-600">Current Image:</p>
-            {watchImage && watchImage.length > 0 ? (
-              <img
-                src={URL.createObjectURL(watchImage[0])}
-                alt="Preview"
-                className="h-32 mt-1 rounded"
-              />
-            ) : existingImage ? (
-              <img
-                src={existingImage}
-                alt="Current"
-                className="h-32 mt-1 rounded"
-              />
-            ) : null}
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Header Banner */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link to="/pharmacist-dashboard/All-animal-medicine">
+            <Button icon={<ArrowLeftOutlined />} shape="circle" size="middle" />
+          </Link>
+          <div>
+            <Title level={3} style={{ margin: 0, fontWeight: 800 }}>
+              Update Veterinary Medicine
+            </Title>
+            <Text type="secondary" className="text-xs sm:text-sm">
+              Adjust stock levels, target animal category, and retail pricing.
+            </Text>
           </div>
         </div>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
-        >
-          Update
-        </button>
-      </form>
+        <Link to="/pharmacist-dashboard/All-animal-medicine">
+          <Button>Cancel</Button>
+        </Link>
+      </div>
+
+      <Card bordered={false} className="shadow-xs rounded-2xl border border-slate-200/80 p-2 sm:p-4">
+        <Form form={form} layout="vertical" onFinish={onFinish} requiredMark="optional">
+          <Row gutter={[24, 16]}>
+            <Col xs={24} md={12}>
+              <Form.Item
+                label={<span className="font-semibold text-slate-700">Medicine Name</span>}
+                name="name"
+                rules={[{ required: true, message: "Please input medicine name" }]}
+              >
+                <Input size="large" className="rounded-xl" />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Form.Item
+                label={<span className="font-semibold text-slate-700">Category / Animal Target</span>}
+                name="category"
+                rules={[{ required: true, message: "Please select category" }]}
+              >
+                <Select size="large" className="rounded-xl">
+                  {animalCategories.map((c) => (
+                    <Option key={c} value={c}>{c}</Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} sm={12}>
+              <Form.Item
+                label={<span className="font-semibold text-slate-700">Retail Price (৳)</span>}
+                name="price"
+                rules={[{ required: true, message: "Please enter price" }]}
+              >
+                <InputNumber min={1} prefix={<DollarOutlined className="text-slate-400" />} size="large" className="w-full rounded-xl" />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} sm={12}>
+              <Form.Item
+                label={<span className="font-semibold text-slate-700">Stock Quantity</span>}
+                name="stock"
+                rules={[{ required: true, message: "Please enter stock" }]}
+              >
+                <InputNumber min={0} prefix={<DatabaseOutlined className="text-slate-400" />} size="large" className="w-full rounded-xl" />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24}>
+              <Form.Item label={<span className="font-semibold text-slate-700">Product Photograph</span>}>
+                <div className="flex flex-col sm:flex-row items-center gap-6 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                  {existingImage ? (
+                    <div className="text-center shrink-0">
+                      <Image
+                        src={existingImage}
+                        width={90}
+                        height={90}
+                        className="rounded-xl object-cover border border-slate-300 shadow-xs"
+                      />
+                      <p className="text-[11px] font-semibold text-slate-500 mt-1">Current Image</p>
+                    </div>
+                  ) : null}
+
+                  <div className="flex-1 w-full">
+                    <Upload beforeUpload={handleUpload} maxCount={1} showUploadList={false}>
+                      <Button icon={<UploadOutlined />} size="large" className="rounded-xl font-semibold">
+                        Replace / Choose New Photo
+                      </Button>
+                    </Upload>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Choose an image to update the packaging photograph.
+                    </p>
+                  </div>
+                </div>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Divider className="my-4" />
+
+          <div className="flex items-center justify-end gap-3">
+            <Link to="/pharmacist-dashboard/All-animal-medicine">
+              <Button size="large" className="rounded-xl">Cancel</Button>
+            </Link>
+            <Button
+              type="primary"
+              size="large"
+              htmlType="submit"
+              icon={<SaveOutlined />}
+              loading={updating}
+              style={{
+                backgroundColor: themeConfig.accentColor,
+                borderColor: themeConfig.accentColor,
+                borderRadius: 12,
+                fontWeight: 700,
+              }}
+              className="px-6 shadow-md"
+            >
+              Save Changes
+            </Button>
+          </div>
+        </Form>
+      </Card>
     </div>
   );
 };

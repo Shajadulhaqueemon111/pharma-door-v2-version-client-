@@ -1,37 +1,54 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-
-import { Form, DatePicker, Button, Spin, Card, Typography, Modal } from "antd";
+import {
+  Form,
+  DatePicker,
+  Button,
+  Spin,
+  Card,
+  Typography,
+  Divider,
+  Tag,
+  Modal,
+} from "antd";
+import {
+  ArrowLeftOutlined,
+  SaveOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 import dayjs from "dayjs";
+import { usePharmacistTheme } from "./pharmacistTheme";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const UpdatePreExpireMedicines = () => {
   const { _id } = useParams();
   const navigate = useNavigate();
+  const { themeConfig } = usePharmacistTheme();
 
   const [form] = Form.useForm();
+  const [medicine, setMedicine] = useState<any>(null);
   const [oldExpiryDate, setOldExpiryDate] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     const fetchMedicine = async () => {
-      setLoading(true);
       try {
         const res = await axios.get(
           `https://pharmadoor-backend-v2.vercel.app/api/v1/medicine/${_id}`,
         );
 
-        const fetchedDate = res.data?.data?.expiryDate;
-
-        if (fetchedDate) {
-          setOldExpiryDate(fetchedDate);
+        const fetchedData = res.data?.data;
+        if (fetchedData) {
+          setMedicine(fetchedData);
+          setOldExpiryDate(fetchedData.expiryDate);
           form.setFieldsValue({
-            expiryDate: dayjs(fetchedDate),
+            expiryDate: dayjs(fetchedData.expiryDate),
           });
         }
       } catch (error) {
@@ -42,36 +59,28 @@ const UpdatePreExpireMedicines = () => {
     };
 
     if (_id) fetchMedicine();
-  }, [_id]);
-
-  const getUTCDateOnly = (date: dayjs.Dayjs) => {
-    return Date.UTC(date.year(), date.month(), date.date());
-  };
+  }, [_id, form]);
 
   const handleSubmit = async (values: any) => {
     const newDate = values.expiryDate;
     const previousDate = dayjs(oldExpiryDate);
     const today = dayjs();
 
-    const newDateUTC = getUTCDateOnly(newDate);
-    const oldDateUTC = getUTCDateOnly(previousDate);
-    const todayUTC = getUTCDateOnly(today);
-
-    // ❌ validation
-    if (newDateUTC <= oldDateUTC) {
-      toast.error("New expiry date must be greater than current expiry date.");
+    if (newDate.isBefore(previousDate) || newDate.isSame(previousDate, "day")) {
+      toast.error("New expiration date must be later than the existing expiration date.");
       return;
     }
 
-    if (newDateUTC <= todayUTC) {
+    if (newDate.isBefore(today, "day")) {
       toast.error("Expiry date cannot be today or in the past.");
       return;
     }
 
-    const diffInDays = (newDateUTC - todayUTC) / (1000 * 60 * 60 * 24);
+    const diffInDays = newDate.diff(today, "day");
 
     const proceedUpdate = async () => {
       try {
+        setUpdating(true);
         const token = localStorage.getItem("accessToken");
         if (!token) {
           toast.error("Please login first");
@@ -86,62 +95,116 @@ const UpdatePreExpireMedicines = () => {
           },
         );
 
-        toast.success("Expiry date updated successfully!");
+        toast.success("Medicine expiry date updated successfully!");
         navigate("/pharmacist-dashboard/pre-expire-medicine");
-      } catch (error) {
-        toast.error("Update failed");
+      } catch (err) {
+        toast.error("Failed to update expiration date.");
+      } finally {
+        setUpdating(false);
       }
     };
 
-    // ⚠️ warning modal (instead of window.confirm)
     if (diffInDays <= 30) {
       Modal.confirm({
-        title: "⚠️ Warning",
-        content: `This expiry date is only ${Math.round(
-          diffInDays,
-        )} day(s) away. Are you sure you want to continue?`,
-        okText: "Yes, Continue",
-        cancelText: "Cancel",
+        title: "Date is still within 30 days",
+        icon: <ExclamationCircleOutlined />,
+        content: `The selected date is in ${diffInDays} days, which keeps this item in the pre-expiry watch list. Do you wish to continue?`,
+        okText: "Yes, Proceed",
+        cancelText: "Change Date",
         onOk: proceedUpdate,
       });
     } else {
-      proceedUpdate();
+      await proceedUpdate();
     }
   };
 
-  if (loading)
+  if (loading) {
     return (
-      <div style={{ textAlign: "center", marginTop: 80 }}>
+      <div className="flex flex-col items-center justify-center py-24 gap-3">
         <Spin size="large" />
+        <Text type="secondary" className="text-xs">Loading medicine details...</Text>
       </div>
     );
+  }
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", marginTop: 40 }}>
-      <Card style={{ width: 420, borderRadius: 12 }}>
-        <Title level={4} style={{ textAlign: "center", color: "#1677ff" }}>
-          Update Expiry Date
-        </Title>
+    <div className="max-w-xl mx-auto space-y-6">
+      {/* Header Banner */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link to="/pharmacist-dashboard/pre-expire-medicine">
+            <Button icon={<ArrowLeftOutlined />} shape="circle" size="middle" />
+          </Link>
+          <div>
+            <Title level={3} style={{ margin: 0, fontWeight: 800 }}>
+              Extend Expiry Date
+            </Title>
+            <Text type="secondary" className="text-xs sm:text-sm">
+              Update shelf-life record for medications approaching 30-day expiration.
+            </Text>
+          </div>
+        </div>
 
-        {/* Show current expiry */}
-        <p style={{ marginBottom: 10, textAlign: "center" }}>
-          Current: {dayjs(oldExpiryDate).format("DD MMM YYYY")}
-        </p>
+        <Link to="/pharmacist-dashboard/pre-expire-medicine">
+          <Button>Cancel</Button>
+        </Link>
+      </div>
+
+      <Card bordered={false} className="shadow-xs rounded-2xl border border-slate-200/80 p-4">
+        {medicine && (
+          <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-bold text-slate-800 text-sm">{medicine.name}</span>
+              <Tag color="warning" className="font-bold text-xs rounded-full">Expiring Soon</Tag>
+            </div>
+            <p className="text-xs text-slate-500">
+              Brand: <strong className="text-slate-700">{medicine.brand}</strong> &bull; Current Stock: <strong className="text-slate-700">{medicine.stock} units</strong>
+            </p>
+            <p className="text-xs text-amber-700 mt-1">
+              Current Expiry: <strong>{dayjs(oldExpiryDate).format("MMMM D, YYYY")}</strong>
+            </p>
+          </div>
+        )}
 
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Form.Item
-            label="Select New Expiry Date"
+            label={<span className="font-semibold text-slate-700">New Extended Expiration Date</span>}
             name="expiryDate"
-            rules={[{ required: true, message: "Please select expiry date" }]}
+            rules={[{ required: true, message: "Please select new expiration date" }]}
           >
-            <DatePicker style={{ width: "100%" }} />
+            <DatePicker
+              size="large"
+              className="w-full rounded-xl"
+              placeholder="Select future valid date"
+              format="YYYY-MM-DD"
+            />
           </Form.Item>
 
-          <Form.Item>
-            <Button type="primary" htmlType="submit" block>
-              Update
+          <Divider className="my-4" />
+
+          <div className="flex items-center justify-end gap-3">
+            <Link to="/pharmacist-dashboard/pre-expire-medicine">
+              <Button size="large" className="rounded-xl">
+                Cancel
+              </Button>
+            </Link>
+            <Button
+              type="primary"
+              size="large"
+              htmlType="submit"
+              icon={<SaveOutlined />}
+              loading={updating}
+              style={{
+                backgroundColor: themeConfig.accentColor,
+                borderColor: themeConfig.accentColor,
+                borderRadius: 12,
+                fontWeight: 700,
+              }}
+              className="px-6 shadow-md"
+            >
+              Confirm Date Extension
             </Button>
-          </Form.Item>
+          </div>
         </Form>
       </Card>
     </div>

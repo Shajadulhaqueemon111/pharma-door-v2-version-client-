@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -12,18 +12,48 @@ import {
   Upload,
   Spin,
   Typography,
+  Card,
+  Row,
+  Col,
+  Divider,
+  Image,
+  Rate,
+  Select,
 } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import {
+  UploadOutlined,
+  ArrowLeftOutlined,
+  SaveOutlined,
+  ToolOutlined,
+  DollarOutlined,
+  DatabaseOutlined,
+} from "@ant-design/icons";
+import { usePharmacistTheme } from "./pharmacistTheme";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
+const { Option } = Select;
+
+const equipmentCategories = [
+  "Stethoscope",
+  "Digital Thermometer",
+  "Blood Pressure Monitor",
+  "Blood Glucose Meter (Glucometer)",
+  "Pulse Oximeter",
+  "Nebulizer Machine",
+  "Weighing Scale",
+  "Surgical Gloves & Mask",
+  "Infrared Forehead Thermometer",
+  "Wheelchair & Walking Aid",
+];
 
 const UpdateEquipment = () => {
   const { _id } = useParams();
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [form] = Form.useForm();
   const navigate = useNavigate();
-
+  const { themeConfig } = usePharmacistTheme();
   const [preview, setPreview] = useState("");
 
   // Load existing data
@@ -66,19 +96,19 @@ const UpdateEquipment = () => {
     };
 
     fetchEquipment();
-  }, [_id]);
+  }, [_id, form]);
 
-  // Image Upload Handler
   const handleUpload = (file: any) => {
     setImageFile(file);
     setPreview(URL.createObjectURL(file));
-    return false; // prevent auto upload
+    return false;
   };
 
   const handleSubmit = async (values: any) => {
     const token = localStorage.getItem("accessToken");
     if (!token) return toast.error("Unauthorized!");
 
+    setSubmitting(true);
     try {
       const formData = new FormData();
 
@@ -101,87 +131,195 @@ const UpdateEquipment = () => {
         },
       );
 
-      toast.success("Equipment updated successfully!");
+      toast.success("Medical equipment updated successfully!");
       navigate("/pharmacist-dashboard/all-equipment");
     } catch (err) {
       toast.error("Update failed!");
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  // ✅ Loading Spinner (Center)
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex flex-col items-center justify-center py-24 gap-3">
         <Spin size="large" />
+        <Text type="secondary" className="text-xs">Loading equipment details...</Text>
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: 600, margin: "auto", padding: 20 }}>
-      <Title level={3} style={{ textAlign: "center" }}>
-        Update Equipment
-      </Title>
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Header Banner */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link to="/pharmacist-dashboard/all-equipment">
+            <Button icon={<ArrowLeftOutlined />} shape="circle" size="middle" />
+          </Link>
+          <div>
+            <Title level={3} style={{ margin: 0, fontWeight: 800 }}>
+              Update Equipment Specs
+            </Title>
+            <Text type="secondary" className="text-xs sm:text-sm">
+              Adjust retail pricing, restock units, or change product descriptions.
+            </Text>
+          </div>
+        </div>
 
-      <Form form={form} layout="vertical" onFinish={handleSubmit}>
-        <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-          <Input placeholder="Enter name" />
-        </Form.Item>
+        <Link to="/pharmacist-dashboard/all-equipment">
+          <Button>Cancel</Button>
+        </Link>
+      </div>
 
-        <Form.Item name="brand" label="Brand" rules={[{ required: true }]}>
-          <Input placeholder="Enter brand" />
-        </Form.Item>
+      <Card bordered={false} className="shadow-xs rounded-2xl border border-slate-200/80 p-2 sm:p-4">
+        <Form form={form} layout="vertical" onFinish={handleSubmit} requiredMark="optional">
+          <Row gutter={[24, 16]}>
+            <Col xs={24} md={12}>
+              <Form.Item
+                label={<span className="font-semibold text-slate-700">Equipment Name</span>}
+                name="name"
+                rules={[{ required: true, message: "Please input equipment name" }]}
+              >
+                <Input
+                  prefix={<ToolOutlined className="text-slate-400" />}
+                  size="large"
+                  className="rounded-xl"
+                />
+              </Form.Item>
+            </Col>
 
-        <Form.Item name="category" label="Category">
-          <Input placeholder="Enter category" />
-        </Form.Item>
+            <Col xs={24} md={12}>
+              <Form.Item
+                label={<span className="font-semibold text-slate-700">Brand</span>}
+                name="brand"
+                rules={[{ required: true, message: "Please input brand" }]}
+              >
+                <Input size="large" className="rounded-xl" />
+              </Form.Item>
+            </Col>
 
-        <Form.Item name="color" label="Color">
-          <Input placeholder="Enter color" />
-        </Form.Item>
+            <Col xs={24} md={8}>
+              <Form.Item
+                label={<span className="font-semibold text-slate-700">Category</span>}
+                name="category"
+                rules={[{ required: true, message: "Please select category" }]}
+              >
+                <Select size="large" className="rounded-xl">
+                  {equipmentCategories.map((c) => (
+                    <Option key={c} value={c}>{c}</Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
 
-        <Form.Item name="price" label="Price" rules={[{ required: true }]}>
-          <InputNumber style={{ width: "100%" }} />
-        </Form.Item>
+            <Col xs={24} sm={12} md={8}>
+              <Form.Item
+                label={<span className="font-semibold text-slate-700">Retail Price (৳)</span>}
+                name="price"
+                rules={[{ required: true, message: "Please input price" }]}
+              >
+                <InputNumber
+                  min={1}
+                  prefix={<DollarOutlined className="text-slate-400" />}
+                  size="large"
+                  className="w-full rounded-xl"
+                />
+              </Form.Item>
+            </Col>
 
-        <Form.Item
-          name="stock_quantity"
-          label="Stock Quantity"
-          rules={[{ required: true }]}
-        >
-          <InputNumber style={{ width: "100%" }} />
-        </Form.Item>
+            <Col xs={24} sm={12} md={8}>
+              <Form.Item
+                label={<span className="font-semibold text-slate-700">Stock Quantity</span>}
+                name="stock_quantity"
+                rules={[{ required: true, message: "Please input stock" }]}
+              >
+                <InputNumber
+                  min={0}
+                  prefix={<DatabaseOutlined className="text-slate-400" />}
+                  size="large"
+                  className="w-full rounded-xl"
+                />
+              </Form.Item>
+            </Col>
 
-        <Form.Item name="rating" label="Rating">
-          <InputNumber step={0.1} style={{ width: "100%" }} />
-        </Form.Item>
+            <Col xs={24} sm={12} md={12}>
+              <Form.Item
+                label={<span className="font-semibold text-slate-700">Color / Finish</span>}
+                name="color"
+              >
+                <Input size="large" className="rounded-xl" />
+              </Form.Item>
+            </Col>
 
-        <Form.Item label="Medicine Image">
-          <Upload beforeUpload={handleUpload} maxCount={1}>
-            <Button icon={<UploadOutlined />}>Select Image</Button>
-          </Upload>
+            <Col xs={24} sm={12} md={12}>
+              <Form.Item
+                label={<span className="font-semibold text-slate-700">Rating</span>}
+                name="rating"
+              >
+                <Rate allowHalf className="mt-1.5" />
+              </Form.Item>
+            </Col>
 
-          {preview && (
-            <img
-              src={preview}
-              alt="preview"
+            <Col xs={24}>
+              <Form.Item label={<span className="font-semibold text-slate-700">Equipment Photograph</span>}>
+                <div className="flex flex-col sm:flex-row items-center gap-6 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                  {preview ? (
+                    <div className="text-center shrink-0">
+                      <Image
+                        src={preview}
+                        width={100}
+                        height={100}
+                        className="rounded-xl object-cover border border-slate-300 shadow-xs"
+                      />
+                      <p className="text-[11px] font-semibold text-slate-500 mt-1">Current Photo</p>
+                    </div>
+                  ) : null}
+
+                  <div className="flex-1 w-full">
+                    <Upload
+                      beforeUpload={handleUpload}
+                      maxCount={1}
+                      showUploadList={false}
+                    >
+                      <Button icon={<UploadOutlined />} size="large" className="rounded-xl font-semibold">
+                        Replace / Choose New Photo
+                      </Button>
+                    </Upload>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Choose an image from your computer to update the listing.
+                    </p>
+                  </div>
+                </div>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Divider className="my-4" />
+
+          <div className="flex items-center justify-end gap-3">
+            <Link to="/pharmacist-dashboard/all-equipment">
+              <Button size="large" className="rounded-xl">Cancel</Button>
+            </Link>
+            <Button
+              type="primary"
+              size="large"
+              htmlType="submit"
+              icon={<SaveOutlined />}
+              loading={submitting}
               style={{
-                marginTop: 10,
-                width: 150,
-                height: 150,
-                objectFit: "cover",
-                borderRadius: 8,
+                backgroundColor: themeConfig.accentColor,
+                borderColor: themeConfig.accentColor,
+                borderRadius: 12,
+                fontWeight: 700,
               }}
-            />
-          )}
-        </Form.Item>
-
-        <Form.Item>
-          <Button type="primary" htmlType="submit" block>
-            Update Equipment
-          </Button>
-        </Form.Item>
-      </Form>
+              className="px-6 shadow-md"
+            >
+              Save Changes
+            </Button>
+          </div>
+        </Form>
+      </Card>
     </div>
   );
 };

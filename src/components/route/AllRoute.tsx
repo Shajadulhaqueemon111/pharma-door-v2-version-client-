@@ -33,6 +33,7 @@ import AllRegisterPhaemacist from "../Pages/dashboard/AllRegisterPhaemacist";
 import PharmacistDocument from "../Pages/dashboard/PharmacistDocument";
 import UpdateAllUser from "../Pages/dashboard/UpdateAllUser";
 import UpdatePharmacist from "../Pages/dashboard/UpdatePharmacist";
+import AuditLogsPage from "../Pages/dashboard/AuditLogsPage";
 import PharmacistProfile from "../Pages/pharmasistDashboard/PharmacistProfile";
 import CreateMedicine from "../Pages/pharmasistDashboard/CreateMedicine";
 import AllMedicinePage from "../Pages/pharmasistDashboard/AllMedicinePage";
@@ -156,6 +157,18 @@ const router = createBrowserRouter([
         element: <PhermacistRegister />,
       },
       {
+        path: "/phermacistregister",
+        element: <PhermacistRegister />,
+      },
+      {
+        path: "/pharmacist-register",
+        element: <PhermacistRegister />,
+      },
+      {
+        path: "/pharmacistregister",
+        element: <PhermacistRegister />,
+      },
+      {
         path: "/contact-page",
         element: <ContactPage />,
       },
@@ -270,6 +283,10 @@ const router = createBrowserRouter([
       {
         path: "profile",
         element: <AdminProfile />,
+      },
+      {
+        path: "audit-logs",
+        element: <AuditLogsPage />,
       },
       {
         path: "all-users",
