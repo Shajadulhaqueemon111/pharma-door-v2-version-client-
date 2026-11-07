@@ -35,6 +35,7 @@ import {
 import { Link } from "react-router-dom";
 import { useAuth } from "../privateRoute/AuthContext";
 import { usePharmacistTheme } from "./pharmacistTheme";
+import { API_BASE_URL } from "../../../config/api";
 
 const { Title, Text } = Typography;
 
@@ -73,7 +74,7 @@ const PharmasistsDashboard = () => {
         const headers = token ? { Authorization: `${token}` } : {};
 
         const res = await axios.get(
-          "https://pharmadoor-backend-v2.vercel.app/api/v1/order/ordered-medicine",
+          `${API_BASE_URL}/api/v1/order/ordered-medicine`,
           { headers },
         );
 

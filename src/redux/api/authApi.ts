@@ -68,6 +68,11 @@ export const authApi = apiSlice.injectEndpoints({
       providesTags: ['Sessions'],
     }),
 
+    getMe: builder.query({
+      query: () => '/auth/me',
+      providesTags: ['User'],
+    }),
+
     uploadAvatar: builder.mutation({
       query: (formData: FormData) => ({
         url: '/users/upload-avatar',
@@ -88,6 +93,7 @@ export const {
   useToggle2FAMutation,
   useChangePasswordMutation,
   useGetSessionsQuery,
+  useGetMeQuery,
   useUploadAvatarMutation,
 } = authApi;
 

@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import {
+  useGetSingleMedicineQuery,
+  useUpdateMedicineMutation,
+} from "../../../redux/api/medicineApi";
 import { toast } from "react-hot-toast";
 import {
   Form,
@@ -68,41 +72,32 @@ const UpdateMedicine = () => {
   const { themeConfig } = usePharmacistTheme();
 
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string>("");
   const [fileList, setFileList] = useState<any[]>([]);
 
+  const { data: medData, isLoading: loading } = useGetSingleMedicineQuery(_id as string, {
+    skip: !_id,
+  });
+  const [updateMedicineMutation] = useUpdateMedicineMutation();
+
   useEffect(() => {
-    const fetchMedicine = async () => {
-      try {
-        const res = await axios.get(
-          `https://pharmadoor-backend-v2.vercel.app/api/v1/medicine/${_id}`,
-        );
-        const data = res.data?.data;
+    if (medData) {
+      form.setFieldsValue({
+        name: medData.name,
+        brand: medData.brand,
+        price: medData.price,
+        stock: medData.stock,
+        medicineType: medData.medicineType || "Tablet",
+        manufactureDate: medData.manufactureDate ? dayjs(medData.manufactureDate) : undefined,
+        expiryDate: medData.expiryDate ? dayjs(medData.expiryDate) : undefined,
+      });
 
-        form.setFieldsValue({
-          name: data.name,
-          brand: data.brand,
-          price: data.price,
-          stock: data.stock,
-          medicineType: data.medicineType || "Tablet",
-          manufactureDate: data.manufactureDate ? dayjs(data.manufactureDate) : undefined,
-          expiryDate: data.expiryDate ? dayjs(data.expiryDate) : undefined,
-        });
-
-        if (data.medicineImage) {
-          setPreviewImage(data.medicineImage);
-        }
-      } catch (err) {
-        toast.error("Failed to load medicine data.");
-      } finally {
-        setLoading(false);
+      if (medData.medicineImage) {
+        setPreviewImage(medData.medicineImage);
       }
-    };
-
-    fetchMedicine();
-  }, [_id, form]);
+    }
+  }, [medData, form]);
 
   const uploadImageToImgbb = async (image: File): Promise<string | null> => {
     const body = new FormData();
@@ -122,9 +117,6 @@ const UpdateMedicine = () => {
   const onFinish = async (values: any) => {
     setSubmitLoading(true);
     try {
-      const token = localStorage.getItem("accessToken");
-      if (!token) return toast.error("Unauthorized! Login again.");
-
       let uploadedImageUrl = previewImage;
 
       if (fileList.length > 0 && fileList[0].originFileObj) {
@@ -142,22 +134,12 @@ const UpdateMedicine = () => {
         expiryDate: values.expiryDate.toDate(),
       };
 
-      const res = await axios.patch(
-        `https://pharmadoor-backend-v2.vercel.app/api/v1/medicine/${_id}`,
-        payload,
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
-        },
-      );
+      await updateMedicineMutation({ id: _id as string, data: payload }).unwrap();
 
-      if (res.status === 200) {
-        toast.success("Medicine updated successfully!");
-        navigate("/pharmacist-dashboard/all-medicine");
-      }
-    } catch (err) {
-      toast.error("Failed to update medicine.");
+      toast.success("Medicine updated successfully!");
+      navigate("/pharmacist-dashboard/all-medicine");
+    } catch (err: any) {
+      toast.error(err?.data?.message || err?.message || "Update failed.");
     } finally {
       setSubmitLoading(false);
     }

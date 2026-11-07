@@ -3,6 +3,7 @@ import { useAuth } from "../privateRoute/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import axios from "axios";
+import { useCreateMedicineMutation } from "../../../redux/api/medicineApi";
 import {
   UploadOutlined,
   ArrowLeftOutlined,
@@ -70,6 +71,7 @@ const CreateMedicine = () => {
   const [form] = Form.useForm();
   const [previewImage, setPreviewImage] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+  const [createMedicineMutation] = useCreateMedicineMutation();
 
   const onFinish = async (values: any) => {
     setSubmitting(true);
@@ -102,20 +104,13 @@ const CreateMedicine = () => {
         createdBy: { _id: String(_id), name, email },
       };
 
-      const token = localStorage.getItem("accessToken");
-      await axios.post(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/medicine",
-        payload,
-        {
-          headers: { Authorization: `${token}` },
-        },
-      );
+      await createMedicineMutation(payload as any).unwrap();
 
       toast.success("Medicine added to inventory successfully!");
       navigate("/pharmacist-dashboard/all-medicine");
     } catch (error: any) {
       toast.error(
-        error?.response?.data?.message || "Failed to create medicine",
+        error?.data?.message || error?.message || "Failed to create medicine",
       );
     } finally {
       setSubmitting(false);

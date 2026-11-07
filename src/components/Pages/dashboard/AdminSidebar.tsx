@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useMemo, type ReactNode } from "react";
+import { useState, useMemo, useEffect, type ReactNode } from "react";
 import {
   Layout,
   Menu,
@@ -34,6 +34,9 @@ import {
   AlertOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import { MessageSquare } from "lucide-react";
+import { AdminPharmacistChatModal } from "./AdminPharmacistChatModal";
+import { useGetAdminSupportConversationsQuery } from "../../../redux/api/supportChatApi";
 import { useAuth } from "../privateRoute/AuthContext";
 import { useTheme } from "../Theme-context/ThemeContext";
 import {
@@ -54,6 +57,9 @@ const AdminSidebar = ({ children }: AdminSidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const [chatModalOpen, setChatModalOpen] = useState(false);
+  const { data: convData } = useGetAdminSupportConversationsQuery(undefined, { pollingInterval: 10000 });
+  const unreadAdminChatCount = convData?.data?.totalUnreadAdmin ?? (Array.isArray(convData?.data?.chats) ? convData.data.chats.reduce((acc: number, c: any) => acc + (c.unreadForAdmin || 0), 0) : Array.isArray(convData?.data) ? convData.data.reduce((acc: number, c: any) => acc + (c.unreadForAdmin || 0), 0) : 0);
 
   // RTK Query Notifications
   const { data: serverNotifications = [] } = useGetNotificationsQuery(undefined, {
@@ -62,6 +68,13 @@ const AdminSidebar = ({ children }: AdminSidebarProps) => {
   const [markAsRead] = useMarkAsReadMutation();
   const [markAllAsRead] = useMarkAllAsReadMutation();
   const [filterMode, setFilterMode] = useState<"all" | "unread">("all");
+
+  // Auto-collapse sidebar on route change on mobile
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setCollapsed(true);
+    }
+  }, [location.pathname]);
 
   const unreadCount = useMemo(() => {
     return serverNotifications.filter((n) => !n.read).length;
@@ -336,6 +349,14 @@ const AdminSidebar = ({ children }: AdminSidebarProps) => {
 
   return (
     <Layout className="min-h-screen bg-slate-100 dark:bg-slate-950">
+      {/* Mobile Backdrop Overlay */}
+      {!collapsed && (
+        <div
+          className="fixed inset-0 bg-black/60 z-30 lg:hidden backdrop-blur-xs transition-opacity"
+          onClick={() => setCollapsed(true)}
+        />
+      )}
+
       {/* SIDER */}
       <Sider
         trigger={null}
@@ -444,6 +465,19 @@ const AdminSidebar = ({ children }: AdminSidebarProps) => {
               {isDark ? <SunOutlined style={{ fontSize: 16 }} /> : <MoonOutlined style={{ fontSize: 16 }} />}
             </button>
 
+            {/* Real-time Pharmacist Chat Trigger */}
+            <Tooltip title="Pharmacist 1-on-1 Support Desk">
+              <Badge count={unreadAdminChatCount} offset={[-2, 2]}>
+                <div
+                  onClick={() => setChatModalOpen(true)}
+                  className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition cursor-pointer flex items-center justify-center"
+                  title="Direct Support Chat with Pharmacists"
+                >
+                  <MessageSquare size={17} className="text-teal-600 dark:text-teal-400" />
+                </div>
+              </Badge>
+            </Tooltip>
+
             {/* Realtime Notification Dropdown */}
             <Dropdown
               dropdownRender={() => notificationOverlay}
@@ -485,15 +519,16 @@ const AdminSidebar = ({ children }: AdminSidebarProps) => {
 
         {/* CONTENT AREA */}
         <Content
+          className="p-3 sm:p-6 transition-all"
           style={{
             margin: 0,
-            padding: 0,
             minHeight: "calc(100vh - 64px)",
           }}
         >
           {children}
         </Content>
       </Layout>
+      <AdminPharmacistChatModal isOpen={chatModalOpen} onClose={() => setChatModalOpen(false)} />
     </Layout>
   );
 };

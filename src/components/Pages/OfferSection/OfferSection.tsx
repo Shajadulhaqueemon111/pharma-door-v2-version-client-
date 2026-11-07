@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
+import { API_BASE_URL } from "../../../config/api";
 import { useEffect, useState } from "react";
 import { useOutletContext, Link } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
@@ -35,7 +36,7 @@ const OfferSection = () => {
     setLoading(true);
     try {
       const response = await axios(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/offer",
+        `${API_BASE_URL}/api/v1/offer`,
       );
       setMedicineOffers(response.data.data);
     } catch (err) {

@@ -1,5 +1,6 @@
 import { Link, useLocation, useOutletContext } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../../../config/api";
 import AOS from "aos";
 import "aos/dist/aos.css";
 type Medicine = {
@@ -23,7 +24,7 @@ const OtcMedicineDetails = () => {
     AOS.init({ duration: 1000 });
   }, []);
   useEffect(() => {
-    fetch("https://pharmadoor-backend-v2.vercel.app/api/v1/medicine")
+    fetch(`${API_BASE_URL}/api/v1/medicine`)
       .then((res) => res.json())
       .then((response) => {
         const allMedicines: Medicine[] = response.data;

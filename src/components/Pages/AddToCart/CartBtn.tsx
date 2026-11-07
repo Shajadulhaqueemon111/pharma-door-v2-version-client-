@@ -72,12 +72,17 @@ const AddToCart = () => {
     0,
   );
 
+  // Hide floating cart on auth pages to avoid obstructing inputs
+  if (["/login", "/register"].includes(location.pathname)) {
+    return null;
+  }
+
   return (
     <>
       {/* Floating Cart Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed top-1/2 right-0 -translate-y-1/2 z-40 bg-gradient-to-l from-teal-700 to-emerald-600 hover:from-teal-800 hover:to-emerald-700 text-white pl-3.5 pr-2.5 py-3 rounded-l-2xl shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center gap-2 group cursor-pointer border-t border-b border-l border-teal-500/30"
+        className="fixed bottom-20 right-3 sm:bottom-auto sm:top-1/2 sm:right-0 sm:-translate-y-1/2 z-40 bg-gradient-to-l from-teal-700 to-emerald-600 hover:from-teal-800 hover:to-emerald-700 text-white p-3 sm:py-3 sm:pl-3.5 sm:pr-2.5 rounded-full sm:rounded-r-none sm:rounded-l-2xl shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center gap-2 group cursor-pointer border border-teal-500/30"
         aria-label="View Cart"
       >
         <div className="relative">
@@ -88,7 +93,7 @@ const AddToCart = () => {
             </span>
           )}
         </div>
-        <div className="flex flex-col text-left">
+        <div className="hidden sm:flex flex-col text-left">
           <span className="text-[11px] font-bold uppercase tracking-wider text-teal-100">
             Cart
           </span>

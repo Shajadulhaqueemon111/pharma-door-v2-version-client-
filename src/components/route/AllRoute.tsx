@@ -153,6 +153,10 @@ const router = createBrowserRouter([
         element: <UserProfile />,
       },
       {
+        path: "/my-orders",
+        element: <UserProfile />,
+      },
+      {
         path: "/phermacist-register",
         element: <PhermacistRegister />,
       },

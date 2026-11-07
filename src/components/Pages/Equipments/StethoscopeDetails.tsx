@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../../../config/api";
 import brandImage from "../../../assets/brand1.png";
 import SafetyAdvice from "../OtcMedicine/SafetyAdvice";
 import AdditionalOffer from "../OtcMedicine/AdditionalOffer";
@@ -24,7 +25,7 @@ const StethoscopeDetails = () => {
   const [equipment, setEquipment] = useState<MedicalProduct | null>(null);
 
   useEffect(() => {
-    fetch(`https://pharmadoor-backend-v2.vercel.app/api/v1/equipment/${_id}`)
+    fetch(`${API_BASE_URL}/api/v1/equipment/${_id}`)
       .then((res) => res.json())
       .then((data) => {
         setEquipment(data.data || null);

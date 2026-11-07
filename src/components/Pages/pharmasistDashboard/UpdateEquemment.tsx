@@ -3,6 +3,7 @@
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../../config/api";
 import toast from "react-hot-toast";
 import {
   Form,
@@ -67,7 +68,7 @@ const UpdateEquipment = () => {
         }
 
         const res = await axios.get(
-          `https://pharmadoor-backend-v2.vercel.app/api/v1/equipment/${_id}`,
+          `${API_BASE_URL}/api/v1/equipment/${_id}`,
           {
             headers: {
               Authorization: `${token}`,
@@ -121,7 +122,7 @@ const UpdateEquipment = () => {
       }
 
       await axios.patch(
-        `https://pharmadoor-backend-v2.vercel.app/api/v1/equipment/${_id}`,
+        `${API_BASE_URL}/api/v1/equipment/${_id}`,
         formData,
         {
           headers: {

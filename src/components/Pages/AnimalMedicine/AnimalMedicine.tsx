@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
+import { API_BASE_URL } from "../../../config/api";
 import { ScaleLoader } from "react-spinners";
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, AlertCircle, HeartPulse } from "lucide-react";
@@ -24,7 +25,7 @@ const AnimalMedicine = () => {
   const { searchText } = useOutletContext<OutletContextType>();
 
   useEffect(() => {
-    fetch("https://pharmadoor-backend-v2.vercel.app/api/v1/animal-medicine")
+    fetch(`${API_BASE_URL}/api/v1/animal-medicine`)
       .then((res) => res.json())
       .then((data) => {
         const list = Array.isArray(data?.data) ? data.data : [];

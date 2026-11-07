@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../../config/api";
 import bgVideo from "../../../assets/Science Laboratory 4K Stock Video.mp4";
 import Image1 from "../../../assets/heart.png";
 import {
@@ -124,17 +125,31 @@ const PharmacistRegister = () => {
         }),
       );
 
+      // Verify file sizes under 5MB each
+      const fileEntries = Object.entries(images) as [keyof typeof images, File | null][];
+      for (const [key, file] of fileEntries) {
+        if (file && file.size / 1024 / 1024 > 5) {
+          toast.error(`Document "${key}" exceeds 5MB limit. Please upload a smaller file.`);
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       const response = await axios.post(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/users/create-phermasist",
+        `${API_BASE_URL}/api/v1/users/create-phermasist`,
         form,
       );
 
       console.log(response);
       toast.success("Pharmacist application submitted successfully! Please await admin approval.");
       navigate("/login");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Registration error:", error);
-      toast.error("Registration failed! Please check your information and try again.");
+      const errMsg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Registration failed! Please check your information and try again.";
+      toast.error(errMsg);
     } finally {
       setIsSubmitting(false);
     }

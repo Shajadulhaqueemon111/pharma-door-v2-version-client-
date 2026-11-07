@@ -35,11 +35,13 @@ import {
   useChangePasswordMutation,
   useToggle2FAMutation,
   useGetSessionsQuery,
+  useGetMeQuery,
 } from "../../../redux/api/authApi";
 import { useGetAuditLogsQuery } from "../../../redux/api/auditApi";
 
 const AdminProfile = () => {
   const { user, updateUser } = useAuth();
+  const { data: meData } = useGetMeQuery(undefined);
 
   // RTK Query Mutations & Queries
   const [uploadAvatar, { isLoading: isUploadingAvatar }] = useUploadAvatarMutation();
@@ -60,23 +62,43 @@ const AdminProfile = () => {
   );
   const [profileImage, setProfileImage] = useState(
     user?.profileImage ||
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop",
   );
 
   // Security Form State
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(true);
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(
+    user?.twoFactorEnabled !== undefined ? user.twoFactorEnabled : false,
+  );
 
   // Loading states
   const [savingProfile, setSavingProfile] = useState(false);
 
   useEffect(() => {
-    if (user?.profileImage) {
-      setProfileImage(user.profileImage);
+    if (meData?.data) {
+      if (meData.data.profileImage) {
+        setProfileImage(meData.data.profileImage);
+      }
+      if (meData.data.twoFactorEnabled !== undefined) {
+        setTwoFactorEnabled(Boolean(meData.data.twoFactorEnabled));
+      }
+      if (meData.data.name) {
+        setName(meData.data.name);
+      }
+    } else if (user) {
+      if (user.profileImage) {
+        setProfileImage(user.profileImage);
+      }
+      if (user.twoFactorEnabled !== undefined) {
+        setTwoFactorEnabled(Boolean(user.twoFactorEnabled));
+      }
+      if (user.name) {
+        setName(user.name);
+      }
     }
-  }, [user?.profileImage]);
+  }, [meData?.data, user]);
 
   // Handle Real Cloudinary File Upload (NO PROMPT)
   const handleFileUpload = async (file: File) => {
@@ -97,11 +119,12 @@ const AdminProfile = () => {
     try {
       const res: any = await uploadAvatar(formData).unwrap();
       const newImageUrl = res?.data?.profileImage || res?.profileImage;
+      const newToken = res?.data?.accessToken;
 
       if (newImageUrl) {
         setProfileImage(newImageUrl);
-        if (user && updateUser) {
-          updateUser({ ...user, profileImage: newImageUrl });
+        if (updateUser) {
+          updateUser({ profileImage: newImageUrl }, newToken);
         }
         toast.success("Admin avatar hosted on Cloudinary successfully! ☁️", {
           icon: "📸",
@@ -181,6 +204,9 @@ const AdminProfile = () => {
     try {
       await toggle2FA({ enabled: checked }).unwrap();
       setTwoFactorEnabled(checked);
+      if (updateUser) {
+        updateUser({ twoFactorEnabled: checked });
+      }
       if (checked) {
         toast.success("2FA Security Enabled! OTP sent to email on login.", { icon: "🛡️" });
       } else {

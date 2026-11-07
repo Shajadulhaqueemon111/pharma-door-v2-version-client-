@@ -77,8 +77,8 @@ const AdminDashboard = () => {
       const headers = token ? { Authorization: `${token}` } : {};
 
       const [userRes, orderRes, consultRes, docRes] = await Promise.all([
-        axios.get("https://pharmadoor-backend-v2.vercel.app/api/v1/users", { headers }).catch(() => null),
-        axios.get("https://pharmadoor-backend-v2.vercel.app/api/v1/order/ordered-medicine", { headers }).catch(() => null),
+        axios.get(`${API_BASE_URL}/api/v1/users`, { headers }).catch(() => null),
+        axios.get(`${API_BASE_URL}/api/v1/order/ordered-medicine`, { headers }).catch(() => null),
         fetch(`${API_BASE_URL}/api/v1/consultation`).catch(() => null),
         fetch(`${API_BASE_URL}/api/v1/doctor`).catch(() => null),
       ]);
@@ -147,7 +147,7 @@ const AdminDashboard = () => {
   const pendingConsults = consultations.filter((c) => c.status === "pending_assignment");
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-8 max-w-7xl mx-auto">
+    <div className="space-y-6 sm:space-y-8 max-w-7xl mx-auto">
       {/* Welcome Banner */}
       <div className="relative rounded-3xl bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 text-white p-6 sm:p-8 border border-teal-800/40 shadow-xl overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="relative z-10 space-y-2 text-center md:text-left">

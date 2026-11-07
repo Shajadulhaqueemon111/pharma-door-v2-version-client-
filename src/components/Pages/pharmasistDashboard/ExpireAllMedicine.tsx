@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState, useMemo } from "react";
-import axios from "axios";
+import { useState, useMemo } from "react";
+import {
+  useGetMedicinesQuery,
+  useDeleteMedicineMutation,
+} from "../../../redux/api/medicineApi";
 import { useAuth } from "../privateRoute/AuthContext";
 import { Typewriter } from "react-simple-typewriter";
 import toast from "react-hot-toast";
@@ -60,45 +63,26 @@ const ExpireAllMedicine = () => {
   const userId = user?._id;
   const { themeConfig } = usePharmacistTheme();
 
-  const [expiredMedicines, setExpiredMedicines] = useState<Medicine[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    data: allMedicines = [],
+    isLoading: loading,
+    refetch: fetchMedicines,
+  } = useGetMedicinesQuery();
+  const [deleteMedicineMutation] = useDeleteMedicineMutation();
+
   const [searchText, setSearchText] = useState("");
 
-  const fetchMedicines = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("accessToken");
-      if (!token) return;
+  const expiredMedicines = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-      const res = await axios.get(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/medicine",
-        {
-          headers: { Authorization: `${token}` },
-        },
-      );
-
-      const medicines: Medicine[] = res.data.data || [];
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const expiredByUser = medicines.filter((medicine) => {
-        const expiry = new Date(medicine.expiryDate);
-        expiry.setHours(0, 0, 0, 0);
-        return expiry <= today && medicine.createdBy?._id === userId;
-      });
-
-      setExpiredMedicines(expiredByUser);
-    } catch (err) {
-      console.error("Failed to fetch medicines:", err);
-      toast.error("Failed to load expired medicines list.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (userId) fetchMedicines();
-  }, [userId]);
+    return (allMedicines as any[]).filter((medicine) => {
+      if (!medicine.expiryDate) return false;
+      const expiry = new Date(medicine.expiryDate);
+      expiry.setHours(0, 0, 0, 0);
+      return expiry <= today && (!userId || medicine.createdBy?._id === userId);
+    });
+  }, [allMedicines, userId]);
 
   const handleDelete = async (_id: any) => {
     const result = await Swal.fire({
@@ -113,18 +97,10 @@ const ExpireAllMedicine = () => {
 
     if (result.isConfirmed) {
       try {
-        const token = localStorage.getItem("accessToken");
-        const res = await axios.delete(
-          `https://pharmadoor-backend-v2.vercel.app/api/v1/medicine/${_id}`,
-          { headers: { Authorization: `${token}` } },
-        );
-
-        if (res.status === 200) {
-          toast.success("Expired medicine removed from inventory");
-          setExpiredMedicines((prev) => prev.filter((item) => item._id !== _id));
-        }
-      } catch (err) {
-        toast.error("Failed to delete medicine.");
+        await deleteMedicineMutation(_id).unwrap();
+        toast.success("Expired medicine removed from inventory");
+      } catch (err: any) {
+        toast.error(err?.data?.message || "Failed to delete medicine.");
       }
     }
   };

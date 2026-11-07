@@ -1,7 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState, useMemo } from "react";
-import axios from "axios";
+import { useState, useMemo } from "react";
+import {
+  useGetEquipmentsQuery,
+  useDeleteEquipmentMutation,
+} from "../../../redux/api/equipmentApi";
 import { useAuth } from "../privateRoute/AuthContext";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
@@ -59,46 +62,27 @@ interface Equipment {
 }
 
 const AllEquipmentPage = () => {
-  const [equipmentList, setEquipmentList] = useState<Equipment[]>([]);
-  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const userId = user?._id;
   const { themeConfig } = usePharmacistTheme();
+
+  // RTK Query for automated caching, zero-delay load and instant updates
+  const {
+    data: allEquipment = [],
+    isLoading: loading,
+    refetch: fetchEquipment,
+  } = useGetEquipmentsQuery();
+  const [deleteEquipmentMutation] = useDeleteEquipmentMutation();
 
   // Search & Filter
   const [searchText, setSearchText] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
 
-  const fetchEquipment = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("accessToken");
-      if (!token) return;
-
-      const response = await axios.get(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/equipment",
-        {
-          headers: { Authorization: `${token}` },
-        },
-      );
-
-      const allEquipment = response.data?.data || [];
-      const userEquipment = allEquipment.filter(
-        (eq: any) => eq?.createdBy?._id === userId,
-      );
-
-      setEquipmentList(userEquipment);
-    } catch (error) {
-      console.error("Error fetching equipment:", error);
-      toast.error("Failed to load medical equipment.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (userId) fetchEquipment();
-  }, [userId]);
+  const equipmentList = useMemo(() => {
+    return (allEquipment as any[]).filter(
+      (eq: any) => !userId || eq?.createdBy?._id === userId,
+    );
+  }, [allEquipment, userId]);
 
   const handleDelete = async (_id: any) => {
     const result = await Swal.fire({
@@ -113,18 +97,10 @@ const AllEquipmentPage = () => {
 
     if (result.isConfirmed) {
       try {
-        const token = localStorage.getItem("accessToken");
-        const res = await axios.delete(
-          `https://pharmadoor-backend-v2.vercel.app/api/v1/equipment/${_id}`,
-          { headers: { Authorization: `${token}` } },
-        );
-
-        if (res.status === 200) {
-          toast.success("Equipment deleted successfully");
-          setEquipmentList((prev) => prev.filter((item) => item._id !== _id));
-        }
-      } catch (err) {
-        toast.error("Failed to delete equipment.");
+        await deleteEquipmentMutation(_id).unwrap();
+        toast.success("Equipment deleted successfully");
+      } catch (err: any) {
+        toast.error(err?.data?.message || "Failed to delete equipment.");
       }
     }
   };

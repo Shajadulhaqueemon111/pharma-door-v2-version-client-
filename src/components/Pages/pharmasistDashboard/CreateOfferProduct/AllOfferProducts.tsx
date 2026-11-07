@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
+import { API_BASE_URL } from "../../../../config/api";
 import { useEffect, useState, useMemo } from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
@@ -60,7 +61,7 @@ const AllOfferProducts = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/offer",
+        `${API_BASE_URL}/api/v1/offer`,
       );
       setOfferProducts(response.data?.data || []);
     } catch (err) {
@@ -89,7 +90,7 @@ const AllOfferProducts = () => {
       try {
         const token = localStorage.getItem("accessToken");
         const response = await axios.delete(
-          `https://pharmadoor-backend-v2.vercel.app/api/v1/offer/${_id}`,
+          `${API_BASE_URL}/api/v1/offer/${_id}`,
           { headers: { Authorization: `${token}` } },
         );
 

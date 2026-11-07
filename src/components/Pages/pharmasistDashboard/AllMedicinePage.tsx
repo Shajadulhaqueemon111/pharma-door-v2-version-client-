@@ -1,7 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState, useMemo } from "react";
-import axios from "axios";
+import { useState, useMemo } from "react";
+import {
+  useGetMedicinesQuery,
+  useDeleteMedicineMutation,
+} from "../../../redux/api/medicineApi";
 import { useAuth } from "../privateRoute/AuthContext";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
@@ -65,8 +68,14 @@ const AllMedicinePage = () => {
   const { themeConfig } = usePharmacistTheme();
   const navigate = useNavigate();
 
-  const [medicine, setMedicine] = useState<Medicine[]>([]);
-  const [loading, setLoading] = useState(true);
+  // RTK Query hooks for automated caching, background refetching and instant load
+  const {
+    data: allMedicines = [],
+    isLoading: loading,
+    refetch: fetchMedicine,
+  } = useGetMedicinesQuery();
+  const [deleteMedicineMutation] = useDeleteMedicineMutation();
+
   const [buttonLoadingId, setButtonLoadingId] = useState<string | null>(null);
 
   // Search and filter states
@@ -74,36 +83,11 @@ const AllMedicinePage = () => {
   const [stockFilter, setStockFilter] = useState<string>("all");
   const [brandFilter, setBrandFilter] = useState<string>("all");
 
-  const fetchMedicine = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("accessToken");
-      if (!token || !userId) return;
-
-      const response = await axios.get(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/medicine",
-        {
-          headers: { Authorization: token },
-        },
-      );
-
-      const allMedicines = response.data?.data || [];
-      const userMedicines = allMedicines.filter(
-        (med: any) => med?.createdBy?._id === userId,
-      );
-
-      setMedicine(userMedicines);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to fetch medicines.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchMedicine();
-  }, [userId]);
+  const medicine = useMemo(() => {
+    return (allMedicines as any[]).filter(
+      (med: any) => !userId || med?.createdBy?._id === userId,
+    );
+  }, [allMedicines, userId]);
 
   const handleDelete = async (_id: string) => {
     const result = await Swal.fire({
@@ -118,24 +102,11 @@ const AllMedicinePage = () => {
 
     if (result.isConfirmed) {
       try {
-        const token = localStorage.getItem("accessToken");
-        if (!token) {
-          toast.error("No access token found");
-          return;
-        }
-
-        const res = await axios.delete(
-          `https://pharmadoor-backend-v2.vercel.app/api/v1/medicine/${_id}`,
-          { headers: { Authorization: token } },
-        );
-
-        if (res.status === 200 || res.status === 204) {
-          toast.success("Medicine deleted successfully");
-          setMedicine((prev) => prev.filter((item) => item._id !== _id));
-        }
-      } catch (err) {
+        await deleteMedicineMutation(_id).unwrap();
+        toast.success("Medicine deleted successfully");
+      } catch (err: any) {
         console.error(err);
-        toast.error("Failed to delete medicine");
+        toast.error(err?.data?.message || "Failed to delete medicine");
       }
     }
   };

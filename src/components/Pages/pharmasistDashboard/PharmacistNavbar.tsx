@@ -18,6 +18,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../privateRoute/AuthContext";
 import { usePharmacistTheme } from "./pharmacistTheme";
 import { API_BASE_URL } from "../../../config/api";
+import { MessageSquare } from "lucide-react";
+import { PharmacistChatModal } from "./PharmacistChatModal";
+import { useGetMySupportChatQuery } from "../../../redux/api/supportChatApi";
 import {
   useGetNotificationsQuery,
   useMarkAsReadMutation,
@@ -49,6 +52,9 @@ const PharmacistNavbar = () => {
 
   const [localAlerts, setLocalAlerts] = useState<LocalAlert[]>([]);
   const [filterMode, setFilterMode] = useState<"all" | "unread">("all");
+  const [chatModalOpen, setChatModalOpen] = useState(false);
+  const { data: supportChatData } = useGetMySupportChatQuery(undefined, { pollingInterval: 10000 });
+  const unreadChatCount = supportChatData?.data?.unreadForPharmacist || 0;
   const notificationSoundRef = useRef<HTMLAudioElement | null>(null);
   const prevCount = useRef(0);
 
@@ -353,6 +359,19 @@ const PharmacistNavbar = () => {
           </Link>
         </Tooltip>
 
+        {/* Real-time 1-on-1 Admin Support Chat */}
+        <Tooltip title="Direct Chat with Admin Support">
+          <Badge count={unreadChatCount} offset={[-2, 2]}>
+            <div
+              onClick={() => setChatModalOpen(true)}
+              className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
+              title="Chat with PharmaDoor Admin"
+            >
+              <MessageSquare size={18} className="text-teal-600 dark:text-teal-400" />
+            </div>
+          </Badge>
+        </Tooltip>
+
         {/* Real-time Notification Dropdown */}
         <Dropdown
           dropdownRender={() => notificationOverlay}
@@ -394,6 +413,7 @@ const PharmacistNavbar = () => {
           </div>
         </Dropdown>
       </Space>
+      <PharmacistChatModal isOpen={chatModalOpen} onClose={() => setChatModalOpen(false)} />
     </>
   );
 };

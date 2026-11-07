@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../../config/api";
 import brandImage from "../../../assets/brand1.png";
 import AdditionalOffer from "../OtcMedicine/AdditionalOffer";
 import SafetyAdvice from "../OtcMedicine/SafetyAdvice";
@@ -31,7 +32,7 @@ const SpecialOfferDetails = () => {
     const fetchOfferProduct = async () => {
       try {
         const response = await axios.get(
-          "https://pharmadoor-backend-v2.vercel.app/api/v1/offer",
+          `${API_BASE_URL}/api/v1/offer`,
         );
         const found = response.data.data.find(
           (item: OfferProduct) => item._id === _id,

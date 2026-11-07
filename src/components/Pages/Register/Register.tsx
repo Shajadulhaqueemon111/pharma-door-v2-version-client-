@@ -110,8 +110,9 @@ const Register = () => {
     } catch (error: any) {
       console.error(error);
       toast.error(
-        error?.response?.data?.message ||
-          error?.data?.message ||
+        error?.data?.message ||
+          error?.response?.data?.message ||
+          error?.message ||
           "Registration failed! Please try a different email.",
       );
     }

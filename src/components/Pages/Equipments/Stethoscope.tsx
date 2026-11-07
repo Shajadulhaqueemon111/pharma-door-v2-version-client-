@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
+import { API_BASE_URL } from "../../../config/api";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { ScaleLoader } from "react-spinners";
@@ -49,7 +50,7 @@ const StethoscopePage = () => {
   }, []);
 
   useEffect(() => {
-    fetch("https://pharmadoor-backend-v2.vercel.app/api/v1/equipment")
+    fetch(`${API_BASE_URL}/api/v1/equipment`)
       .then((res) => res.json())
       .then((data) => {
         setMedicalProducts(data.data);

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { API_BASE_URL } from "../../../config/api";
 import axios from "axios";
 import { IoIosArrowRoundBack } from "react-icons/io";
 
@@ -24,7 +25,7 @@ const BlogDetailsPage = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `https://pharmadoor-backend-v2.vercel.app/api/v1/blog/${_id}`,
+          `${API_BASE_URL}/api/v1/blog/${_id}`,
         );
         setBlog(response.data.data);
       } catch (error) {

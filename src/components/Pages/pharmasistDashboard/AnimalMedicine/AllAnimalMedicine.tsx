@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../../../config/api";
 import toast from "react-hot-toast";
 import { useAuth } from "../../privateRoute/AuthContext";
 import {
@@ -64,7 +65,7 @@ const AllAnimalMedicinePage = () => {
       const token = localStorage.getItem("accessToken");
 
       const response = await axios.get(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/animal-medicine",
+        `${API_BASE_URL}/api/v1/animal-medicine`,
         {
           headers: { Authorization: `${token}` },
         },
@@ -92,7 +93,7 @@ const AllAnimalMedicinePage = () => {
     try {
       const token = localStorage.getItem("accessToken");
       const res = await axios.delete(
-        `https://pharmadoor-backend-v2.vercel.app/api/v1/animal-medicine/${_id}`,
+        `${API_BASE_URL}/api/v1/animal-medicine/${_id}`,
         {
           headers: { Authorization: `${token}` },
         },

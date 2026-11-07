@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../../../config/api";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../privateRoute/AuthContext";
 import {
@@ -89,7 +90,7 @@ const CreateAnimalMedicine = () => {
       const token = localStorage.getItem("accessToken");
 
       const response = await axios.post(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/animal-medicine/create-animalmedicine",
+        `${API_BASE_URL}/api/v1/animal-medicine/create-animalmedicine`,
         payload,
         {
           headers: { Authorization: `${token}` },

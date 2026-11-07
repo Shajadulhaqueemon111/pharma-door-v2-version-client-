@@ -11,7 +11,7 @@ const MainRoute = () => {
   const [searchText, setSearchText] = useState("");
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 antialiased font-sans">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 antialiased font-sans w-full max-w-full overflow-x-hidden">
       <FirstNavbar searchText={searchText} setSearchText={setSearchText} />
       <Toaster
         position="top-right"
@@ -32,7 +32,7 @@ const MainRoute = () => {
         }}
       />
       <AddToCart />
-      <main className="flex-1">
+      <main className="flex-1 w-full max-w-full overflow-x-hidden">
         <Outlet context={{ searchText }} />
       </main>
       <ScrollingBtn />

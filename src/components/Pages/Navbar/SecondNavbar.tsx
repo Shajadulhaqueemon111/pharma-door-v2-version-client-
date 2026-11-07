@@ -93,10 +93,9 @@ const SecondNavbar = () => {
   const isActive = (path: string) => location.pathname === path;
 
   const navLinkClass = (path: string) =>
-    `text-xs sm:text-sm px-3 py-1.5 rounded-lg transition-all font-medium ${
-      isActive(path)
-        ? "text-teal-700 bg-teal-50/80 font-semibold shadow-2xs"
-        : "text-slate-600 hover:text-teal-700 hover:bg-slate-50"
+    `text-xs sm:text-sm px-3 py-1.5 rounded-lg transition-all font-medium ${isActive(path)
+      ? "text-teal-700 bg-teal-50/80 font-semibold shadow-2xs"
+      : "text-slate-600 hover:text-teal-700 hover:bg-slate-50"
     }`;
 
   const medicineItems: DropdownItem[] = [
@@ -130,8 +129,8 @@ const SecondNavbar = () => {
   ];
 
   return (
-    <nav className="bg-white border-b border-slate-200/70 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="bg-white border-b border-slate-200/70 relative z-20 w-full overflow-x-clip">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-11">
           {/* ── Desktop Category links ── */}
           <div className="hidden lg:flex items-center gap-1">

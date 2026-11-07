@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../../config/api";
 import { toast } from "react-hot-toast";
 import {
   Table,
@@ -67,7 +68,7 @@ const PharmacistDocument = () => {
       const token = localStorage.getItem("accessToken");
 
       const res = await axios.get(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/phermacist",
+        `${API_BASE_URL}/api/v1/phermacist`,
         {
           headers: { Authorization: `${token}` },
         },

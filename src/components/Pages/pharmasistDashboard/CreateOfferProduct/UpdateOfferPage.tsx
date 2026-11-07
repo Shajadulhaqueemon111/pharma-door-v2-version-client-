@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { API_BASE_URL } from "../../../../config/api";
 import toast from "react-hot-toast";
 import {
   Form,
@@ -55,7 +56,7 @@ const UpdateOfferPage = () => {
     const fetchProduct = async () => {
       try {
         const response = await axios.get(
-          `https://pharmadoor-backend-v2.vercel.app/api/v1/offer/${_id}`,
+          `${API_BASE_URL}/api/v1/offer/${_id}`,
         );
         const data = response.data?.data;
         setProduct(data);
@@ -88,7 +89,7 @@ const UpdateOfferPage = () => {
     try {
       const token = localStorage.getItem("accessToken");
       const response = await axios.patch(
-        `https://pharmadoor-backend-v2.vercel.app/api/v1/offer/${_id}`,
+        `${API_BASE_URL}/api/v1/offer/${_id}`,
         values,
         {
           headers: {

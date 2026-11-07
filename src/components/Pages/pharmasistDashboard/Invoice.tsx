@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { API_BASE_URL } from "../../../config/api";
 import {
   Card,
   Typography,
@@ -33,7 +34,7 @@ const Invoice = () => {
 
       try {
         const res = await fetch(
-          `https://pharmadoor-backend-v2.vercel.app/api/v1/order/${_id}`,
+          `${API_BASE_URL}/api/v1/order/${_id}`,
           {
             headers: { Authorization: `${token}` },
           },

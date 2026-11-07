@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { API_BASE_URL } from "../../../config/api";
 import { ScaleLoader } from "react-spinners";
 import { Pill, CheckCircle2, ArrowRight } from "lucide-react";
 
@@ -21,7 +22,7 @@ const NapaMedicines = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    fetch("https://pharmadoor-backend-v2.vercel.app/api/v1/medicine", {
+    fetch(`${API_BASE_URL}/api/v1/medicine`, {
       headers: {
         "Cache-Control": "no-cache",
       },

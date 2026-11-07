@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState, useMemo } from "react";
 import { Link, useOutletContext } from "react-router-dom";
+import { useGetMedicinesQuery } from "../../../redux/api/medicineApi";
 import { ScaleLoader } from "react-spinners";
 import { Filter, RotateCcw, ArrowRight, CheckCircle2, AlertCircle, SlidersHorizontal } from "lucide-react";
 
@@ -19,8 +20,7 @@ type OutletContextType = { searchText: string };
 
 const AllProducts = () => {
   const { searchText } = useOutletContext<OutletContextType>();
-  const [allProducts, setAllProducts] = useState<AllMedicine[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: rawMedicines = [], isLoading: loading } = useGetMedicinesQuery();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
   const [maxPrice, setMaxPrice] = useState(1000);
@@ -28,23 +28,16 @@ const AllProducts = () => {
   const [sortBy, setSortBy] = useState("default");
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
-  useEffect(() => {
-    fetch("https://pharmadoor-backend-v2.vercel.app/api/v1/medicine")
-      .then((res) => res.json())
-      .then((data) => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const valid = (data.data || []).filter((item: AllMedicine) => {
-          if (!item.expiryDate) return true;
-          const exp = new Date(item.expiryDate);
-          exp.setHours(0, 0, 0, 0);
-          return exp >= today;
-        });
-        setAllProducts(valid);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+  const allProducts = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return (rawMedicines as AllMedicine[]).filter((item: AllMedicine) => {
+      if (!item.expiryDate) return true;
+      const exp = new Date(item.expiryDate);
+      exp.setHours(0, 0, 0, 0);
+      return exp >= today;
+    });
+  }, [rawMedicines]);
 
   const brands = Array.from(new Set(allProducts.map((m) => m.brand).filter(Boolean)));
   const brandCounts = brands.reduce(

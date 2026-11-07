@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../../config/api";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../privateRoute/AuthContext";
@@ -91,7 +92,7 @@ const CreateEquipments = () => {
 
       const token = localStorage.getItem("accessToken");
       await axios.post(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/equipment/create-equipment",
+        `${API_BASE_URL}/api/v1/equipment/create-equipment`,
         payload,
         {
           headers: { Authorization: `${token}` },

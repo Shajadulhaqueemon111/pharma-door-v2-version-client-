@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../../../config/api";
 import { ScaleLoader } from "react-spinners";
 import SafetyAdvice from "../OtcMedicine/SafetyAdvice";
 import AdditionalOffer from "../OtcMedicine/AdditionalOffer";
@@ -21,7 +22,7 @@ const AnimalMedicineDetails = () => {
 
   useEffect(() => {
     fetch(
-      `https://pharmadoor-backend-v2.vercel.app/api/v1/animal-medicine/${_id}`,
+      `${API_BASE_URL}/api/v1/animal-medicine/${_id}`,
     )
       .then((res) => res.json())
       .then((data) => {

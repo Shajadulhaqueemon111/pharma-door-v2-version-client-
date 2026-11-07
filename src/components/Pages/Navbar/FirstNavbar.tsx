@@ -26,12 +26,12 @@ const FirstNavbar: React.FC<FirstNavbarProps> = ({
   return (
     <header className="w-full sticky top-0 z-50 shadow-xs bg-white">
       {/* ── Top Announcement Utility Bar ── */}
-      <div className="bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 text-slate-200 text-[11px] sm:text-xs py-1.5 px-4 sm:px-8 border-b border-teal-900/40">
-        <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-4 text-slate-300">
-            <span className="flex items-center gap-1 font-medium text-emerald-400">
-              <ShieldCheck size={14} className="text-emerald-400" />
-              100% Genuine Medicines
+      <div className="bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 text-slate-200 text-[10px] sm:text-xs py-1 sm:py-1.5 px-3 sm:px-6 lg:px-8 border-b border-teal-900/40 overflow-hidden">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-4 text-slate-300 truncate">
+            <span className="flex items-center gap-1 font-medium text-emerald-400 shrink-0">
+              <ShieldCheck size={13} className="text-emerald-400" />
+              <span>Genuine Medicines</span>
             </span>
             <span className="hidden md:flex items-center gap-1 text-slate-300">
               <Zap size={13} className="text-amber-400" />
@@ -39,13 +39,13 @@ const FirstNavbar: React.FC<FirstNavbarProps> = ({
             </span>
           </div>
 
-          <div className="flex items-center gap-4 text-slate-300 ml-auto">
+          <div className="flex items-center gap-3 sm:gap-4 text-slate-300 shrink-0">
             <Link
               to="/upload-prescription"
               className="flex items-center gap-1 hover:text-emerald-300 transition text-slate-300 font-medium"
             >
-              <FileText size={13} className="text-teal-400" />
-              <span>Upload Prescription</span>
+              <FileText size={12} className="text-teal-400" />
+              <span>Upload Rx</span>
             </Link>
             <span className="hidden sm:inline text-slate-600">|</span>
             <a
@@ -60,60 +60,68 @@ const FirstNavbar: React.FC<FirstNavbarProps> = ({
       </div>
 
       {/* ── Main Brand & Search Navigation ── */}
-      <div className="bg-white/95 backdrop-blur-md border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3 sm:gap-6">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-teal-600 to-emerald-500 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200 p-1.5">
-              <img
-                src={Image1}
-                alt="PharmaDoor Logo"
-                className="w-full h-full object-contain brightness-0 invert"
-              />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xl sm:text-2xl font-extrabold tracking-tight leading-none text-slate-900">
-                Pharma<span className="text-teal-600">Door</span>
-              </span>
-              <span className="text-[9px] uppercase tracking-wider font-bold text-teal-700/80 mt-0.5">
-                Online Pharmacy BD
-              </span>
-            </div>
-          </Link>
-
-          {/* SearchBar */}
-          <div className="flex-1 max-w-lg mx-2 sm:mx-4">
-            <SearchBar searchText={searchText} setSearchText={setSearchText} />
-          </div>
-
-          {/* Right Actions */}
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-            <Link
-              to="/upload-prescription"
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200/60 rounded-full text-xs font-semibold transition-all shadow-2xs"
-            >
-              <FileText size={14} className="text-teal-600" />
-              <span>Upload Rx</span>
+      <div className="relative z-30 bg-white/95 backdrop-blur-md border-b border-slate-100">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-3">
+          {/* Row for Logo and Actions */}
+          <div className="flex items-center justify-between gap-2 sm:gap-6">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2 group shrink-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-teal-600 to-emerald-500 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-200 p-1.5 shrink-0">
+                <img
+                  src={Image1}
+                  alt="PharmaDoor Logo"
+                  className="w-full h-full object-contain brightness-0 invert"
+                />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-lg sm:text-2xl font-extrabold tracking-tight leading-none text-slate-900">
+                  Pharma<span className="text-teal-600">Door</span>
+                </span>
+                <span className="text-[8px] sm:text-[9px] uppercase tracking-wider font-bold text-teal-700/80 mt-0.5">
+                  Online Pharmacy BD
+                </span>
+              </div>
             </Link>
 
-            {user ? (
-              user.role === "user" ? (
-                <UserMenu user={user} handleLogout={handlelogout} />
-              ) : (
-                <button
-                  onClick={handlelogout}
-                  className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-full text-xs font-semibold transition cursor-pointer"
-                >
-                  Logout
-                </button>
-              )
-            ) : (
-              <Link to="/login">
-                <button className="px-4 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-xs sm:text-sm font-semibold rounded-full shadow-xs hover:shadow transition flex items-center gap-1.5 cursor-pointer">
-                  <span>Sign In</span>
-                </button>
+            {/* Desktop SearchBar */}
+            <div className="hidden sm:block flex-1 max-w-lg mx-2 sm:mx-4">
+              <SearchBar searchText={searchText} setSearchText={setSearchText} />
+            </div>
+
+            {/* Right Actions */}
+            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+              <Link
+                to="/upload-prescription"
+                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200/60 rounded-full text-xs font-semibold transition-all shadow-2xs"
+              >
+                <FileText size={14} className="text-teal-600" />
+                <span>Upload Rx</span>
               </Link>
-            )}
+
+              {user ? (
+                user.role === "user" ? (
+                  <UserMenu user={user} handleLogout={handlelogout} />
+                ) : (
+                  <button
+                    onClick={handlelogout}
+                    className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-full text-xs font-semibold transition cursor-pointer"
+                  >
+                    Logout
+                  </button>
+                )
+              ) : (
+                <Link to="/login">
+                  <button className="px-3.5 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-xs sm:text-sm font-semibold rounded-full shadow-xs hover:shadow transition flex items-center gap-1.5 cursor-pointer">
+                    <span>Sign In</span>
+                  </button>
+                </Link>
+              )}
+            </div>
+          </div>
+
+          {/* Mobile SearchBar (below logo/actions on < sm screens) */}
+          <div className="block sm:hidden mt-2 pt-1">
+            <SearchBar searchText={searchText} setSearchText={setSearchText} />
           </div>
         </div>
       </div>

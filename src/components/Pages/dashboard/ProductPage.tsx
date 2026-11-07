@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../../config/api";
 import { Link } from "react-router-dom";
 import {
   Table,
@@ -40,11 +41,11 @@ const ProductPage = () => {
 
       // Attempt to load products from API or fallback to medicine list
       const response = await axios
-        .get("https://pharmadoor-backend-v2.vercel.app/api/v1/medicine", {
+        .get(`${API_BASE_URL}/api/v1/medicine`, {
           headers: token ? { Authorization: `${token}` } : {},
         })
         .catch(async () => {
-          return await axios.get("https://pharmadoor-backend-v2.vercel.app/api/products");
+          return await axios.get(`${API_BASE_URL}/api/products`);
         });
 
       setProducts(response.data?.data || response.data || []);

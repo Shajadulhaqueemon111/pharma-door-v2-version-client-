@@ -39,6 +39,7 @@ import {
   useChangePasswordMutation,
   useToggle2FAMutation,
   useGetSessionsQuery,
+  useGetMeQuery,
 } from "../../../redux/api/authApi";
 import { useGetAuditLogsQuery } from "../../../redux/api/auditApi";
 
@@ -65,6 +66,7 @@ const accentPresets = [
 
 const PharmacistProfile = () => {
   const { user, updateUser } = useAuth();
+  const { data: meData } = useGetMeQuery(undefined);
   const { themeConfig, setThemeConfig } = usePharmacistTheme();
 
   const [activeTab, setActiveTab] = useState<
@@ -95,23 +97,43 @@ const PharmacistProfile = () => {
     "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=400&auto=format&fit=crop",
   );
 
-  // Sync profile photo if user object changes
+  // Security State
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [is2FAEnabled, setIs2FAEnabled] = useState(
+    user?.twoFactorEnabled !== undefined ? user.twoFactorEnabled : false,
+  );
+
+  // Sync profile photo and 2FA status
   useEffect(() => {
-    if (user?.profileImage) {
-      setProfileImage(user.profileImage);
+    if (meData?.data) {
+      if (meData.data.profileImage) {
+        setProfileImage(meData.data.profileImage);
+      }
+      if (meData.data.twoFactorEnabled !== undefined) {
+        setIs2FAEnabled(Boolean(meData.data.twoFactorEnabled));
+      }
+      if (meData.data.name) {
+        setName(meData.data.name);
+      }
+    } else if (user) {
+      if (user.profileImage) {
+        setProfileImage(user.profileImage);
+      }
+      if (user.twoFactorEnabled !== undefined) {
+        setIs2FAEnabled(Boolean(user.twoFactorEnabled));
+      }
+      if (user.name) {
+        setName(user.name);
+      }
     }
-  }, [user?.profileImage]);
+  }, [meData?.data, user]);
 
   // Theme Customization State
   const [customSidebarBg, setCustomSidebarBg] = useState(themeConfig.sidebarBg);
   const [customAccentColor, setCustomAccentColor] = useState(themeConfig.accentColor);
   const [customMode, setCustomMode] = useState<"dark" | "light">(themeConfig.mode);
-
-  // Security State
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [is2FAEnabled, setIs2FAEnabled] = useState(true);
 
   const [saving, setSaving] = useState(false);
 
@@ -135,13 +157,14 @@ const PharmacistProfile = () => {
     try {
       const res: any = await uploadAvatar(formData).unwrap();
       const newImageUrl = res?.data?.profileImage || res?.profileImage;
+      const newToken = res?.data?.accessToken;
 
       if (newImageUrl) {
         setProfileImage(newImageUrl);
-        if (user && updateUser) {
-          updateUser({ ...user, profileImage: newImageUrl });
+        if (updateUser) {
+          updateUser({ profileImage: newImageUrl }, newToken);
         }
-        toast.success("Profile photo hosted on Cloudinary successfully! ☁️", {
+        toast.success("Profile photo update successfully! ☁️", {
           icon: "📸",
         });
       }
@@ -217,6 +240,9 @@ const PharmacistProfile = () => {
     try {
       await toggle2FA({ enabled: checked }).unwrap();
       setIs2FAEnabled(checked);
+      if (updateUser) {
+        updateUser({ twoFactorEnabled: checked });
+      }
       if (checked) {
         toast.success("Two-Factor Authentication activated! OTP required on login.", {
           icon: "🛡️",
@@ -442,8 +468,8 @@ const PharmacistProfile = () => {
           <button
             onClick={() => setActiveTab("profile")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${activeTab === "profile"
-                ? "bg-slate-900 text-white shadow-xs"
-                : "text-slate-600 hover:bg-slate-100"
+              ? "bg-slate-900 text-white shadow-xs"
+              : "text-slate-600 hover:bg-slate-100"
               }`}
           >
             <UserOutlined />
@@ -453,8 +479,8 @@ const PharmacistProfile = () => {
           <button
             onClick={() => setActiveTab("appearance")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer relative ${activeTab === "appearance"
-                ? "bg-slate-900 text-white shadow-xs"
-                : "text-slate-600 hover:bg-slate-100"
+              ? "bg-slate-900 text-white shadow-xs"
+              : "text-slate-600 hover:bg-slate-100"
               }`}
           >
             <BgColorsOutlined style={{ color: customAccentColor }} />
@@ -465,8 +491,8 @@ const PharmacistProfile = () => {
           <button
             onClick={() => setActiveTab("security")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${activeTab === "security"
-                ? "bg-slate-900 text-white shadow-xs"
-                : "text-slate-600 hover:bg-slate-100"
+              ? "bg-slate-900 text-white shadow-xs"
+              : "text-slate-600 hover:bg-slate-100"
               }`}
           >
             <KeyOutlined />
@@ -476,8 +502,8 @@ const PharmacistProfile = () => {
           <button
             onClick={() => setActiveTab("sessions")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${activeTab === "sessions"
-                ? "bg-slate-900 text-white shadow-xs"
-                : "text-slate-600 hover:bg-slate-100"
+              ? "bg-slate-900 text-white shadow-xs"
+              : "text-slate-600 hover:bg-slate-100"
               }`}
           >
             <DesktopOutlined />
@@ -487,8 +513,8 @@ const PharmacistProfile = () => {
           <button
             onClick={() => setActiveTab("audit")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${activeTab === "audit"
-                ? "bg-slate-900 text-white shadow-xs"
-                : "text-slate-600 hover:bg-slate-100"
+              ? "bg-slate-900 text-white shadow-xs"
+              : "text-slate-600 hover:bg-slate-100"
               }`}
           >
             <HistoryOutlined />
@@ -665,8 +691,8 @@ const PharmacistProfile = () => {
                     type="button"
                     onClick={() => setCustomSidebarBg(preset.color)}
                     className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between h-20 ${customSidebarBg.toLowerCase() === preset.color.toLowerCase()
-                        ? "border-teal-500 ring-2 ring-teal-500/20 shadow-md bg-teal-50/20"
-                        : "border-slate-200 hover:border-slate-300 bg-white"
+                      ? "border-teal-500 ring-2 ring-teal-500/20 shadow-md bg-teal-50/20"
+                      : "border-slate-200 hover:border-slate-300 bg-white"
                       }`}
                   >
                     <span
@@ -726,8 +752,8 @@ const PharmacistProfile = () => {
                     type="button"
                     onClick={() => setCustomAccentColor(preset.color)}
                     className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between h-20 ${customAccentColor.toLowerCase() === preset.color.toLowerCase()
-                        ? "border-teal-500 ring-2 ring-teal-500/20 shadow-md bg-teal-50/20"
-                        : "border-slate-200 hover:border-slate-300 bg-white"
+                      ? "border-teal-500 ring-2 ring-teal-500/20 shadow-md bg-teal-50/20"
+                      : "border-slate-200 hover:border-slate-300 bg-white"
                       }`}
                   >
                     <span
@@ -770,8 +796,8 @@ const PharmacistProfile = () => {
                   type="button"
                   onClick={() => setCustomMode("light")}
                   className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${customMode === "light"
-                      ? "bg-amber-100 text-amber-900 border-2 border-amber-400 shadow-xs"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    ? "bg-amber-100 text-amber-900 border-2 border-amber-400 shadow-xs"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                     }`}
                 >
                   <span>☀️ Light Mode</span>
@@ -780,8 +806,8 @@ const PharmacistProfile = () => {
                   type="button"
                   onClick={() => setCustomMode("dark")}
                   className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${customMode === "dark"
-                      ? "bg-slate-900 text-white border-2 border-teal-500 shadow-xs"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    ? "bg-slate-900 text-white border-2 border-teal-500 shadow-xs"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                     }`}
                 >
                   <span>🌙 Dark Mode</span>

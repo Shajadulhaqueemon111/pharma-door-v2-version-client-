@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Layout, Menu, Button } from "antd";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  HomeOutlined,
   AppstoreOutlined,
   InboxOutlined,
   ClockCircleOutlined,
@@ -36,6 +35,13 @@ const PharmacistSidebar = ({ children }: AdminSidebarProps) => {
   const { themeConfig } = usePharmacistTheme();
 
   const isDarkMode = themeConfig.mode === "dark";
+
+  // Auto-collapse sidebar on route change on mobile
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setCollapsed(true);
+    }
+  }, [location.pathname]);
 
   const handleLogout = () => {
     logout();
@@ -101,50 +107,63 @@ const PharmacistSidebar = ({ children }: AdminSidebarProps) => {
       ],
     },
     {
-      key: "/pharmacist-dashboard/orderd-medicine",
-      icon: <OrderedListOutlined />,
-      label: <Link to="/pharmacist-dashboard/orderd-medicine">Ordered Medicine Orders</Link>,
-    },
-    {
-      key: "sub-promotions",
-      icon: <PercentageOutlined />,
-      label: "Offers & Animal Health",
+      key: "sub-veterinary",
+      icon: <MedicineBoxOutlined />,
+      label: "Veterinary Care",
       children: [
         {
-          key: "/pharmacist-dashboard/all-offer-medicine",
-          label: <Link to="/pharmacist-dashboard/all-offer-medicine">Discount Offer Products</Link>,
-        },
-        {
-          key: "/pharmacist-dashboard/create-offer-medicine",
-          label: <Link to="/pharmacist-dashboard/create-offer-medicine">Create Offer Product</Link>,
-        },
-        {
           key: "/pharmacist-dashboard/all-animal-medicine",
-          label: <Link to="/pharmacist-dashboard/all-animal-medicine">Veterinary Medicines</Link>,
+          icon: <InboxOutlined />,
+          label: <Link to="/pharmacist-dashboard/all-animal-medicine">Animal Medicines</Link>,
         },
         {
           key: "/pharmacist-dashboard/create-animal-medicine",
+          icon: <OrderedListOutlined />,
           label: <Link to="/pharmacist-dashboard/create-animal-medicine">Add Animal Medicine</Link>,
+        },
+      ],
+    },
+    {
+      key: "sub-orders",
+      icon: <OrderedListOutlined />,
+      label: "Customer Orders",
+      children: [
+        {
+          key: "/pharmacist-dashboard/orderd-medicine",
+          icon: <OrderedListOutlined />,
+          label: <Link to="/pharmacist-dashboard/orderd-medicine">Prescription Orders</Link>,
+        },
+      ],
+    },
+    {
+      key: "sub-offers",
+      icon: <PercentageOutlined />,
+      label: "Promotions & Offers",
+      children: [
+        {
+          key: "/pharmacist-dashboard/all-offers",
+          icon: <InboxOutlined />,
+          label: <Link to="/pharmacist-dashboard/all-offers">Promotional Deals</Link>,
+        },
+        {
+          key: "/pharmacist-dashboard/create-offer",
+          icon: <OrderedListOutlined />,
+          label: <Link to="/pharmacist-dashboard/create-offer">Publish New Promo</Link>,
         },
       ],
     },
     {
       key: "/pharmacist-dashboard/create-blog",
       icon: <ReadOutlined />,
-      label: <Link to="/pharmacist-dashboard/create-blog">Healthcare Articles & Blog</Link>,
-    },
-    {
-      type: "divider" as const,
+      label: <Link to="/pharmacist-dashboard/create-blog">Medical Blog Publish</Link>,
     },
     {
       key: "/pharmacist-dashboard/profile",
-      icon: <IdcardOutlined style={{ color: themeConfig.accentColor }} />,
-      label: <Link to="/pharmacist-dashboard/profile">Pharmacist Profile & Theme</Link>,
+      icon: <IdcardOutlined />,
+      label: <Link to="/pharmacist-dashboard/profile">Dispensary Profile & Theme</Link>,
     },
     {
-      key: "/",
-      icon: <HomeOutlined />,
-      label: <Link to="/">Store Front</Link>,
+      type: "divider" as const,
     },
     {
       key: "logout",
@@ -154,7 +173,15 @@ const PharmacistSidebar = ({ children }: AdminSidebarProps) => {
   ];
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout style={{ minHeight: "100vh" }} className="relative">
+      {/* Mobile Backdrop Overlay */}
+      {!collapsed && (
+        <div
+          className="fixed inset-0 bg-black/60 z-30 lg:hidden backdrop-blur-xs transition-opacity"
+          onClick={() => setCollapsed(true)}
+        />
+      )}
+
       {/* Dynamic Customizable Sidebar */}
       <Sider
         collapsible
@@ -174,7 +201,7 @@ const PharmacistSidebar = ({ children }: AdminSidebarProps) => {
           top: 0,
           height: "100vh",
           overflowY: "auto",
-          zIndex: 30,
+          zIndex: 35,
         }}
       >
         {/* Brand Header */}
@@ -252,25 +279,17 @@ const PharmacistSidebar = ({ children }: AdminSidebarProps) => {
           transition: "0.2s ease-in-out",
         }}
       >
-        {/* Executive Header (NO ugly solid blue) */}
+        {/* Executive Header */}
         <Header
+          className="sticky top-0 z-20 flex items-center justify-between px-3 sm:px-6 shadow-xs border-b transition-colors duration-200"
           style={{
-            padding: "0 24px",
             background: isDarkMode ? "#0f172a" : "#ffffff",
-            borderBottom: isDarkMode ? "1px solid #1e293b" : "1px solid #e2e8f0",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
+            borderColor: isDarkMode ? "#1e293b" : "#e2e8f0",
             height: 64,
-            position: "sticky",
-            top: 0,
-            zIndex: 100,
-            boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
           }}
         >
           {/* Left: Collapse Toggle + Sub-title */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Button
               type="text"
               onClick={() => setCollapsed(!collapsed)}
@@ -293,10 +312,10 @@ const PharmacistSidebar = ({ children }: AdminSidebarProps) => {
           <PharmacistNavbar />
         </Header>
 
-        {/* Content Area */}
+        {/* Content Area with responsive padding */}
         <Content
+          className="p-3 sm:p-6 transition-all"
           style={{
-            padding: "24px",
             minHeight: "calc(100vh - 64px)",
           }}
         >

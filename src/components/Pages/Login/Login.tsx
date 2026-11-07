@@ -203,8 +203,8 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 bg-slate-50">
-      <div className="w-full max-w-md bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xl">
+    <div className="min-h-[85vh] flex items-center justify-center py-6 sm:py-12 px-3 sm:px-4 bg-slate-50 w-full overflow-x-hidden">
+      <div className="w-full max-w-md bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200/80 shadow-xl mx-auto">
         {/* Brand Header */}
         <div className="text-center mb-6">
           <Link to="/" className="inline-flex items-center gap-2 mb-3">
@@ -268,11 +268,11 @@ const Login = () => {
         {step === "login" ? (
           <>
             {/* Demo Quick Fill Buttons */}
-            <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 mb-6 space-y-2">
+            <div className="bg-slate-50 p-3 sm:p-3.5 rounded-2xl border border-slate-200/80 mb-5 sm:mb-6 space-y-2">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">
-                One-Click Demo Credentials (from MongoDB)
+                One-Click Demo Credentials
               </p>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -281,13 +281,13 @@ const Login = () => {
                       password: "admin1234",
                     });
                   }}
-                  className="py-2 px-3 bg-white hover:bg-teal-50 text-slate-700 hover:text-teal-800 border border-slate-200 hover:border-teal-300 rounded-xl text-xs font-semibold flex flex-col items-center justify-center gap-0.5 transition cursor-pointer shadow-xs"
+                  className="py-2 px-1.5 sm:px-3 bg-white hover:bg-teal-50 text-slate-700 hover:text-teal-800 border border-slate-200 hover:border-teal-300 rounded-xl text-xs font-semibold flex flex-col items-center justify-center gap-0.5 transition cursor-pointer shadow-xs overflow-hidden"
                 >
-                  <div className="flex items-center gap-1.5 font-bold text-slate-800">
+                  <div className="flex items-center gap-1 sm:gap-1.5 font-bold text-slate-800 text-[11px] sm:text-xs">
                     <UserOutlined className="text-teal-600" />
                     <span>Admin Demo</span>
                   </div>
-                  <span className="text-[10px] text-slate-400">admin@gmail.com</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 truncate max-w-full">admin@gmail.com</span>
                 </button>
 
                 <button
@@ -298,13 +298,13 @@ const Login = () => {
                       password: "12345",
                     });
                   }}
-                  className="py-2 px-3 bg-white hover:bg-teal-50 text-slate-700 hover:text-teal-800 border border-slate-200 hover:border-teal-300 rounded-xl text-xs font-semibold flex flex-col items-center justify-center gap-0.5 transition cursor-pointer shadow-xs"
+                  className="py-2 px-1.5 sm:px-3 bg-white hover:bg-teal-50 text-slate-700 hover:text-teal-800 border border-slate-200 hover:border-teal-300 rounded-xl text-xs font-semibold flex flex-col items-center justify-center gap-0.5 transition cursor-pointer shadow-xs overflow-hidden"
                 >
-                  <div className="flex items-center gap-1.5 font-bold text-slate-800">
+                  <div className="flex items-center gap-1 sm:gap-1.5 font-bold text-slate-800 text-[11px] sm:text-xs">
                     <SafetyCertificateOutlined className="text-teal-600" />
                     <span>Pharmacist</span>
                   </div>
-                  <span className="text-[10px] text-slate-400">mdshajdulhaqueemon8...</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 truncate max-w-full">mdshajdulhaque...</span>
                 </button>
               </div>
             </div>
@@ -434,8 +434,8 @@ const Login = () => {
                 onClick={handleResend2FA}
                 disabled={!canResend || isResendingOtp}
                 className={`font-bold transition cursor-pointer ${canResend
-                    ? "text-teal-600 hover:underline"
-                    : "text-slate-400 cursor-not-allowed"
+                  ? "text-teal-600 hover:underline"
+                  : "text-slate-400 cursor-not-allowed"
                   }`}
               >
                 {canResend ? "Resend 2FA Code" : `Resend in ${countdown}s`}

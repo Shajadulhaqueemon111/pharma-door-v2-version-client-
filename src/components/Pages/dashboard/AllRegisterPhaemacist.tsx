@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../../config/api";
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -55,7 +56,7 @@ const AllRegisterPharmacist = () => {
       setLoading(true);
       const token = localStorage.getItem("accessToken");
       const res = await axios.get(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/users",
+        `${API_BASE_URL}/api/v1/users`,
         {
           headers: {
             Authorization: `${token}`,
@@ -98,7 +99,7 @@ const AllRegisterPharmacist = () => {
         }
 
         await axios.delete(
-          `https://pharmadoor-backend-v2.vercel.app/api/v1/users/${_id}`,
+          `${API_BASE_URL}/api/v1/users/${_id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

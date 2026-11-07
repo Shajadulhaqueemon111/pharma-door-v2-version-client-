@@ -21,16 +21,17 @@ export interface DecodedToken {
   email: string;
   profileImage: string;
   status?: string;
+  twoFactorEnabled?: boolean;
   exp?: number;
 }
 
 interface AuthContextType {
   user: DecodedToken | null;
   accessToken: string | null;
-  login: (token: string, refreshToken?: string) => void;
+  login: (token: string, refreshToken?: string, userData?: Partial<DecodedToken>) => void;
   logout: () => void;
   loading: boolean;
-  updateUser: (user: DecodedToken) => void;
+  updateUser: (user: Partial<DecodedToken>, newToken?: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -43,6 +44,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Handle existing token or refresh if missing/expired
   useEffect(() => {
     const existingToken = localStorage.getItem("accessToken");
+    const savedUserStr = localStorage.getItem("user");
+    let cachedUser: DecodedToken | null = null;
+    if (savedUserStr) {
+      try {
+        cachedUser = JSON.parse(savedUserStr);
+      } catch {
+        cachedUser = null;
+      }
+    }
 
     const handleAuth = async () => {
       if (existingToken) {
@@ -53,15 +63,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (isExpired) {
             await refreshToken();
           } else {
-            setUser(decoded);
+            const initialUser = cachedUser ? { ...decoded, ...cachedUser } : decoded;
+            setUser(initialUser);
             setAccessToken(existingToken);
             store.dispatch(
               setCredentials({
-                user: decoded,
+                user: initialUser,
                 accessToken: existingToken,
                 refreshToken: localStorage.getItem("refreshToken") || undefined,
               })
             );
+
+            // Fetch latest real-time user profile from backend (profileImage, 2FA status, etc.)
+            try {
+              const res = await axios.get(`${API_BASE_URL}/api/v1/auth/me`, {
+                headers: { Authorization: `Bearer ${existingToken}` },
+              });
+              if (res.data?.data) {
+                const freshUser: DecodedToken = {
+                  _id: res.data.data._id,
+                  name: res.data.data.name,
+                  email: res.data.data.email,
+                  role: res.data.data.role,
+                  profileImage: res.data.data.profileImage,
+                  status: res.data.data.status,
+                  twoFactorEnabled: Boolean(res.data.data.twoFactorEnabled),
+                };
+                setUser(freshUser);
+                localStorage.setItem("user", JSON.stringify(freshUser));
+                localStorage.setItem("pharmadoor_user", JSON.stringify(freshUser));
+                store.dispatch(
+                  setCredentials({
+                    user: freshUser,
+                    accessToken: existingToken,
+                    refreshToken: localStorage.getItem("refreshToken") || undefined,
+                  })
+                );
+              }
+            } catch (meErr) {
+              console.warn("Could not fetch fresh user profile from backend:", meErr);
+            }
           }
         } catch {
           await refreshToken();
@@ -76,18 +117,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     handleAuth();
   }, []);
 
-  const login = (token: string, refreshTokenVal?: string) => {
+  const login = (token: string, refreshTokenVal?: string, userData?: Partial<DecodedToken>) => {
     localStorage.setItem("accessToken", token);
     if (refreshTokenVal) {
       localStorage.setItem("refreshToken", refreshTokenVal);
     }
     const decoded = jwtDecode<DecodedToken>(token);
-    setUser(decoded);
+    const fullUser: DecodedToken = {
+      ...decoded,
+      ...(userData || {}),
+      profileImage: userData?.profileImage || decoded.profileImage,
+      twoFactorEnabled: userData?.twoFactorEnabled !== undefined ? userData.twoFactorEnabled : decoded.twoFactorEnabled,
+    };
+    setUser(fullUser);
     setAccessToken(token);
+    localStorage.setItem("user", JSON.stringify(fullUser));
+    localStorage.setItem("pharmadoor_user", JSON.stringify(fullUser));
 
     store.dispatch(
       setCredentials({
-        user: decoded,
+        user: fullUser,
         accessToken: token,
         refreshToken: refreshTokenVal || localStorage.getItem("refreshToken") || undefined,
       })
@@ -106,6 +155,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setUser(null);
       setAccessToken(null);
+      localStorage.removeItem("user");
+      localStorage.removeItem("pharmadoor_user");
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       store.dispatch(reduxLogout());
@@ -128,14 +179,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Refresh token failed:", err);
       setUser(null);
       setAccessToken(null);
+      localStorage.removeItem("user");
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       store.dispatch(reduxLogout());
     }
   };
 
-  const updateUser = (updatedUser: DecodedToken) => {
-    setUser(updatedUser);
+  const updateUser = (updatedUser: Partial<DecodedToken>, newToken?: string) => {
+    setUser((prev) => {
+      const nextUser = { ...(prev || {}), ...updatedUser } as DecodedToken;
+      localStorage.setItem("user", JSON.stringify(nextUser));
+      localStorage.setItem("pharmadoor_user", JSON.stringify(nextUser));
+      return nextUser;
+    });
+
+    if (newToken) {
+      localStorage.setItem("accessToken", newToken);
+      setAccessToken(newToken);
+    }
+
+    const tokenToUse = newToken || accessToken || localStorage.getItem("accessToken");
+    if (tokenToUse) {
+      const nextUser = { ...(user || {}), ...updatedUser } as DecodedToken;
+      store.dispatch(
+        setCredentials({
+          user: nextUser,
+          accessToken: tokenToUse,
+          refreshToken: localStorage.getItem("refreshToken") || undefined,
+        })
+      );
+    }
   };
 
   return (

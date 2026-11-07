@@ -37,6 +37,9 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { usePharmacistTheme } from "./pharmacistTheme";
+import { API_BASE_URL, SOCKET_SERVER_URL } from "../../../config/api";
+import { OrderStatusBadge, normalizeStatus } from "../Orders/OrderStatusBadge";
+import io from "socket.io-client";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -59,7 +62,7 @@ const OrderedMedicine = () => {
       if (!token) return;
 
       const res = await axios.get(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/order/ordered-medicine",
+        `${API_BASE_URL}/api/v1/order/ordered-medicine`,
         {
           headers: { Authorization: `${token}` },
         },
@@ -71,7 +74,7 @@ const OrderedMedicine = () => {
       const filteredOrders = allOrders
         .map((order: any) => {
           const matchingProducts = order.products?.filter(
-            (item: any) => item.pharmacist === userId,
+            (item: any) => item.pharmacist === userId || !item.pharmacist,
           );
 
           if (matchingProducts && matchingProducts.length > 0) {
@@ -80,7 +83,7 @@ const OrderedMedicine = () => {
               products: matchingProducts,
             };
           }
-          return null;
+          return order;
         })
         .filter((order: any) => order !== null);
 
@@ -95,6 +98,35 @@ const OrderedMedicine = () => {
 
   useEffect(() => {
     fetchOrders();
+  }, [userId]);
+
+  // Real-time socket listener
+  useEffect(() => {
+    if (!userId) return;
+    const socket = io(SOCKET_SERVER_URL, {
+      transports: ["websocket", "polling"],
+    });
+
+    socket.on("connect", () => {
+      socket.emit("join-user-room", { userId });
+      socket.emit("join-admin-room");
+    });
+
+    socket.on("new-order-received", (data: any) => {
+      toast.success(
+        `New order received: #${data.orderNumber || data.orderId?.slice(-6)} (৳${data.totalAmount})`,
+        { icon: "📦" }
+      );
+      fetchOrders();
+    });
+
+    socket.on("order-status-updated", () => {
+      fetchOrders();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, [userId]);
 
   const handleDelete = async (_id: any) => {
@@ -112,7 +144,7 @@ const OrderedMedicine = () => {
       try {
         const token = localStorage.getItem("accessToken");
         const res = await axios.delete(
-          `https://pharmadoor-backend-v2.vercel.app/api/v1/order/${_id}`,
+          `${API_BASE_URL}/api/v1/order/${_id}`,
           { headers: { Authorization: `${token}` } },
         );
 
@@ -129,19 +161,25 @@ const OrderedMedicine = () => {
   // Filtered orders
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
-      const customerName = order.user?.name || "";
-      const customerEmail = order.user?.email || "";
+      const customerName = order.user?.name || order.shippingAddress?.fullName || "";
+      const customerEmail = order.user?.email || order.shippingAddress?.email || "";
+      const customerPhone = order.user?.phone || order.shippingAddress?.phone || "";
+      const orderNumber = order.orderNumber || "";
       const orderId = order._id || "";
       const query = searchText.toLowerCase();
 
       const matchSearch =
         customerName.toLowerCase().includes(query) ||
         customerEmail.toLowerCase().includes(query) ||
+        customerPhone.toLowerCase().includes(query) ||
+        orderNumber.toLowerCase().includes(query) ||
         orderId.toLowerCase().includes(query);
 
+      const orderSt = normalizeStatus(order.orderStatus || order.status || "PENDING");
       const matchStatus =
         statusFilter === "all" ||
-        order.status?.toLowerCase() === statusFilter.toLowerCase();
+        orderSt === statusFilter.toUpperCase() ||
+        (order.status || "").toLowerCase() === statusFilter.toLowerCase();
 
       return matchSearch && matchStatus;
     });
@@ -149,42 +187,29 @@ const OrderedMedicine = () => {
 
   // Statistics
   const totalOrdersCount = orders.length;
-  const pendingOrdersCount = orders.filter(
-    (o) => o.status === "Pending" || o.status === "pending",
-  ).length;
-  const completedOrdersCount = orders.filter(
-    (o) => o.status === "Completed" || o.status === "completed" || o.status === "Delivered",
-  ).length;
-  const totalRevenue = orders.reduce((sum, o) => sum + (Number(o.totalPrice) || 0), 0);
+  const pendingOrdersCount = orders.filter((o) => {
+    const st = normalizeStatus(o.orderStatus || o.status || "");
+    return st === "PENDING" || st === "CONFIRMED";
+  }).length;
 
-  const getStatusTag = (status: string) => {
-    const s = (status || "Pending").toLowerCase();
-    switch (s) {
-      case "pending":
-        return <Tag color="warning" className="rounded-full px-2.5 font-bold">Pending</Tag>;
-      case "paid":
-        return <Tag color="processing" className="rounded-full px-2.5 font-bold">Paid</Tag>;
-      case "shipped":
-        return <Tag color="purple" className="rounded-full px-2.5 font-bold">Shipped</Tag>;
-      case "completed":
-      case "delivered":
-        return <Tag color="success" className="rounded-full px-2.5 font-bold">Completed</Tag>;
-      case "cancelled":
-        return <Tag color="error" className="rounded-full px-2.5 font-bold">Cancelled</Tag>;
-      default:
-        return <Tag className="rounded-full px-2.5 font-bold">{status}</Tag>;
-    }
-  };
+  const completedOrdersCount = orders.filter((o) => {
+    const st = normalizeStatus(o.orderStatus || o.status || "");
+    return st === "DELIVERED" || st === "COMPLETED";
+  }).length;
+
+  const totalRevenue = orders.reduce(
+    (sum, o) => sum + (Number(o.totalAmount || o.totalPrice) || 0),
+    0
+  );
 
   const columns: ColumnsType<any> = [
     {
       title: "Order ID",
-      dataIndex: "_id",
-      key: "_id",
-      render: (id: string) => (
+      key: "orderNumber",
+      render: (_, record) => (
         <div>
-          <Text copyable strong className="font-mono text-xs text-slate-800">
-            {id ? `#${id.slice(-8).toUpperCase()}` : "N/A"}
+          <Text copyable strong className="font-mono text-xs text-slate-800 dark:text-slate-200">
+            {record.orderNumber || (record._id ? `#${record._id.slice(-8).toUpperCase()}` : "N/A")}
           </Text>
         </div>
       ),
@@ -201,11 +226,11 @@ const OrderedMedicine = () => {
             className="shrink-0"
           />
           <div className="overflow-hidden">
-            <span className="font-bold text-xs text-slate-800 block truncate">
-              {record.user?.name || "Patient Customer"}
+            <span className="font-bold text-xs text-slate-800 dark:text-slate-100 block truncate">
+              {record.shippingAddress?.fullName || record.user?.name || "Patient Customer"}
             </span>
             <span className="text-[11px] text-slate-400 block truncate">
-              {record.user?.phone || record.user?.email || "No contact"}
+              {record.shippingAddress?.phone || record.user?.phone || record.user?.email || "No contact"}
             </span>
           </div>
         </div>
@@ -214,48 +239,49 @@ const OrderedMedicine = () => {
     {
       title: "Items Prescribed",
       key: "products",
-      render: (_, record) => (
-        <div className="text-xs">
-          <Badge
-            count={`${record.products?.length || 1} Item(s)`}
-            style={{ backgroundColor: "#e2e8f0", color: "#334155", fontWeight: 700 }}
-          />
-        </div>
-      ),
+      render: (_, record) => {
+        const count = record.items?.length || record.products?.length || 1;
+        return (
+          <div className="text-xs">
+            <Badge
+              count={`${count} Item(s)`}
+              style={{ backgroundColor: "#e2e8f0", color: "#334155", fontWeight: 700 }}
+            />
+          </div>
+        );
+      },
     },
     {
       title: "Order Total",
-      dataIndex: "totalPrice",
-      key: "totalPrice",
-      render: (price) => (
-        <span className="font-extrabold text-xs text-slate-900">
-          ৳ {(Number(price) || 0).toFixed(2)}
+      key: "totalAmount",
+      render: (_, record) => (
+        <span className="font-extrabold text-xs text-slate-900 dark:text-white">
+          ৳ {(Number(record.totalAmount || record.totalPrice) || 0).toFixed(2)}
         </span>
       ),
-      sorter: (a, b) => a.totalPrice - b.totalPrice,
+      sorter: (a, b) =>
+        (Number(a.totalAmount || a.totalPrice) || 0) - (Number(b.totalAmount || b.totalPrice) || 0),
     },
     {
       title: "Fulfillment Status",
-      dataIndex: "status",
       key: "status",
-      render: (status) => getStatusTag(status),
-      filters: [
-        { text: "Pending", value: "Pending" },
-        { text: "Paid", value: "Paid" },
-        { text: "Shipped", value: "Shipped" },
-        { text: "Completed", value: "Completed" },
-        { text: "Cancelled", value: "Cancelled" },
-      ],
-      onFilter: (value, record) => record.status?.toLowerCase() === (value as string).toLowerCase(),
+      render: (_, record) => (
+        <OrderStatusBadge status={record.orderStatus || record.status || "PENDING"} size="sm" />
+      ),
     },
     {
       title: "Payment",
       dataIndex: "paymentStatus",
       key: "paymentStatus",
-      render: (status) => (
-        <Tag color={status === "Paid" ? "green" : "orange"} className="text-[11px] rounded font-semibold">
-          {status || "Cash on Delivery"}
-        </Tag>
+      render: (status, record) => (
+        <div className="text-xs">
+          <Tag color={status === "Paid" ? "green" : "orange"} className="text-[11px] rounded font-semibold">
+            {status || "Pending"}
+          </Tag>
+          <span className="text-[10px] text-slate-400 block mt-0.5">
+            {record.paymentMethod || "Online"}
+          </span>
+        </div>
       ),
       responsive: ["md"],
     },
@@ -264,7 +290,7 @@ const OrderedMedicine = () => {
       dataIndex: "createdAt",
       key: "createdAt",
       render: (date) => (
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-slate-500 dark:text-slate-400">
           {date ? new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "N/A"}
         </span>
       ),
@@ -276,7 +302,7 @@ const OrderedMedicine = () => {
       align: "center",
       render: (_, record) => (
         <Space size="small">
-          <Tooltip title="Update Order Status">
+          <Tooltip title="Update Order Status & Dispatch">
             <Link to={`/pharmacist-dashboard/update-orderd-status/${record._id}`}>
               <Button
                 type="primary"
@@ -294,7 +320,7 @@ const OrderedMedicine = () => {
 
           <Tooltip title="Generate Printable Invoice">
             <Link to={`/pharmacist-dashboard/invoice-medicine/${record._id}`}>
-              <Button size="small" icon={<FileTextOutlined />} className="text-slate-700">
+              <Button size="small" icon={<FileTextOutlined />} className="text-slate-700 dark:text-slate-200">
                 Invoice
               </Button>
             </Link>
@@ -318,7 +344,7 @@ const OrderedMedicine = () => {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
             <Title level={3} style={{ margin: 0, fontWeight: 800 }}>
@@ -353,14 +379,14 @@ const OrderedMedicine = () => {
               prefix={<ShoppingOutlined style={{ color: themeConfig.accentColor }} className="mr-2" />}
               valueStyle={{ fontWeight: 800, color: "#0f172a" }}
             />
-            <div className="mt-2 text-[11px] text-slate-400 font-medium">Assigned to your dispensary stock</div>
+            <div className="mt-2 text-[11px] text-slate-400 font-medium">Assigned to dispensary inventory</div>
           </Card>
         </Col>
 
         <Col xs={24} sm={12} lg={6}>
           <Card bordered={false} className="shadow-xs rounded-2xl hover:shadow-md transition">
             <Statistic
-              title={<span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pending Processing</span>}
+              title={<span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pending Verification</span>}
               value={pendingOrdersCount}
               prefix={<ClockCircleOutlined className="text-amber-500 mr-2" />}
               valueStyle={{ fontWeight: 800, color: "#f59e0b" }}
@@ -398,7 +424,7 @@ const OrderedMedicine = () => {
 
       {/* Main Table Card */}
       <Card bordered={false} className="shadow-xs rounded-2xl overflow-hidden border border-slate-200/70">
-        <div className="p-4 bg-slate-50/70 border-b border-slate-200/80 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+        <div className="p-4 bg-slate-50/70 dark:bg-slate-800/40 border-b border-slate-200/80 dark:border-slate-800 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
           <div className="flex-1 max-w-md">
             <Input
               prefix={<SearchOutlined className="text-slate-400" />}
@@ -415,15 +441,18 @@ const OrderedMedicine = () => {
             <Select
               value={statusFilter}
               onChange={setStatusFilter}
-              className="w-40"
+              className="w-48"
               size="middle"
             >
               <Option value="all">All Statuses</Option>
-              <Option value="pending">Pending</Option>
-              <Option value="paid">Paid</Option>
-              <Option value="shipped">Shipped</Option>
-              <Option value="completed">Completed</Option>
-              <Option value="cancelled">Cancelled</Option>
+              <Option value="PENDING">Pending Verification</Option>
+              <Option value="CONFIRMED">Confirmed</Option>
+              <Option value="PROCESSING">Processing / Dispensing</Option>
+              <Option value="READY_FOR_DISPATCH">Ready for Dispatch</Option>
+              <Option value="OUT_FOR_DELIVERY">Out for Delivery</Option>
+              <Option value="DELIVERED">Delivered</Option>
+              <Option value="CANCELLED">Cancelled</Option>
+              <Option value="REJECTED">Rejected</Option>
             </Select>
 
             {(searchText || statusFilter !== "all") && (

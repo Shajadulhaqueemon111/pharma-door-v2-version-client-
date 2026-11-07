@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../../../config/api";
 import toast from "react-hot-toast";
 import {
   Form,
@@ -67,7 +68,7 @@ const BlogPostForm = () => {
       }
 
       const response = await axios.post(
-        "https://pharmadoor-backend-v2.vercel.app/api/v1/blog/create-blog",
+        `${API_BASE_URL}/api/v1/blog/create-blog`,
         blogData,
         {
           headers: {

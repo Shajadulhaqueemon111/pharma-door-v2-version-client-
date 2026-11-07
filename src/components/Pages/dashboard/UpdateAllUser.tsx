@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../../config/api";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import {
   Form,
@@ -37,7 +38,7 @@ const UpdateAllUser = () => {
         const token = localStorage.getItem("accessToken");
 
         const res = await axios.get(
-          `https://pharmadoor-backend-v2.vercel.app/api/v1/users/${_id}`,
+          `${API_BASE_URL}/api/v1/users/${_id}`,
           {
             headers: { Authorization: `${token}` },
           },
@@ -71,7 +72,7 @@ const UpdateAllUser = () => {
       const token = localStorage.getItem("accessToken");
 
       await axios.patch(
-        `https://pharmadoor-backend-v2.vercel.app/api/v1/users/${_id}`,
+        `${API_BASE_URL}/api/v1/users/${_id}`,
         values,
         {
           headers: { Authorization: `${token}` },

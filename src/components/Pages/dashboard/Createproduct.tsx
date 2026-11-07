@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../../config/api";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
@@ -35,7 +36,7 @@ const Createproduct = () => {
 
     try {
       const response = await axios.post(
-        "https://pharmadoor-backend-v2.vercel.app/api/products",
+        `${API_BASE_URL}/api/products`,
         values,
         {
           headers: {
